@@ -228,7 +228,7 @@ function frame(now){
       const p = projectiles[i], d_ = p.owner === 'enemy' ? edt : pdt;
       steerProjectile(p, d_);
       p.m.position.x += p.vx * d_; p.m.position.z += p.vz * d_; p.life -= d_; p.m.rotation.y += d_ * 8; p.m.rotation.x += d_ * 5;
-      let gone = p.life <= 0 || Math.hypot(p.m.position.x, p.m.position.z) > 10;
+      let gone = p.life <= 0 || Math.hypot(p.m.position.x, p.m.position.z) > Math.max(10, ARENA + 4);
       if (!gone && p.owner === 'enemy'){
         if (Math.hypot(p.m.position.x - hero.position.x, p.m.position.z - hero.position.z) < 0.5 && hero.position.y < 0.9){
           if (hurtPlayer(p.dmg, p.m.position.x, p.m.position.z, 3) === 'hit') gone = true; }

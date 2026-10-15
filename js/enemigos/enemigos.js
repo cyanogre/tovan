@@ -70,8 +70,7 @@ function spawnEnemy(type, at){
   }
   let x, z;
   if (at){ [x, z] = at; }
-  else { let tries = 0; do { const a = rnd() * TAU, r = type === 'boss' ? 4.2 : 5.0 + rnd() * 1.0; x = Math.cos(a) * r; z = Math.sin(a) * r; }
-         while (++tries < 14 && Math.hypot(x - hero.position.x, z - hero.position.z) < 3.3); }
+  else [x, z] = spawnSpot(type);
   if (!at && chMode === 'arcade'){ x = (rnd() < 0.5 ? -1 : 1) * 9; z = (rnd() - 0.5) * 3; }
   e.g.position.set(x, 0, z); e.g.rotation.y = angTo(x, z, hero.position.x, hero.position.z);
   e.hp = e.maxHp = Math.round(e.isBoss ? (e.bossHp || 1150) * BOSS_HP_MUL * hpScale(wave) / hpScale(5) : e.hp * hpScale(wave));
@@ -91,6 +90,12 @@ function spawnEnemy(type, at){
   for (let i = 0; i < 8; i++){ const a = rnd() * TAU; spawnFx(x + Math.cos(a) * 0.6, 0.1, z + Math.sin(a) * 0.6, 0, 1.5 + rnd(), 0, 0x9a4aff, 0.08, 0.6, 0, 0.5); }
   if (e.isBoss){ bossBox.hidden = false; bossE = e; bossNameEl.textContent = e.bossName; }
   return e;
+}
+// Dónde aparece un enemigo sin posición fija (los mapas grandes lo sustituyen para que salgan alrededor del jugador)
+function spawnSpot(type){
+  let x, z, tries = 0; do { const a = rnd() * TAU, r = type === 'boss' ? 4.2 : 5.0 + rnd() * 1.0; x = Math.cos(a) * r; z = Math.sin(a) * r; }
+  while (++tries < 14 && Math.hypot(x - hero.position.x, z - hero.position.z) < 3.3);
+  return [x, z];
 }
 let bossE = null, waveTotal = 1, ghostPct = 100;
 const eliteMat = makeMat(0xffd970, { emissive: 1 });

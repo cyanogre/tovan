@@ -8,6 +8,8 @@
      · Sello: purifica la zona quedándote dentro; hasta entonces llegan refuerzos
        y la oleada no se cierra.
    En la 3.ª oleada, desde el capítulo 2, se presenta un capitán (js/enemigos/capitanes.js).
+   En los mapas grandes (js/mundo/mapas-grandes.js) todo se coloca alrededor del jugador
+   y el paquete tiene su propio perímetro dorado: el ladrón que lo cruza, se lo lleva.
    ====================================================================== */
 const OBJ = { cur: null, bolsa: [], n: 0, last: null, bonus: 0, bonusMax: 0, capT: -1 };
 const OBJ_INFO = {
@@ -17,6 +19,8 @@ const OBJ_INFO = {
   sello:   { ic: '⛩️', tit: 'Purifica la zona', fallo: 'La zona se corrompió: sin premio' }
 };
 const OBJ_SR = 1.4, OBJ_CAP_T = 50, OBJ_SELLO_T = 70, OBJ_PUESTO_MAX = 6;   // radio y tiempo del sello · segundos antes de que huya el capitán · enemigos por puesto
+const OBJ_PK_R = 8.5;   // radio del perímetro del paquete en los mapas grandes
+const objPerimGeo = new THREE.RingGeometry(0.975, 1, 72); objPerimGeo.rotateX(-Math.PI / 2);
 const objPaqMat = makeMat(0xffffff, { map: texAsset('cinematica/paquete') }), objCintaMat = makeMat(0xe8c040), objMarcaMat = makeMat(0x7dff8a, { emissive: 1 });
 const objAroMat = makeMat(0xffd23a, { emissive: 1 });
 const objMorado = new THREE.Color(0xb04aff), objOro = new THREE.Color(0xffd23a), objRojo = new THREE.Color(0xff3a2a), _objC = new THREE.Color();
@@ -32,7 +36,8 @@ function objSiguiente(n){   // el primero siempre es el paquete; luego, una bols
   }
   return OBJ.last = 'puestos';
 }
-function objSitio(r0, r1, dHero){
+function objSitio(r0, r1, dHero, lejos){   // lejos = [dMin, dMax, radio]: en los mapas grandes, a esa distancia del jugador y sin obstáculos
+  if (MP.on && lejos) return mpSitio(lejos[0], lejos[1], lejos[2]);
   const v = new V3();
   for (let i = 0; i < 24; i++){ const a = rnd() * TAU, r = r0 + rnd() * (r1 - r0); v.set(Math.cos(a) * r, 0, Math.sin(a) * r);
     if (braz.visible && Math.hypot(v.x - BRAZ.x, v.z - BRAZ.z) < 1.8) continue;
@@ -45,11 +50,20 @@ function objMinion(){   // refuerzos: diablillos y, a veces, un enemigo del esce
   if (!ex || rnd() < 0.65) return 'imp';
   const tot = ex.reduce((s, p) => s + p[2], 0); let r = rnd() * tot; for (const p of ex){ r -= p[2]; if (r <= 0) return p[0]; } return ex[0][0];
 }
+// Paquete: fuera del mapa o, en los mapas grandes, fuera de su perímetro
+const objFuera = (pk, x, z) => Math.hypot(x, z) > ARENA - 0.45 || (pk.hx != null && Math.hypot(x - pk.hx, z - pk.hz) > OBJ_PK_R);
+function objDentro(pk, x, z){   // donde cae el paquete al tumbar al ladrón: un poco dentro del límite
+  if (pk.hx != null){ const dx = x - pk.hx, dz = z - pk.hz, d = Math.hypot(dx, dz), m = OBJ_PK_R - 1.2; if (d > m){ x = pk.hx + dx / d * m; z = pk.hz + dz / d * m; } }
+  return clampArena(new V3(x, 0, z), ARENA - 1.2);
+}
+function objCasaPaquete(){ let v; for (let i = 0; i < 20; i++){ v = mpSitio(4, 8, 1); if (Math.hypot(v.x, v.z) < ARENA - 7) break; } return v; }
 const objCuenta = t => queue.filter(q => q === t).length + enemies.filter(e => e.alive && e.type === t).length;
 
 /* ---------- Ladrón: va a por el paquete y huye con él hacia el borde ---------- */
 function makeLadron(){
   const e = MAKERS.imp(); e.type = 'ladron'; e.hp = 70; e.speed = 3.1; e.upd = updLadron;
+  e.mpMeta = () => { const o = OBJ.cur, pk = o && o.tipo === 'paquete' ? o.pk : null;   // para los rodeos de los mapas grandes: va al paquete, o huye con él
+    return !pk || pk.lost || (pk.carrier && pk.carrier !== e) ? hero.position : pk.carrier === e ? null : pk.g.position; };
   const mask = makeMat(0x101018), sack = makeMat(0x9a6a3a), knot = makeMat(0xd8c08a);
   mesh(B(0.5, 0.1, 0.5), mask, 0, 0.1, 0, e.body);                             // antifaz de ladrón (los ojos asoman por delante)
   mesh(new THREE.IcosahedronGeometry(0.2, 1), sack, 0, 0.05, -0.34, e.body); mesh(new THREE.IcosahedronGeometry(0.06, 0), knot, 0, 0.24, -0.34, e.body);
@@ -64,9 +78,12 @@ function updLadron(e, dt, dist, toP, face, move){
   if (e.state === 'hurt'){ Bd.rotation.x = -0.35; if (e.t <= 0) e.state = 'chase'; return; }
   if (pk.carrier === e){
     const x = e.g.position.x, z = e.g.position.z, r = Math.hypot(x, z);
-    if (e.fleeA == null) e.fleeA = r > 0.5 ? Math.atan2(x, z) : Math.atan2(x - hero.position.x, z - hero.position.z);
+    if (pk.hx != null){   // mapa grande: se aleja del sitio del paquete esquivando lo que tenga delante
+      if (e.fleeA == null || time > e.fleeT){ const dh = Math.hypot(x - pk.hx, z - pk.hz); e.fleeT = time + 0.35;
+        e.fleeA = mpRumbo(x, z, dh > 0.5 ? Math.atan2(x - pk.hx, z - pk.hz) : Math.atan2(x - hero.position.x, z - hero.position.z)); } }
+    else if (e.fleeA == null) e.fleeA = r > 0.5 ? Math.atan2(x, z) : Math.atan2(x - hero.position.x, z - hero.position.z);
     face(e.fleeA, 10); move(e.fleeA, 1.7); Bd.rotation.x = 0.3; Bd.position.y = 0.52 + Math.abs(Math.sin(time * 12 + e.seed)) * 0.1;
-    if (r > ARENA - 0.45) objPaquetePerdido(e);
+    if (objFuera(pk, x, z)) objPaquetePerdido(e);
     return;
   }
   const px = pk.g.position.x, pz = pk.g.position.z, d = Math.hypot(px - e.g.position.x, pz - e.g.position.z), a = Math.atan2(px - e.g.position.x, pz - e.g.position.z);
@@ -74,7 +91,7 @@ function updLadron(e, dt, dist, toP, face, move){
   if (e.state === 'grab'){ Bd.rotation.x = 0.7; Bd.position.y = 0.42;
     if (d > 0.9){ e.state = 'chase'; return; }
     if (e.t <= 0){ pk.carrier = e; e.fleeA = null; e.state = 'chase'; play('objGrab'); starShout(e, '¡Mío!');
-      barkOnce('obj_robo', '¡Se lleva el paquete! Párale los pies antes de que llegue al borde.'); }
+      barkOnce('obj_robo', pk.hx != null ? '¡Se lleva el paquete! Párale los pies antes de que salga del círculo dorado.' : '¡Se lleva el paquete! Párale los pies antes de que llegue al borde.'); }
     return; }
   e.state = 'chase'; Bd.rotation.x = 0.15;
   if (d > 0.6){ move(a, e.speed); Bd.position.y = 0.52 + Math.abs(Math.sin(time * 9 + e.seed)) * 0.12; } else { e.state = 'grab'; e.t = 0.7; }
@@ -102,7 +119,10 @@ function makePuesto(){
   return newEnemy('puesto', g, body, S, { hp: 160, r: 0.55, speed: 0, numY: 2.4, heavy: true, crys, ring, tele, sp: 3 + rnd() * 2, hechos: 0, upd: updPuesto });
 }
 function updPuesto(e, dt){
-  if (e.px == null){ e.px = e.g.position.x; e.pz = e.g.position.z; const a = Math.atan2(-e.px, -e.pz); e.sx = e.px + Math.sin(a) * 1.3; e.sz = e.pz + Math.cos(a) * 1.3; }
+  if (e.px == null){ e.px = e.g.position.x; e.pz = e.g.position.z; let a = Math.atan2(-e.px, -e.pz);
+    if (MP.on){ const a0 = Math.atan2(hero.position.x - e.px, hero.position.z - e.pz); a = a0;   // mapa grande: suelta los bichos hacia el jugador, en un hueco libre
+      for (let i = 0; i < 8; i++){ const b = a0 + (i % 2 ? 1 : -1) * Math.ceil(i / 2) * 0.8; if (mpLibre(e.px + Math.sin(b) * 1.3, e.pz + Math.cos(b) * 1.3, 0.6)){ a = b; break; } } }
+    e.sx = e.px + Math.sin(a) * 1.3; e.sz = e.pz + Math.cos(a) * 1.3; }
   e.g.position.set(e.px, 0, e.pz); e.vx = e.vz = 0;   // no se mueve ni a empujones
   e.crys.rotation.y += dt * 2; e.ring.rotation.z += dt * 1.4; e.crys.position.y = 1.75 + Math.sin(time * 3 + e.seed) * 0.08;
   e.tele.visible = false; if (e.hechos >= OBJ_PUESTO_MAX) return;   // agotado: ya no suelta más
@@ -121,16 +141,18 @@ Object.assign(MAKERS, { ladron: makeLadron, puesto: makePuesto });
 const OBJ_DEF = {
   paquete: {
     empieza(o){
-      const v = objSitio(0.6, 1.6, 1.3), g = new THREE.Group(); g.position.copy(v); scene.add(g); o.objs.push(g);
+      const v = MP.on ? objCasaPaquete() : objSitio(0.6, 1.6, 1.3), g = new THREE.Group(); g.position.copy(v); scene.add(g); o.objs.push(g);
       mesh(B(0.56, 0.42, 0.56), objPaqMat, 0, 0.21, 0, g);
       for (const r of [0, Math.PI / 2]) mesh(B(0.58, 0.44, 0.1), objCintaMat, 0, 0.21, 0, g).rotation.y = r;
       const mark = mesh(new THREE.OctahedronGeometry(0.13, 0), objMarcaMat, 0, 1.2, 0, g); mark.scale.y = 1.6;
       const ring = mesh(new THREE.TorusGeometry(0.5, 0.03, 3, 20), objAroMat, 0, 0.04, 0, g); ring.rotation.x = Math.PI / 2;
       o.pk = { g, mark, ring, carrier: null, lost: false };
+      if (MP.on){ o.pk.hx = v.x; o.pk.hz = v.z; o.per = mesh(objPerimGeo, makeMat(0xffd23a, { emissive: 1, opacity: 0.3 }), v.x, 0.06, v.z); o.per.scale.setScalar(OBJ_PK_R); o.objs.push(o.per); }
       const n = Math.min(4, 2 + Math.floor(wave / 6));   // los ladrones se reparten por la oleada
       for (let k = 0; k < n; k++){ const i = Math.floor((k + 0.3) / n * queue.length);
         if (i < queue.length && queue[i] !== 'ladron') queue[i] = 'ladron'; else { queue.splice(i, 0, 'ladron'); waveTotal++; } }
-      later(1.2, () => barkOnce('obj_paquete', '¡Un paquete! Vienen ladrones a por él: si uno lo saca del mapa, adiós propina. Y somos repartidores, ¿eh?'));
+      const sale = MP.on ? 'del círculo dorado' : 'del mapa';
+      later(1.2, () => barkOnce('obj_paquete', `¡Un paquete! Vienen ladrones a por él: si uno lo saca ${sale}, adiós propina. Y somos repartidores, ¿eh?`));
     },
     tick(o, edt){
       const pk = o.pk; if (pk.lost) return;
@@ -138,6 +160,7 @@ const OBJ_DEF = {
       const e = pk.carrier;
       if (e){ pk.g.position.set(e.g.position.x, e.numY * 0.8, e.g.position.z); pk.g.rotation.y = e.g.rotation.y; pk.ring.visible = false; }
       else { pk.g.position.y = 0; pk.ring.visible = true; }
+      if (o.per) o.per.material.uniforms.uOpacity.value = e ? 0.5 + 0.3 * Math.sin(time * 10) : 0.28;   // el perímetro avisa cuando hay robo
     },
     alerta: o => !!o.pk.carrier,
     linea: o => o.pk.lost ? 'Se lo llevó un ladrón' : o.pk.carrier ? '¡Un ladrón se lo lleva! Párale los pies' : `A salvo · ladrones: ${objCuenta('ladron')}`,
@@ -145,8 +168,13 @@ const OBJ_DEF = {
   },
   puestos: {
     empieza(o){
-      const a0 = rnd() * TAU; o.left = o.total = 3;
-      for (let k = 0; k < 3; k++){ let a = a0 + k * TAU / 3, x = 0, z = 0;
+      const a0 = rnd() * TAU, H = hero.position; o.left = o.total = 3;
+      if (MP.on) for (let k = 0; k < 3; k++){ let v = null;   // mapa grande: repartidos alrededor del jugador, a 8-12 m
+        for (let i = 0; i < 24 && !v; i++){ const a = a0 + k * TAU / 3 + (rnd() - 0.5) * 0.9, d = 8 + rnd() * 4, x = H.x + Math.sin(a) * d, z = H.z + Math.cos(a) * d;
+          if (Math.hypot(x, z) < ARENA - 2 && mpLibre(x, z, 1.3)) v = [x, z]; }
+        if (!v){ const w = mpSitio(7, 13, 1.3); v = [w.x, w.z]; }
+        spawnEnemy('puesto', v); waveTotal++; }
+      else for (let k = 0; k < 3; k++){ let a = a0 + k * TAU / 3, x = 0, z = 0;
         for (let i = 0; i < 6; i++){ x = Math.sin(a) * (ARENA - 1.1); z = Math.cos(a) * (ARENA - 1.1); if (!braz.visible || Math.hypot(x - BRAZ.x, z - BRAZ.z) > 1.8) break; a += 0.35; }
         spawnEnemy('puesto', [x, z]); waveTotal++; }
       later(1.2, () => barkOnce('obj_puestos', 'Esos puestos corruptos no paran de soltar bichos. Rómpelos y se acaba el grifo.'));
@@ -173,17 +201,17 @@ const OBJ_DEF = {
       if (e.spawnT <= 0) o.time -= edt;
       c.info = '💰 Lleva el botín';
       if (o.time <= 12) barkOnce('obj_capfuga', '¡Se le acaba la paciencia! Como no lo tumbes ya, se larga con el botín.');
-      if (o.time <= 0){ capHuir(e); c.info = '💰 ¡Huye!'; banner('¡El capitán huye con el botín!<small>Alcánzalo antes de que salga del mapa</small>', 1.6); }
+      if (o.time <= 0){ capHuir(e); c.info = '💰 ¡Huye!'; banner(`¡El capitán huye con el botín!<small>Alcánzalo antes de que ${MP.on ? 'se pierda de vista' : 'salga del mapa'}</small>`, 1.6); }
     },
     alerta: o => !!(o.e && o.e.alive && (o.e.cap.flee || o.time <= 12)),
     prog: o => o.e ? Math.max(0, o.time / OBJ_CAP_T) : 1,
     linea: o => !o.e ? 'Se acerca un capitán con el botín…' : o.ok === true ? 'Botín conseguido' : o.ok === false ? 'Se escapó con el botín'
-      : o.e.cap.flee ? '¡Huye! Alcánzalo antes del borde' : `Túmbalo antes de ${Math.max(0, Math.ceil(o.time))} s`,
+      : o.e.cap.flee ? (MP.on ? '¡Huye! Alcánzalo antes de que se escape' : '¡Huye! Alcánzalo antes del borde') : `Túmbalo antes de ${Math.max(0, Math.ceil(o.time))} s`,
     premio(o){ if (!o.ok) return null; OBJ.bonus = OBJ.bonusMax = 1; castleBonus += 10; return 'Botín del capitán · carta extra y +10 ✦'; }
   },
   sello: {
     empieza(o){
-      const v = objSitio(2.0, 3.2, 2.2), g = new THREE.Group(); g.position.copy(v); scene.add(g); o.objs.push(g);
+      const v = objSitio(2.0, 3.2, 2.2, [7, 11, OBJ_SR + 0.5]), g = new THREE.Group(); g.position.copy(v); scene.add(g); o.objs.push(g);
       o.x = v.x; o.z = v.z; o.p = 0; o.rfT = 6; o.ok = false; o.lim = OBJ_SELLO_T; o.roto = false;
       o.aro = mesh(capRingGeo, makeMat(0xb04aff, { emissive: 1 }), 0, 0.05, 0, g); o.aro.scale.setScalar(OBJ_SR);
       o.disco = mesh(circleGeo, makeMat(0xb04aff, { emissive: 1, opacity: 0.16 }), 0, 0.03, 0, g); o.disco.scale.setScalar(OBJ_SR);
@@ -299,7 +327,7 @@ killEnemy = function(e){
   const o = OBJ.cur; if (!was || !o) return;
   const x = e.g.position.x, z = e.g.position.z;
   if (e.type === 'ladron' && o.pk && o.pk.carrier === e){   // al caer el ladrón, el paquete se queda donde estaba
-    const v = clampArena(new V3(x, 0, z), ARENA - 1.2); o.pk.carrier = null; o.pk.g.position.set(v.x, 0, v.z); o.pk.g.rotation.y = 0;
+    const v = objDentro(o.pk, x, z); o.pk.carrier = null; o.pk.g.position.set(v.x, 0, v.z); o.pk.g.rotation.y = 0;
     sparks(v.x, 0.5, v.z, 10, 0x7dff8a); play('pickup'); bark('¡Recuperado! Y sin una abolladura. Casi.'); }
   if (e.type === 'puesto' && o.tipo === 'puestos'){
     o.left--; castleBonus += 4; for (let i = 0; i < 2; i++) dropPickup(x + (rnd() - 0.5) * 1.2, z + (rnd() - 0.5) * 1.2);

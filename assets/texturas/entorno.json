@@ -1,0 +1,21 @@
+{
+  "entorno/ruinas-losas": [2, 2, 128, 128],
+  "entorno/ruinas-tierra": [132, 2, 128, 128],
+  "entorno/ruinas-hierba": [262, 2, 128, 128],
+  "entorno/ruinas-muro": [392, 2, 128, 128],
+  "entorno/ruinas-fuste": [522, 2, 128, 128],
+  "entorno/sakura-losas": [2, 132, 128, 128],
+  "entorno/sakura-hierba": [132, 132, 128, 128],
+  "entorno/sakura-tierra": [262, 132, 128, 128],
+  "entorno/sakura-corteza": [392, 132, 64, 128],
+  "entorno/sakura-copa": [458, 132, 128, 128],
+  "entorno/sakura-flores": [2, 262, 128, 128],
+  "entorno/madera-laca": [132, 262, 64, 64],
+  "entorno/tejas": [198, 262, 128, 128],
+  "entorno/nieve": [328, 262, 128, 128],
+  "entorno/roca": [458, 262, 128, 128],
+  "entorno/hielo": [2, 392, 128, 128],
+  "entorno/pino-corteza": [132, 392, 64, 128],
+  "entorno/pino-agujas": [198, 392, 128, 128],
+  "entorno/cumbre-grava": [328, 392, 128, 128]
+}

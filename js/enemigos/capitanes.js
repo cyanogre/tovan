@@ -202,16 +202,20 @@ function capCry(e){   // grito de guerra: los demás enemigos van más rápido y
     const v = clampArena(new V3(x + Math.sin(a) * 1.8, 0, z + Math.cos(a) * 1.8)); spawnEnemy('imp', [v.x, v.z]); waveTotal++; }
   barkOnce('cap_cry', '¡Ha llamado a los suyos y los ha puesto a tope! Rómpele los cuernos y se le acaba el grito.');
 }
-// Huida (objetivo del botín): corre hacia el borde y, si llega, se escapa
+// Huida (objetivo del botín): corre hacia el borde y, si llega, se escapa.
+// En los mapas grandes se aleja de Tovan esquivando obstáculos y se escapa a 10 m de donde empezó a huir.
 function capFlee(e, face, move, walk){
   const c = e.cap; if (!c.flee) return false;
-  const x = e.g.position.x, z = e.g.position.z, r = Math.hypot(x, z), a = r > 0.3 ? Math.atan2(x, z) : Math.atan2(x - hero.position.x, z - hero.position.z);
+  const x = e.g.position.x, z = e.g.position.z, r = Math.hypot(x, z); let a;
+  if (MP.on){ if (c.fx == null){ c.fx = x; c.fz = z; }
+    if (c.fleeA == null || time > c.fleeT){ c.fleeT = time + 0.35; c.fleeA = mpRumbo(x, z, Math.atan2(x - hero.position.x, z - hero.position.z)); } a = c.fleeA; }
+  else a = r > 0.3 ? Math.atan2(x, z) : Math.atan2(x - hero.position.x, z - hero.position.z);
   face(a, 8); move(a, e.speed * 1.6); walk(11); e.torso.rotation.x = 0.3; e.g.position.y = 0;
-  if (r > ARENA - 0.6) capEscape(e);
+  if (r > ARENA - 0.6 || (c.fx != null && Math.hypot(x - c.fx, z - c.fz) > 10)) capEscape(e);
   return true;
 }
 function capHuir(e){   // deja lo que esté haciendo y sale corriendo
-  const c = e.cap; c.flee = true; e.state = 'chase'; e.noSep = false; e.g.position.y = 0; e.body.rotation.y = 0; e.vx = e.vz = 0;
+  const c = e.cap; c.flee = true; e.mpMeta = () => null; e.state = 'chase'; e.noSep = false; e.g.position.y = 0; e.body.rotation.y = 0; e.vx = e.vz = 0;
   if (e.tele) e.tele.visible = false; c.tLine.visible = c.tRing.visible = c.tCirc.visible = false; if (c.beam) c.beam.visible = false;
   if (e.type === 'caponi') capGourd(e, false);
 }
@@ -391,7 +395,8 @@ function spawnCaptain(kind){
   if (enemies.some(e => e.cap && e.alive)) return null;
   kind = kind || (rnd() < 0.5 ? 'caponi' : 'capgolem');
   let x = 0, z = 0;
-  for (let i = 0; i < 12; i++){   // al otro lado del jugador y lejos del brasero
+  if (MP.on){ const v = mpSitio(10, 13, 1.5); x = v.x; z = v.z; }   // mapa grande: a 10-13 m del jugador, en un claro
+  else for (let i = 0; i < 12; i++){   // al otro lado del jugador y lejos del brasero
     const a = Math.atan2(hero.position.x, hero.position.z) + Math.PI + (rnd() - 0.5) * 1.6, r = ARENA - 1.6;
     x = Math.sin(a) * r; z = Math.cos(a) * r; if (!braz.visible || Math.hypot(x - BRAZ.x, z - BRAZ.z) > 1.8) break; }
   const e = spawnEnemy(kind, [x, z]); if (!e) return null;
@@ -441,8 +446,9 @@ let capHudKey = '', objColT = 0;
 function objColAjusta(){
   const on = !capBox.hidden || (typeof objBox !== 'undefined' && !objBox.hidden);
   document.body.classList.toggle('con-obj', on); if (!on) return;
-  const w = waveBox.getBoundingClientRect(), tg = innerWidth <= 720 && !tagsEl.hidden ? tagsEl.getBoundingClientRect() : null;
-  objCol.style.top = Math.round(Math.max(w.bottom, tg && tg.height ? tg.bottom : 0, 40) + 8) + 'px';
+  const w = waveBox.getBoundingClientRect(), tg = innerWidth <= 720 && !tagsEl.hidden ? tagsEl.getBoundingClientRect() : null,
+    rd = innerWidth <= 720 && typeof mpRadar !== 'undefined' && !mpRadar.hidden ? mpRadar.getBoundingClientRect() : null;   // en móvil, también bajo el radar
+  objCol.style.top = Math.round(Math.max(w.bottom, tg && tg.height ? tg.bottom : 0, rd ? rd.bottom : 0, 40) + 8) + 'px';
   document.body.style.setProperty('--objfin', Math.round(objCol.getBoundingClientRect().bottom) + 'px');
 }
 function capHud(playing){

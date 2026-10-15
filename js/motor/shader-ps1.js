@@ -41,10 +41,25 @@ uniform vec3 uP2Pos; uniform vec3 uP2Col; uniform float uP2Range;
 uniform vec3 uP3Pos; uniform vec3 uP3Col; uniform float uP3Range;
 uniform float uFogNear; uniform float uFogFar; uniform float uGlitch; uniform float uTime;
 varying vec3 vLight; varying vec3 vUvW; varying float vFog;
+#ifdef USE_COLOR
+varying vec3 vCol;
+#endif
+#ifdef TERRENO
+attribute vec3 splat; varying vec3 vSplat;
+#endif
 void main(){
-  vec4 wp = modelMatrix * vec4(position, 1.0);
+  vec3 pos = position;
+#ifdef VIENTO
+  { vec4 w0 = modelMatrix * vec4(pos, 1.0); pos.xz += vec2(sin(uTime * 1.7 + w0.x * 0.6 + w0.z * 0.4), cos(uTime * 1.3 + w0.z * 0.7)) * 0.09 * uv.y; }   // uv.y = altura sobre la base
+#endif
+  vec4 wp = modelMatrix * vec4(pos, 1.0);
   vec3 n = normalize(mat3(modelMatrix) * normal);
+#ifdef RELLENO
+  float hl = 0.5 + 0.5 * dot(n, uLightDir);   // luz envolvente y relleno de cielo: las caras a contraluz no se van a negro
+  vec3 L = uAmb * (1.05 + 0.45 * n.y) + uLightCol * hl * hl * 1.15;
+#else
   vec3 L = uAmb + uLightCol * max(dot(n, uLightDir), 0.0);
+#endif
   vec3 d1 = uPointPos - wp.xyz; float l1 = max(length(d1), 0.001);
   L += uPointCol * max(dot(n, d1 / l1), 0.0) * pow(clamp(1.0 - l1 / uPointRange, 0.0, 1.0), 1.4);
   vec3 d2 = uP2Pos - wp.xyz; float l2 = max(length(d2), 0.001);
@@ -63,6 +78,12 @@ void main(){
   gl_Position = p;
   float w = uAffine > 0.5 ? p.w : 1.0;       // mapeo afín: se deshace la corrección de perspectiva
   vUvW = vec3(uv * w, w);
+#ifdef USE_COLOR
+  vCol = color;                              // luz y sombras pintadas en los vértices
+#endif
+#ifdef TERRENO
+  vSplat = splat;
+#endif
   vFog = clamp((-mv.z - uFogNear) / (uFogFar - uFogNear), 0.0, 1.0);
 }`;
 
@@ -71,11 +92,23 @@ uniform vec3 uColor; uniform sampler2D uMap; uniform float uHasMap;
 uniform float uEmissive; uniform float uOpacity; uniform float uDither; uniform float uFogAmt; uniform float uGlitch; uniform float uPalette; uniform float uToon; uniform float uFlat;
 uniform vec3 uFogCol;
 varying vec3 vLight; varying vec3 vUvW; varying float vFog;
+#ifdef USE_COLOR
+varying vec3 vCol;
+#endif
+#ifdef TERRENO
+uniform sampler2D uMap2; uniform sampler2D uMap3; uniform vec2 uEsc; varying vec3 vSplat;
+#endif
 ${DITHER_GLSL}
 void main(){
   vec2 uv = vUvW.xy / vUvW.z;
   vec4 t = vec4(1.0);
   if (uHasMap > 0.5) t = texture2D(uMap, uv);
+#ifdef TERRENO
+  t = t * vSplat.x + texture2D(uMap2, uv * uEsc.x) * vSplat.y + texture2D(uMap3, uv * uEsc.y) * vSplat.z;   // terreno: tres texturas mezcladas
+#endif
+#ifdef USE_COLOR
+  t.rgb *= vCol;
+#endif
   if (uGlitch > 0.5 && uEmissive < 0.5){ vec2 q = floor(uv * 4.0); t = vec4(mod(q.x + q.y, 2.0) > 0.5 ? vec3(1.0, 0.0, 0.86) : vec3(0.04), t.a < 0.5 ? t.a : 1.0); }
   float b = bayer4(gl_FragCoord.xy);
   float a = t.a * uOpacity;
@@ -106,6 +139,10 @@ function makeMat(color, o = {}){
     vertexShader: VS, fragmentShader: FS,
     side: o.side || THREE.FrontSide
   });
+  // Opciones de los mapas grandes (no cambian nada si no se piden): colores por vértice (con luz de relleno), viento y terreno de tres texturas
+  if (o.vc){ mm.vertexColors = true; if (o.relleno !== false) mm.defines = Object.assign(mm.defines || {}, { RELLENO: '' }); }
+  if (o.viento) mm.defines = Object.assign(mm.defines || {}, { VIENTO: '' });
+  if (o.terreno){ mm.defines = Object.assign(mm.defines || {}, { TERRENO: '' }); Object.assign(mm.uniforms, { uMap2: { value: o.terreno[0] }, uMap3: { value: o.terreno[1] }, uEsc: { value: new THREE.Vector2(o.esc ? o.esc[0] : 1, o.esc ? o.esc[1] : 1) } }); }
   if ((color === 0xff3a2a || color === 0xff5a20) && o.opacity != null && o.opacity < 1) mm.userData.tele = true;
   return mm;
 }
