@@ -3,11 +3,12 @@
    Las imágenes se editan en assets/texturas y herramientas/texturas.py las empaqueta en js/generado/texturas.js
    (GitHub lo hace solo al subirlas): con el juego abierto desde un archivo (doble clic), el navegador no deja
    que WebGL use imágenes sueltas, pero sí las que van dentro de un .js.
-   El nombre de cada textura es su ruta sin «.png»: assets/texturas/jefes/gato-cara.png -> 'jefes/gato-cara'. */
+   Casi todas van juntas en hojas (jefes.png, enemigos.png…) y el .json de cada hoja dice dónde está cada una:
+   'jefes/gato-cara' es un recorte de jefes.png. Las sueltas (mundo/playa) se llaman como su ruta sin «.png». */
 const TEX_IMG = {};
-for (const nombre in TEXTURAS){
-  const img = new Image(); img.src = TEXTURAS[nombre][2];
-  TEX_IMG[nombre] = { img, lista: img.decode().catch(() => console.error('No se pudo leer la textura ' + nombre)) };
+for (const clave in TEXTURAS_PNG){
+  const img = new Image(); img.src = TEXTURAS_PNG[clave];
+  TEX_IMG[clave] = { img, lista: img.decode().catch(() => console.error('No se pudo leer la imagen de texturas ' + clave)) };
 }
 // Cuántos números de rnd() gastaba cada textura cuando se dibujaba por código. Se siguen gastando para que
 // todo lo aleatorio que viene después (colocación del decorado, consejos del título…) salga igual que antes.
@@ -29,16 +30,17 @@ function texDatos(nombre){
   if (!d) throw new Error(`Falta la textura «${nombre}». ¿Está en assets/texturas y se ha empaquetado (py -3 herramientas/texturas.py)?`);
   return d;
 }
-// Imagen tal cual, para dibujarla en 2D con drawImage (retratos, show…). Ya está cargada cuando empieza la partida.
-const assetImg = nombre => (texDatos(nombre), TEX_IMG[nombre].img);
-// Lienzo con la imagen pintada (si aún no se ha leído, se pinta en cuanto esté y se llama a alPintar).
+// Lienzo con la textura recortada de su hoja (si aún no se ha leído, se pinta en cuanto esté y se llama a alPintar(lienzo)).
 function assetCanvas(nombre, alPintar){
-  const [w, h] = texDatos(nombre), { img, lista } = TEX_IMG[nombre];
+  const [w, h, clave, x, y] = texDatos(nombre), { img, lista } = TEX_IMG[clave];
   const c = document.createElement('canvas'); c.width = w; c.height = h;
-  const pintar = () => { const g = c.getContext('2d'); if (g && img.naturalWidth) g.drawImage(img, 0, 0); if (alPintar) alPintar(); };
+  const pintar = () => { const g = c.getContext('2d'); if (g && img.naturalWidth){ g.imageSmoothingEnabled = false; g.drawImage(img, x, y, w, h, 0, 0, w, h); } if (alPintar) alPintar(c); };
   if (img.complete && img.naturalWidth) pintar(); else TEX_PINTADAS.push(lista.then(pintar));
   return c;
 }
+// La textura para dibujarla en 2D con drawImage (retratos, show…): un lienzo recortado, el mismo cada vez. Ya está pintado cuando empieza la partida.
+const TEX_2D = {};
+const assetImg = nombre => TEX_2D[nombre] || (TEX_2D[nombre] = assetCanvas(nombre));
 // Textura de un PNG, con los mismos ajustes que las que antes dibujaba canvasTex: píxel nítido y repetida. Opciones:
 //   suave: true -> filtro lineal con mipmaps (texturas realistas)      borde: true -> no se repite (ClampToEdge)
 function texAsset(nombre, o = {}){

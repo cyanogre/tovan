@@ -1,46 +1,95 @@
-"""Empaqueta los PNG de assets/texturas en js/generado/texturas.js.
+"""Empaqueta las texturas de assets/texturas en js/generado/texturas.js.
 
 Hace falta porque, cuando el juego se abre con doble clic (file://), el navegador no deja que WebGL
 use imágenes sueltas; metidas dentro de un .js sí funcionan.
 
-No hace falta lanzarlo a mano antes de subir: GitHub lo ejecuta en cada push que toque los PNG
+Hay dos clases de PNG en assets/texturas:
+- Hojas: un PNG con un .json al lado del mismo nombre (jefes.png + jefes.json). El .json dice qué texturas
+  hay dentro y dónde: { "jefes/gato-cara": [x, y, ancho, alto], ... }. Lo que queda fuera de los recortes
+  (el fondo verde) no lo usa el juego.
+- Sueltos: un PNG sin .json es una textura entera, y su nombre es su ruta sin «.png» (mundo/playa/arena).
+
+No hace falta lanzarlo a mano antes de subir: GitHub lo ejecuta en cada push que toque las texturas
 (.github/workflows/texturas.yml). Solo sirve para ver en local un PNG editado antes de subirlo:
   py -3 herramientas/texturas.py            empaqueta una vez
-  py -3 herramientas/texturas.py --vigilar  se queda abierto y reempaqueta cada vez que guardas un PNG
+  py -3 herramientas/texturas.py --vigilar  se queda abierto y reempaqueta cada vez que guardas un PNG o un .json
 """
-import base64, os, struct, sys, time
+import base64, json, os, struct, sys, time
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ORIGEN = os.path.join(RAIZ, 'assets', 'texturas')
 DESTINO = os.path.join(RAIZ, 'js', 'generado', 'texturas.js')
 
-def pngs():
-    for carpeta, _, ficheros in os.walk(ORIGEN):
-        yield from (os.path.join(carpeta, f) for f in ficheros if f.lower().endswith('.png'))
+def ficheros(*ext):
+    for carpeta, _, fs in os.walk(ORIGEN):
+        yield from (os.path.join(carpeta, f) for f in fs if f.lower().endswith(ext))
+
+def relativa(ruta): return os.path.relpath(ruta, ORIGEN).replace(os.sep, '/')
+
+def leer_png(ruta):
+    with open(ruta, 'rb') as fh: datos = fh.read()
+    if datos[:8] != b'\x89PNG\r\n\x1a\n' or datos[12:16] != b'IHDR': raise ValueError(f'{relativa(ruta)} no es un PNG válido')
+    return datos, struct.unpack('>II', datos[16:24])
+
+def sin_repetidos(pares):
+    d = {}
+    for k, v in pares:
+        if k in d: raise ValueError(f'«{k}» aparece dos veces')
+        d[k] = v
+    return d
+
+def recortes(ruta, ancho, alto):
+    """Lee el .json de una hoja y comprueba que cada recorte cabe en ella y no pisa a otro."""
+    nombre = relativa(ruta)
+    try:
+        with open(ruta, encoding='utf-8') as fh: r = json.load(fh, object_pairs_hook=sin_repetidos)
+    except json.JSONDecodeError as e: raise ValueError(f'{nombre}: no es un JSON válido (línea {e.lineno}: {e.msg})')
+    except ValueError as e: raise ValueError(f'{nombre}: {e}')
+    if not isinstance(r, dict): raise ValueError(f'{nombre}: tiene que ser {{ "nombre": [x, y, ancho, alto], ... }}')
+    errores, vistos = [], []
+    for n, v in r.items():
+        if not (isinstance(v, list) and len(v) == 4 and all(type(k) is int and k >= 0 for k in v) and v[2] and v[3]):
+            errores.append(f'{nombre}: «{n}» tiene que ser [x, y, ancho, alto] con números enteros'); continue
+        x, y, w, h = v
+        if x + w > ancho or y + h > alto: errores.append(f'{nombre}: «{n}» se sale de la hoja ({ancho}x{alto})')
+        errores += [f'{nombre}: «{n}» pisa a «{m}»' for m, (a, b, c, d) in vistos if x < a + c and a < x + w and y < b + d and b < y + h]
+        vistos.append((n, v))
+    if errores: raise ValueError('\n'.join(errores))
+    return r
 
 def generar():
-    """Contenido de texturas.js y un resumen. Lanza ValueError si algún PNG no vale."""
-    entradas, errores = [], []
-    for ruta in pngs():
-        nombre = os.path.relpath(ruta, ORIGEN)[:-4].replace(os.sep, '/')
-        with open(ruta, 'rb') as fh: datos = fh.read()
-        if datos[:8] != b'\x89PNG\r\n\x1a\n' or datos[12:16] != b'IHDR':
-            errores.append(f'{nombre}.png no es un PNG válido')
-            continue
-        w, h = struct.unpack('>II', datos[16:24])
-        entradas.append((nombre, w, h, base64.b64encode(datos).decode('ascii')))
+    """Contenido de texturas.js y un resumen. Lanza ValueError con todo lo que no vale."""
+    texturas, imagenes, errores, origen = {}, {}, [], {}
+    jsons = {os.path.splitext(j)[0] for j in ficheros('.json')}
+    for base in sorted(jsons - {os.path.splitext(p)[0] for p in ficheros('.png')}):
+        errores.append(f'{relativa(base)}.json no tiene al lado su hoja {os.path.basename(base)}.png')
+    for ruta in ficheros('.png'):
+        base, clave = os.path.splitext(ruta)[0], relativa(ruta)[:-4]
+        try:
+            datos, (ancho, alto) = leer_png(ruta)
+            if base in jsons: dentro = {n: (w, h, clave, x, y) for n, (x, y, w, h) in recortes(base + '.json', ancho, alto).items()}
+            else: dentro = {clave: (ancho, alto, clave, 0, 0)}
+        except ValueError as e:
+            errores.append(str(e)); continue
+        imagenes[clave] = base64.b64encode(datos).decode('ascii')
+        for n, t in dentro.items():
+            if n in texturas: errores.append(f'La textura «{n}» está a la vez en {origen[n]} y en {relativa(ruta)}')
+            texturas[n], origen[n] = t, relativa(ruta)
     if errores: raise ValueError('\n'.join(errores))
-    entradas.sort()
     lineas = ['// GENERADO por herramientas/texturas.py: no lo edites a mano.',
               '// Edita los PNG de assets/texturas; al subirlos a GitHub este fichero se regenera solo.',
-              "'use strict';", 'const TEXTURAS = {']
-    lineas += [f"  '{n}': [{w}, {h}, 'data:image/png;base64,{b}']," for n, w, h, b in entradas]
+              "'use strict';",
+              '// Cada textura: [ancho, alto, imagen, x, y]. La imagen es una hoja (PNG con su .json) o un PNG suelto.',
+              'const TEXTURAS = {']
+    lineas += [f"  '{n}': [{w}, {h}, '{c}', {x}, {y}]," for n, (w, h, c, x, y) in sorted(texturas.items())]
+    lineas += ['};', 'const TEXTURAS_PNG = {']
+    lineas += [f"  '{c}': 'data:image/png;base64,{b}'," for c, b in sorted(imagenes.items())]
     lineas += ['};', '']
-    total = sum(len(b) for *_, b in entradas) * 3 // 4
-    return '\n'.join(lineas), f'{len(entradas)} texturas ({total // 1024} KB)'
+    total = sum(len(b) for b in imagenes.values()) * 3 // 4
+    return '\n'.join(lineas), f'{len(texturas)} texturas en {len(imagenes)} PNG ({total // 1024} KB)'
 
 def empaquetar():
-    """Reescribe texturas.js solo si ha cambiado algo. Devuelve False si algún PNG no vale."""
+    """Reescribe texturas.js solo si ha cambiado algo. Devuelve False si algo no vale."""
     try: contenido, resumen = generar()
     except ValueError as e:
         print(e)
@@ -58,23 +107,23 @@ def empaquetar():
     return True
 
 def huella():
-    """Ruta, tamaño y fecha de cada PNG: cambia al guardar, añadir, borrar o renombrar cualquiera."""
+    """Ruta, tamaño y fecha de cada PNG y .json: cambia al guardar, añadir, borrar o renombrar cualquiera."""
     h = []
-    for ruta in pngs():
+    for ruta in ficheros('.png', '.json'):
         try: s = os.stat(ruta)
         except FileNotFoundError: continue
         h.append((ruta, s.st_size, s.st_mtime_ns))
     return sorted(h)
 
 def vigilar():
-    print('Vigilando assets/texturas: al guardar un PNG se reempaqueta solo; recarga el juego con F5. Ctrl+C para salir.')
+    print('Vigilando assets/texturas: al guardar un PNG o un .json se reempaqueta solo; recarga el juego con F5. Ctrl+C para salir.')
     empaquetar()
     vista = huella()
     while True:
         time.sleep(0.5)
         ahora = huella()
         if ahora == vista: continue
-        # Espera a que el editor termine de escribir antes de leer los PNG.
+        # Espera a que el editor termine de escribir antes de leer los ficheros.
         while True:
             time.sleep(0.3)
             otra = huella()

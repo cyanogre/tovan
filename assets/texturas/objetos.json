@@ -1,0 +1,5 @@
+{
+  "objetos/billete": [2, 2, 16, 8],
+  "objetos/carta": [20, 2, 16, 24],
+  "armas/abanico": [38, 2, 32, 16]
+}

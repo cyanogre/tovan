@@ -1,0 +1,9 @@
+{
+  "jugador/tovan-cara": [2, 2, 32, 32],
+  "jugador/tovan-cara-parpadeo": [36, 2, 32, 32],
+  "jugador/tovan-cara-feliz": [70, 2, 32, 32],
+  "jugador/tovan-cabeza-lado": [104, 2, 32, 32],
+  "jugador/tovan-pelo": [2, 36, 16, 16],
+  "jugador/tovan-pelo-dorado": [20, 36, 16, 16],
+  "jugador/tovan-abrigo": [38, 36, 16, 16]
+}

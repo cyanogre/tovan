@@ -1,0 +1,11 @@
+{
+  "cinematica/acera": [2, 2, 32, 32],
+  "cinematica/asfalto": [36, 2, 32, 32],
+  "cinematica/ventanas-a": [70, 2, 32, 32],
+  "cinematica/ventanas-b": [104, 2, 32, 32],
+  "cinematica/ventanas-c": [138, 2, 32, 32],
+  "cinematica/caja": [2, 36, 16, 16],
+  "cinematica/paquete": [20, 36, 16, 16],
+  "cinematica/uniforme": [38, 36, 16, 16],
+  "cinematica/cartel-antiguedades": [56, 36, 128, 24]
+}
