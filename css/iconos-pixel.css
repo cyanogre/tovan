@@ -1,0 +1,4 @@
+/* v13.2: iconos en pixel art */
+.px13{--s:1.15em;display:inline-block;width:var(--s);height:var(--s);vertical-align:-.22em;background-image:url(../assets/img/iconos-16px.png);background-repeat:no-repeat;
+  background-size:calc(var(--s) * 16) auto;background-position:calc(var(--c) * var(--s) * -1) calc(var(--r) * var(--s) * -1);image-rendering:pixelated;image-rendering:crisp-edges;font-style:normal}
+@supports (width: round(1em, 1px)){ .px13{--s:max(16px, round(1.15em, 8px))} }

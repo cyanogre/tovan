@@ -1,0 +1,14 @@
+/* Estética v7: números, ventana emergente y franjas */
+.dmg .s7{display:inline-block;font-size:30px;letter-spacing:.03em;animation:s7pop .45s cubic-bezier(.2,1.9,.4,1) both}
+@keyframes s7pop{0%{transform:scale(.15) rotate(-14deg)}100%{transform:scale(1) rotate(-4deg)}}
+#pop7{position:fixed;left:0;top:0;pointer-events:none;z-index:40;text-align:center;opacity:0;white-space:nowrap;
+  font:700 20px 'Pixelify Sans',ui-monospace,monospace;color:#fff;text-shadow:2px 0 0 #000,-2px 0 0 #000,0 2px 0 #000,0 -2px 0 #000,3px 3px 0 #000}
+#pop7 b{display:block;font-size:64px;line-height:1.05;filter:drop-shadow(0 0 10px rgba(255,255,255,.75))}
+#pop7.on{animation:p7o 1.9s ease-out both}#pop7.on b{animation:p7b 1.9s ease-out both}
+@keyframes p7o{0%{opacity:0}8%{opacity:1}78%{opacity:1}100%{opacity:0}}
+@keyframes p7b{0%{transform:scale(0) rotate(-40deg)}16%{transform:scale(1.6) rotate(10deg)}28%{transform:scale(1) rotate(0)}100%{transform:translateY(-26px) scale(1.05)}}
+#bars7{position:fixed;inset:0;pointer-events:none;z-index:6}
+#bars7:before,#bars7:after{content:'';position:absolute;left:0;right:0;height:11vh;background:#000;transition:transform .18s ease-out}
+#bars7:before{top:0;transform:translateY(-100%)}#bars7:after{bottom:0;transform:translateY(100%)}
+#bars7.on:before,#bars7.on:after{transform:none}
+#bars7.on{box-shadow:inset 0 0 120px rgba(120,170,255,.55)}

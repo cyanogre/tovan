@@ -1,0 +1,8 @@
+<!doctype html><meta charset="utf-8"><pre id="o"></pre>
+<script>
+const s = new Set();
+let o = window;
+while (o) { for (const k of Object.getOwnPropertyNames(o)) s.add(k); o = Object.getPrototypeOf(o); }
+const restricted = Object.getOwnPropertyNames(window).filter(k => { const d = Object.getOwnPropertyDescriptor(window, k); return d && !d.configurable; });
+document.getElementById('o').textContent = JSON.stringify({ all: [...s], restricted });
+</script>

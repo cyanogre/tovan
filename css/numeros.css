@@ -1,0 +1,9 @@
+/* Números de daño flotantes */
+/* Números */
+#dmg{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.dmg{position:absolute;left:0;top:0;font:700 26px 'Pixelify Sans',ui-monospace,'Courier New',monospace;color:#fff;text-align:center;line-height:1;
+  text-shadow:2px 0 0 #000,-2px 0 0 #000,0 2px 0 #000,0 -2px 0 #000,2px 2px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000}
+.dmg.crit{color:var(--accent);font-size:32px}
+.dmg.hurt{color:#ff6a5a}
+.dmg.heal{color:#7dff8a;font-size:22px}
+.dmg small{display:block;font-size:13px;margin-bottom:2px}

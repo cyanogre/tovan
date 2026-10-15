@@ -1,0 +1,13 @@
+/* Canal X 2.0 */
+/* ---- Canal X 2.0 ---- */
+body.ch-vector #c{filter:saturate(1.25)}
+body.ch-paper #c{filter:sepia(.18) saturate(1.1) contrast(1.05)}
+body.ch-paper #mangaFx{display:block;background-image:radial-gradient(rgba(110,80,50,.09) 1px,transparent 1.2px);background-size:3px 3px;mix-blend-mode:multiply;mask:none;-webkit-mask:none}
+body.ch-invaders #c{filter:saturate(1.5) contrast(1.15)}
+body.ch-invaders #neonFx{display:block;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 60%,rgba(80,40,255,.3) 100%)}
+#epCard.ep-vector{background:linear-gradient(135deg,#ff9ad8,#9af0ff);color:#3a1a5a}
+#epCard.ep-vector .ept{font-size:clamp(44px,8vw,90px);letter-spacing:-.03em;text-shadow:5px 5px 0 #fff}
+#epCard.ep-invaders{background:#000;color:#7dff8a;text-shadow:0 0 12px #7dff8a}
+#epCard.ep-invaders .epn{color:#ff5ad8}
+#epCard.ep-paper{background:#c89a64;color:#3a2412}
+#epCard.ep-paper .ept{transform:rotate(-3deg);background:#f8f0dc;padding:6px 22px;box-shadow:5px 5px 0 rgba(0,0,0,.25)}

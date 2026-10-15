@@ -1,0 +1,13 @@
+/* Controles táctiles */
+/* Táctil */
+#joy{position:fixed;left:18px;bottom:calc(28px + env(safe-area-inset-bottom,0px));width:124px;height:124px;border-radius:50%;
+  background:rgba(20,30,110,.35);border:2px solid rgba(238,240,255,.6);display:none;touch-action:none}
+#knob{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;
+  background:linear-gradient(180deg,var(--win-a),var(--win-b));border:2px solid var(--edge);pointer-events:none}
+#pad{position:fixed;right:14px;bottom:calc(20px + env(safe-area-inset-bottom,0px));width:206px;height:176px;display:none}
+#pad button{position:absolute;width:64px;height:64px;border-radius:50%;font:600 13px 'Pixelify Sans',ui-monospace,'Courier New',monospace;color:var(--ink);cursor:pointer;touch-action:none;padding:0}
+#pad button:active{filter:brightness(1.4)}
+#pad [data-act=roll]{left:0;bottom:4px} #pad [data-act=jump]{left:58px;top:18px} #pad [data-act=special]{right:0;top:0;color:var(--mp)}
+#pad .big{right:0;bottom:0;width:86px;height:86px;font-size:15px;color:var(--accent)}
+@media (pointer:coarse){ body.playing #joy, body.playing #pad{display:block} }
+@media (prefers-reduced-motion:reduce){ .bar.mp i.full{animation:none} }

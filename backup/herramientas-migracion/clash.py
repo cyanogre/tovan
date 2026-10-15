@@ -1,0 +1,10 @@
+import re, json, html, os
+os.chdir(os.path.dirname(__file__))
+t = open('dom.txt', encoding='utf-8').read()
+g = json.loads(html.unescape(re.search(r'<pre id="o">(.*)</pre>', t, re.S).group(1)))
+names = set(json.load(open('names.json')))
+allg = set(g['all'])
+print('restricted:', g['restricted'])
+print('choques con restringidos:', sorted(names & set(g['restricted'])))
+print('choques con globales del navegador:', sorted(names & allg))
+json.dump(sorted(allg), open('browser_globals.json', 'w'))

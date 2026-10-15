@@ -1,0 +1,4 @@
+/* v13.1: HUD durante los marcianitos */
+body.ch-invaders #waveBox,body.ch-invaders #trust{visibility:hidden!important}
+body.ch-invaders #bark{top:calc(150px + env(safe-area-inset-top,0px))!important;bottom:auto!important;left:12px!important;right:auto!important;transform:none!important;width:auto!important;max-width:min(300px,34%)!important;font-size:11px!important}
+body.ch-invaders #bossBox{top:calc(4px + env(safe-area-inset-top,0px))!important;padding:2px 8px 4px!important;font-size:10px!important;width:min(300px,34%)!important}

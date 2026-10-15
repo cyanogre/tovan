@@ -1,0 +1,67 @@
+/* v3: menú de título, vestidor, pausa y presentación de jefes */
+/* ---- v3: menú de título ---- */
+.tpanel{width:min(400px,100%) !important;padding:20px 22px 16px !important}
+.tmenu{display:flex;flex-direction:column;gap:7px;margin:16px auto 12px;max-width:320px}
+.tbtn{display:grid;grid-template-columns:26px auto 1fr;align-items:center;gap:10px;padding:8px 14px;font-size:17px;text-align:left;border-radius:6px;position:relative;transition:transform .12s}
+.tbtn .ti{font-size:17px;text-align:center}
+.tbtn .tl{font-weight:600}
+.tbtn .td{font-size:11.5px;color:var(--dim);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbtn.main{font-size:21px;padding:11px 14px;border-color:var(--accent);box-shadow:0 0 0 2px #10102a,0 0 14px rgba(255,217,112,.35),4px 4px 0 rgba(0,0,0,.45)}
+.tbtn.main .tl,.tbtn.main .ti{color:var(--accent)}
+.tbtn:hover,.tbtn:focus-visible{transform:translateX(6px);filter:brightness(1.18)}
+.tbtn:hover::before,.tbtn:focus-visible::before{content:'▶';position:absolute;left:-20px;color:var(--accent);animation:tblink .8s steps(2) infinite;text-shadow:2px 2px 0 #000}
+@keyframes tblink{50%{opacity:0}}
+.tstats{border-top:1px solid rgba(238,240,255,.25);padding-top:8px}
+.tstats p{margin:3px 0 !important;font-size:13px !important}
+.tkeys{font-size:12px;color:var(--dim);margin:8px 0 4px}
+@media (pointer:coarse){ .tkeys.desk{display:none} }
+#tipTxt{min-height:2.6em;margin:4px 0 0}
+@media (max-aspect-ratio:1/1){ .tmenu{gap:5px;margin:10px auto} .tbtn{padding:6px 12px;font-size:15px} .tbtn.main{font-size:18px} }
+/* ---- v3: vestidor, pausa y jefes ---- */
+.wardp{width:min(720px,100%) !important;text-align:left}
+.wardp h2{text-align:center}.wardp .sub2{text-align:center}
+#wardCount{color:var(--accent)}
+#wardSlots{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin:8px 0 10px}
+.wslot{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px 5px;border-radius:6px;background:rgba(8,10,40,.6);border:1px solid rgba(238,240,255,.25);color:var(--ink);font:inherit;cursor:pointer;text-shadow:1px 1px 0 #000}
+.wslot .wsi{font-size:24px;line-height:1.1;filter:drop-shadow(2px 2px 0 #000)}
+.wslot .wsl{font-size:10.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.wslot:hover{filter:brightness(1.2)}
+.wslot.on{border-color:var(--accent);background:rgba(70,58,12,.55);box-shadow:0 0 10px rgba(255,217,112,.45)}
+.wslot.on .wsl{color:var(--accent)}
+#wardList{grid-template-columns:repeat(auto-fill,minmax(96px,1fr)) !important;max-height:min(30vh,250px) !important;gap:6px !important;margin-bottom:10px !important}
+.witem{min-height:0 !important;padding:8px 4px 6px !important;position:relative;gap:2px !important}
+.witem .wic{font-size:26px !important}
+.witem .wn{font-size:11.5px !important;line-height:1.2}
+.witem .weq{position:absolute;top:3px;right:6px;color:var(--accent);font-size:12px}
+.witem.lock{opacity:.42}
+.witem.sel{outline:2px solid #8ff6ff;outline-offset:-2px}
+#wardInfo{display:grid;grid-template-columns:70px 1fr;gap:3px 14px;padding:10px 14px;border-radius:6px;background:rgba(6,8,34,.72);border:1px solid rgba(238,240,255,.3);min-height:128px;margin-bottom:12px}
+#wardInfo .bi{font-size:48px;grid-row:span 6;align-self:center;text-align:center;filter:drop-shadow(3px 3px 0 #000)}
+#wardInfo .bn{font-size:19px;font-weight:700;color:var(--accent)}
+#wardInfo .bs{font-size:12px;color:var(--dim)}#wardInfo .bs .ok{color:#7dff8a}
+#wardInfo .bp{font-size:13.5px;color:#e8ecff;line-height:1.35}#wardInfo .bp b{color:#8ff6ff}
+#wardInfo .bc{font-size:12.5px;color:#ffd970}
+#wardInfo .bp2{font-size:12.5px;color:#9ff0a8;line-height:1.35}
+.wstats{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12px;align-items:center;margin:2px 0}
+.wstats i{display:flex;gap:3px}.wstats i b{width:18px;height:7px;background:#07082a;border:1px solid rgba(238,240,255,.45)}.wstats i b.f{background:linear-gradient(180deg,#ffe9a0,#ffb040)}
+.wfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+@media (max-width:640px){ #wardSlots{grid-template-columns:repeat(4,1fr)} #wardInfo{grid-template-columns:52px 1fr} #wardInfo .bi{font-size:36px} }
+#pauseScr .panel{width:min(640px,100%)}
+#pauseScr .ctrl{display:none !important}
+.ptabs{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:10px}
+.ptab{font-size:13.5px;padding:5px 12px;border-radius:6px}
+.ptab.on{border-color:var(--accent);color:var(--accent);box-shadow:0 0 10px rgba(255,217,112,.35)}
+.pbody{min-height:140px}
+.pbody .moves{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13.5px;line-height:1.35}
+.pbody .moves b{color:var(--accent);font-weight:600}
+#bossCard{position:fixed;left:0;right:0;bottom:calc(clamp(36px,8vh,64px) + 28px);z-index:49;pointer-events:none;text-align:left;padding-left:7vw;opacity:0;--bc:#ffd970}
+#bossCard.on{opacity:1}
+#bossCard .bc-bar{height:4px;width:0;background:linear-gradient(90deg,var(--bc),transparent);margin-bottom:8px}
+#bossCard.on .bc-bar{animation:bcBar .6s cubic-bezier(.2,1,.3,1) forwards}
+#bossCard .bc-n{font-size:clamp(34px,6.4vw,78px);font-weight:700;color:#fff;letter-spacing:.05em;line-height:1;text-shadow:0 0 22px var(--bc),5px 5px 0 #000,-3px -3px 0 #000;transform:skewX(-8deg)}
+#bossCard.on .bc-n{animation:bcIn .5s cubic-bezier(.2,1.5,.4,1) both}
+#bossCard .bc-s{margin-top:8px;font-size:clamp(14px,1.9vw,21px);color:var(--bc);letter-spacing:.08em;text-shadow:2px 2px 0 #000}
+#bossCard.on .bc-s{animation:bcSub .6s .25s ease-out both}
+@keyframes bcIn{from{opacity:0;transform:skewX(-8deg) translateX(-30%) scale(1.3)}}
+@keyframes bcSub{from{opacity:0;transform:translateY(10px)}}
+@keyframes bcBar{to{width:min(70vw,900px)}}

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tovan · Las ruinas sin fin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/hud.css">
+<link rel="stylesheet" href="css/pantallas.css">
+<link rel="stylesheet" href="css/interfaz-v2.css">
+<link rel="stylesheet" href="css/historia.css">
+<link rel="stylesheet" href="css/logros-vestidor.css">
+<link rel="stylesheet" href="css/expansion.css">
+<link rel="stylesheet" href="css/canal-x.css">
+<link rel="stylesheet" href="css/finales.css">
+<link rel="stylesheet" href="css/canal-x-2.css">
+<link rel="stylesheet" href="css/numeros.css">
+<link rel="stylesheet" href="css/tactil.css">
+<link rel="stylesheet" href="css/menus-v3.css">
+<link rel="stylesheet" href="css/pantalla-poderes.css">
+<link rel="stylesheet" href="css/efectos-v7.css">
+<link rel="stylesheet" href="css/show.css">
+<link rel="stylesheet" href="css/cartas-v10.css">
+<link rel="stylesheet" href="css/impacto-v12.css">
+<link rel="stylesheet" href="css/tragaperras-v13.css">
+<link rel="stylesheet" href="css/marcianitos-v13.css">
+<link rel="stylesheet" href="css/iconos-pixel.css">
+<link rel="stylesheet" href="css/menus-movil.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="vignette"></div>
+<div class="scan" id="scan"></div>
+<div id="flash"></div>
+<div id="dmg"></div>
+
+<div class="win" id="hud" hidden>
+  <canvas id="portrait" width="32" height="32" aria-hidden="true"></canvas>
+  <div class="hudr">
+  <div class="nm">TOVAN <small id="hudTitle"></small></div>
+  <div class="row"><span class="lb">PV</span><div class="bar hp"><b id="hpGhost"></b><i id="hpFill"></i></div><span class="num" id="hpTxt">100/100</span></div>
+  <div class="row"><span class="lb">ÍMP</span><div class="bar mp"><i id="mpFill" style="width:0"></i></div><span class="num" id="mpTxt">0%</span></div>
+  <div class="row fragrow"><span class="lb"></span><span class="frag" id="fragTxt">✦ 0</span></div>
+  </div>
+</div>
+<div id="tags" hidden></div>
+<div id="comboBox" hidden><div id="comboNum">0</div><div class="clabel">COMBO</div><div class="ctime"><i id="comboTime"></i></div><div id="comboBonus"></div><div id="comboWord"></div></div>
+<button class="win" id="waveBox" hidden aria-label="Pausar"><span class="wtop"><span id="waveTxt">Oleada 1</span><span class="pz">❚❚</span></span><span class="wprog"><i id="waveProg"></i></span></button>
+<div class="win" id="bossBox" hidden><div id="bossName">Guardián de las ruinas</div><div class="bar boss"><i id="bossFill"></i></div></div>
+<div class="win" id="banner" hidden></div>
+
+<div class="win closed" id="menu">
+  <button id="menuHead" aria-expanded="false"><span class="cur">▶</span><span class="mlabel">Opciones</span><span class="micon" aria-label="Opciones">⚙</span><span class="val" id="menuCaret">▸</span></button>
+  <ul id="menuList"></ul>
+</div>
+
+<div class="overlay" id="titleScr">
+  <div class="win panel tpanel">
+    <h1>TOVAN</h1>
+    <p class="sub">Las ruinas sin fin</p>
+    <nav class="tmenu" aria-label="Menú principal">
+      <button class="win tbtn main" id="startBtn"><span class="ti">▶</span><span class="tl">Empezar</span><span class="td">Nueva partida</span></button>
+      <button class="win tbtn" id="shrineBtn"><span class="ti">✦</span><span class="tl">Santuario</span><span class="td" id="tdShrine">Mejoras permanentes</span></button>
+      <button class="win tbtn" id="wardBtn"><span class="ti">👕</span><span class="tl">Vestidor</span><span class="td" id="tdWard">Estéticos con poder</span></button>
+      <button class="win tbtn" id="achBtn"><span class="ti">🏆</span><span class="tl">Logros</span><span class="td" id="tdAch"></span></button>
+      <button class="win tbtn" id="endBtn"><span class="ti">📜</span><span class="tl">Finales</span><span class="td" id="tdEnd"></span></button>
+      <button class="win tbtn" id="optBtn"><span class="ti">⚙</span><span class="tl">Opciones</span><span class="td">Imagen, sonido y datos</span></button>
+      <button class="win tbtn" id="introBtn"><span class="ti">🎬</span><span class="tl">Introducción</span><span class="td">Volver a verla</span></button>
+    </nav>
+    <div class="tstats"><p id="bestTxt"></p><p id="pctTxt"></p></div>
+    <p class="tkeys desk">J atacar · K rodar · Espacio saltar · L especial · Esc pausa</p>
+    <p class="tip" id="tipTxt"></p>
+  </div>
+</div>
+
+<div class="overlay" id="upScr" hidden>
+  <div class="win uptitle">Elige una mejora</div>
+  <div id="cards"></div>
+  <div id="upBuild"></div>
+  <button class="win btn" id="rerollBtn" hidden>↻ Relanzar</button>
+</div>
+
+<div class="overlay" id="pauseScr" hidden>
+  <div class="win panel">
+    <h2>Pausa</h2>
+    <div id="pauseBuild"></div>
+    <div class="ctrl desk">
+      <b>Atacar</b><span>J o clic · mantén para cargar</span><b>Rodar</b><span>K o Shift</span><b>Saltar</b><span>Espacio</span><b>Especial</b><span>L o clic derecho</span>
+    </div>
+    <button class="win btn" id="resumeBtn">Continuar</button>
+    <button class="win btn" id="optBtn2">⚙ Opciones</button>
+    <button class="win btn" id="quitBtn">Rendirse</button>
+  </div>
+</div>
+
+<div class="overlay" id="overScr" hidden>
+  <div class="win panel">
+    <h2>Fin de la partida</h2>
+    <div id="overStats"></div>
+    <p id="overTip"></p>
+    <p id="fragGain"></p>
+    <button class="win btn" id="retryBtn">▶ Reintentar</button>
+    <button class="win btn" id="shrineBtn2">✦ Santuario</button>
+    <div><button class="win btn sm" id="achBtn2">🏆 Logros</button><button class="win btn sm" id="wardBtn2">👕 Vestidor</button></div>
+    <button class="win btn" id="menuBtn">Título</button>
+  </div>
+</div>
+
+<div class="overlay" id="shrineScr" hidden>
+  <div class="win panel shrine">
+    <h2>Santuario</h2>
+    <p class="sub2">Ofrece los fragmentos de tus partidas a la linterna. Estas mejoras son permanentes.</p>
+    <p id="fragTotal"></p>
+    <div id="shrineList"></div>
+    <button class="win btn" id="shrineBack">Volver</button>
+  </div>
+</div>
+
+<div class="win" id="dlg" hidden role="dialog" aria-live="polite">
+  <canvas id="dlgPic" width="32" height="32" aria-hidden="true"></canvas>
+  <div class="dbody"><div id="dlgName"></div><div id="dlgText"></div></div>
+  <div id="dlgArrow">▼</div>
+  <button class="win" id="dlgSkip">Saltar ⏭</button>
+</div>
+<div class="win" id="bark" hidden><canvas id="barkPic" width="32" height="32" aria-hidden="true"></canvas><span id="barkText"></span></div>
+<div id="toasts" aria-live="polite"></div>
+<div class="overlay" id="achScr" hidden>
+  <div class="win panel achp">
+    <h2>Logros</h2>
+    <p id="achCount"></p>
+    <div id="achList"></div>
+    <button class="win btn" id="achBack">Volver</button>
+  </div>
+</div>
+<div class="overlay" id="wardScr" hidden>
+  <div class="win panel wardp">
+    <h2>Vestidor</h2>
+    <p class="sub2">Cada pieza tiene su poder. <span id="wardCount"></span></p>
+    <div id="wardSlots"></div>
+    <div id="wardList"></div>
+    <div id="wardInfo"></div>
+    <div class="wfoot"><span class="dim">Flechas: elegir · Q/E: categoría · Enter: equipar</span><button class="win btn" id="wardBack">Volver</button></div>
+  </div>
+</div>
+<div id="fadeScr"></div>
+<div id="cutIn"><div class="ci-lines"></div><div class="ci-n"></div></div>
+<div id="finalTitle"><div class="ft1">EL GATO DEL ANTICUARIO</div><div class="ft2">Guardián de las Ruinas · Jefe final</div></div>
+<div class="overlay" id="endCard" hidden><div class="win panel endp"><div class="en"></div><h2 class="et"></h2><div class="ety"></div><p class="ed"></p><p class="er"></p><p class="ep"></p><button class="win btn" id="endBack">Volver al título</button></div></div>
+<div class="overlay" id="endScr" hidden><div class="win panel endsp"><h2>Finales</h2><p id="endPct"></p><div id="endList"></div><button class="win btn" id="endScrBack">Volver</button></div></div>
+<div class="overlay" id="wipeScr" hidden><div class="win panel wipep">
+  <div class="w1"><h2>¿Borrar todos los datos?</h2><p>Se borrarán logros, finales, estéticos, el Santuario, los récords y el códice de sinergias.</p><button class="win btn" id="wipeNo">Cancelar</button><button class="win btn danger" id="wipeYes">Borrar</button></div>
+  <div class="w2" hidden><h2>¿Seguro, seguro?</h2><p>No hay vuelta atrás. Ni el Gato puede deshacerlo.</p><button class="win btn" id="wipeNo2">No, mejor no</button><button class="win btn danger" id="wipeYes2">Sí, borrar todo</button></div>
+</div></div>
+<div id="mangaFx"></div><div id="neonFx"></div><div id="arcadeTxt">INSERT COIN</div>
+<div id="tvStatic"></div>
+<div id="epCard" hidden><div class="epn"></div><div class="ept"></div><div class="eps"></div></div>
+<div id="trust" hidden></div>
+<div id="crash" hidden>
+  <div class="bsod"><div class="face">:(</div><p>Tovan.exe ha encontrado un problema y necesita reiniciarse.</p><p>Estamos recopilando información sobre el error <b>textura_realista_8K.dds</b>.</p><p class="pct">0 % completado</p></div>
+  <div class="patch"><p>Descargando parche de gráficos <b>ULTRA</b> (147 GB)…</p><div class="bar"><i></i></div><p class="pp">0 %</p></div>
+  <div class="boot"><p>Listo. Reiniciando en modo <b>ULTRA</b>…</p></div>
+</div>
+<div id="tbc" hidden><span>CONTINUARÁ</span></div>
+<div id="lnTitle" hidden><div class="vol">VOLUMEN 1</div><div class="lt">Me atropelló Camión-kun mientras repartía un paquete y ahora estoy atrapado en un castillo infinito lleno de demonios, pero mi linterna no pilla ninguna referencia</div><div class="au">Una novela ligera de Tovan</div></div>
+<div class="win" id="errWin" hidden><div class="et">⚠ Error</div><div class="eb"></div><div class="ebtn">Aceptar</div></div>
+<div id="rtx">✨ Trazado de rayos: ON</div>
+<div id="cineTop"></div><div id="cineBot"></div>
+<div id="csWhite"></div>
+<div id="csCap"></div>
+<div id="csShout"></div>
+<div id="csLabel" aria-hidden="true">
+  <div class="lh">⚡ ENVÍOS RELÁMPAGO <span>Albarán nº 000451</span></div>
+  <div><b>Destinatario:</b> El Guardián de las Ruinas</div>
+  <div><b>Dirección:</b> Ruinas del Ocaso, s/n (al fondo a la izquierda)</div>
+  <div><b>Contenido:</b> 1 linterna antigua</div>
+  <div class="warn">⚠ NO ENCENDER. NO SACAR DE LA CAJA.</div>
+  <div class="sig"><b>Firma del destinatario:</b> ________________</div>
+  <div class="stamp">FRÁGIL</div>
+</div>
+<button class="win" id="csSkip" hidden>Saltar escena ⏭</button>
+<div id="chapter" hidden><div class="cnum"></div><div class="cname"></div><div class="csub"></div></div>
+
+<div id="joy" aria-hidden="true"><div id="knob"></div></div>
+<div id="pad">
+  <button data-act="special" class="win">Especial</button>
+  <button data-act="roll" class="win">Rodar</button>
+  <button data-act="jump" class="win">Saltar</button>
+  <button data-act="attack" class="win big">Atacar</button>
+</div>
+
+
+<!-- Three.js r128 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<!-- Juego. EL ORDEN IMPORTA: cada bloque amplía o modifica los anteriores (ver README.md) -->
+<!-- Motor 3D (look PS1) -->
+<script src="js/motor/renderer.js"></script>
+<script src="js/generado/texturas.js"></script>
+<script src="js/motor/assets.js"></script>
+<script src="js/motor/shader-ps1.js"></script>
+<script src="js/motor/texturas.js"></script>
+<!-- Juego base -->
+<script src="js/jugador/modelo-tovan.js"></script>
+<script src="js/mundo/ruinas.js"></script>
+<script src="js/nucleo/matematicas.js"></script>
+<script src="js/nucleo/estado.js"></script>
+<script src="js/nucleo/dom.js"></script>
+<script src="js/audio/sonido.js"></script>
+<script src="js/audio/musica.js"></script>
+<script src="js/progreso/fragmentos.js"></script>
+<script src="js/entrada/mando.js"></script>
+<script src="js/efectos/basicos.js"></script>
+<script src="js/jugador/movimientos.js"></script>
+<script src="js/jugador/acciones.js"></script>
+<script src="js/enemigos/enemigos.js"></script>
+<script src="js/partida/oleadas.js"></script>
+<script src="js/partida/mejoras.js"></script>
+<script src="js/partida/ciclo.js"></script>
+<!-- Sinergias: estados elementales, reacciones, cadenas y combo -->
+<script src="js/sinergias/elementos.js"></script>
+<script src="js/sinergias/rayos.js"></script>
+<script src="js/sinergias/reacciones.js"></script>
+<script src="js/combate/combo.js"></script>
+<script src="js/sinergias/mejoras-familias.js"></script>
+<script src="js/sinergias/ganchos-combate.js"></script>
+<script src="js/interfaz/chips-sinergias.js"></script>
+<!-- Mundo: escenarios, ambiente, oni y dragón -->
+<script src="js/mundo/escenarios.js"></script>
+<script src="js/mundo/ambiente.js"></script>
+<script src="js/audio/musica-escenarios.js"></script>
+<script src="js/enemigos/oni.js"></script>
+<script src="js/jefes/ryujin.js"></script>
+<!-- Historia: diálogos, Lumen, viajes y capítulos -->
+<script src="js/historia/textos.js"></script>
+<script src="js/historia/dialogos.js"></script>
+<script src="js/historia/viajes.js"></script>
+<!-- Cinemática de introducción -->
+<script src="js/cinematicas/decorado-intro.js"></script>
+<script src="js/cinematicas/motor-guion.js"></script>
+<script src="js/cinematicas/intro.js"></script>
+<!-- Logros y estéticos -->
+<script src="js/progreso/logros.js"></script>
+<script src="js/progreso/esteticos.js"></script>
+<script src="js/progreso/desbloqueos.js"></script>
+<script src="js/interfaz/logros-vestidor.js"></script>
+<!-- Familia Otaku -->
+<script src="js/poderes/otaku-tecnicas.js"></script>
+<script src="js/poderes/otaku-pasivas.js"></script>
+<!-- Expansión: capítulos 4 y 5, Castillo Infinito -->
+<script src="js/mundo/playa.js"></script>
+<script src="js/mundo/ruinas-corruptas-castillo.js"></script>
+<script src="js/mundo/capitulos.js"></script>
+<!-- Expansión: enemigos nuevos y jefes -->
+<script src="js/enemigos/realistas.js"></script>
+<script src="js/jefes/gashadokuro.js"></script>
+<script src="js/jefes/tetera-utah.js"></script>
+<script src="js/jefes/error-404.js"></script>
+<script src="js/jefes/seis-ojos.js"></script>
+<!-- Expansión: isekai, castillo, historia y extras -->
+<script src="js/historia/expansion.js"></script>
+<script src="js/historia/isekai.js"></script>
+<!-- Canal X -->
+<script src="js/canal-x/plato.js"></script>
+<script src="js/jefes/mister-confianza.js"></script>
+<script src="js/canal-x/extras.js"></script>
+<!-- Jefes rediseñados -->
+<script src="js/jefes/rediseno-pixelart.js"></script>
+<!-- Sinergias emergentes -->
+<script src="js/sinergias/emergentes.js"></script>
+<!-- Especiales legendarios -->
+<script src="js/efectos/cortes-legendarios.js"></script>
+<!-- Final: la azotea del anticuario, el Gato y los finales -->
+<script src="js/audio/canciones-jefes.js"></script>
+<script src="js/jefes/gato-final.js"></script>
+<script src="js/historia/finales.js"></script>
+<script src="js/progreso/completado.js"></script>
+<!-- Canal X 2.0 -->
+<script src="js/canal-x/estilos.js"></script>
+<script src="js/canal-x/marcianitos.js"></script>
+<!-- Mejoras v2: formas de atacar, cargados, poderes del vestidor, billetes -->
+<script src="js/progreso/poderes-esteticos.js"></script>
+<script src="js/combate/billetes.js"></script>
+<script src="js/jugador/movimientos-v2.js"></script>
+<script src="js/jugador/ataque-cargado.js"></script>
+<script src="js/partida/extras-v2.js"></script>
+<!-- Modelos v3: enemigos esculpidos -->
+<script src="js/modelos/esculpido.js"></script>
+<script src="js/modelos/enemigos-v3.js"></script>
+<!-- v3: limpieza, estilos de arma, entradas de jefe y menús -->
+<script src="js/combate/limpieza.js"></script>
+<script src="js/armas/estilos.js"></script>
+<script src="js/jefes/entradas.js"></script>
+<script src="js/interfaz/vestidor.js"></script>
+<script src="js/interfaz/pausa.js"></script>
+<script src="js/interfaz/menu-titulo.js"></script>
+<!-- Banda sonora v3 -->
+<script src="js/audio/banda-sonora/instrumentos.js"></script>
+<script src="js/audio/banda-sonora/composicion.js"></script>
+<script src="js/audio/banda-sonora/temas.js"></script>
+<!-- Poderes v5 -->
+<script src="js/poderes/v5/catalogo.js"></script>
+<script src="js/poderes/v5/reparto.js"></script>
+<script src="js/poderes/v5/ganchos.js"></script>
+<script src="js/poderes/v5/bucle.js"></script>
+<script src="js/interfaz/pantalla-poderes.js"></script>
+<!-- Armas v5 -->
+<script src="js/armas/modelos.js"></script>
+<script src="js/armas/combos-cargados.js"></script>
+<script src="js/armas/poderes.js"></script>
+<!-- Enemigos v5: bichos propios de cada nivel -->
+<script src="js/enemigos/regiones/comun.js"></script>
+<script src="js/enemigos/regiones/ruinas.js"></script>
+<script src="js/enemigos/regiones/santuario.js"></script>
+<script src="js/enemigos/regiones/cumbre.js"></script>
+<script src="js/enemigos/regiones/canal-x.js"></script>
+<script src="js/enemigos/regiones/playa.js"></script>
+<script src="js/enemigos/regiones/corruptas.js"></script>
+<script src="js/enemigos/regiones/castillo.js"></script>
+<script src="js/enemigos/regiones/registro.js"></script>
+<!-- Jefes v5: ataques nuevos y segunda fase -->
+<script src="js/jefes/ataques-v5.js"></script>
+<script src="js/jefes/mister-marcianitos.js"></script>
+<!-- Anime v6 -->
+<script src="js/poderes/anime/catalogo.js"></script>
+<script src="js/poderes/anime/mecanicas.js"></script>
+<!-- Estética v7: que todos los poderes se vean -->
+<script src="js/efectos/v7/sistemas.js"></script>
+<script src="js/efectos/v7/recursos.js"></script>
+<script src="js/efectos/v7/accesorios.js"></script>
+<script src="js/efectos/v7/accesorios-anim.js"></script>
+<script src="js/efectos/v7/auras.js"></script>
+<script src="js/efectos/v7/particulas-poderes.js"></script>
+<script src="js/efectos/v7/golpes.js"></script>
+<!-- Ajustes v8 -->
+<script src="js/ajustes/v8.js"></script>
+<!-- v9: el show de Míster Confianza, Súper Repartidor y crías de dragón -->
+<script src="js/show/plato.js"></script>
+<script src="js/show/pelea.js"></script>
+<script src="js/show/carrera.js"></script>
+<script src="js/show/marcianitos.js"></script>
+<script src="js/show/fantasia-final.js"></script>
+<script src="js/show/director.js"></script>
+<script src="js/poderes/super-repartidor.js"></script>
+<script src="js/jefes/ryujin-crias.js"></script>
+<!-- Ajustes v10 -->
+<script src="js/ajustes/v10-jefes.js"></script>
+<script src="js/poderes/ramas.js"></script>
+<script src="js/historia/comedia-v10.js"></script>
+<!-- v11: Míster Confianza fase 2 y movimiento con inercia -->
+<script src="js/jefes/mister-fase2.js"></script>
+<script src="js/jugador/inercia.js"></script>
+<!-- v12: impacto, acrobacias, vestidor y títulos -->
+<script src="js/combate/impacto.js"></script>
+<script src="js/jugador/acrobacias.js"></script>
+<script src="js/progreso/titulos.js"></script>
+<!-- v13: familias, poderes, sinergias, comedia, iconos y móvil -->
+<script src="js/poderes/v13/catalogo.js"></script>
+<script src="js/poderes/v13/tragaperras-fortaleza.js"></script>
+<script src="js/poderes/v13/ganchos.js"></script>
+<script src="js/poderes/v13/poses-bucle.js"></script>
+<script src="js/historia/comedia-v13.js"></script>
+<script src="js/interfaz/iconos-pixel.js"></script>
+<script src="js/interfaz/menus-movil.js"></script>
+
+<!-- Tus añadidos: pon aquí los ficheros nuevos (antes del arranque) -->
+
+<!-- Arranque (siempre al final) -->
+<script src="js/interfaz/santuario.js"></script>
+<script src="js/interfaz/titulo.js"></script>
+<script src="js/entrada/controles.js"></script>
+<script src="js/motor/resolucion.js"></script>
+<script src="js/interfaz/menu-opciones.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

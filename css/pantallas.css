@@ -1,0 +1,59 @@
+/* Pantallas: título, mejoras, pausa, fin de partida y santuario */
+/* Pantallas */
+.overlay{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;padding:16px;
+  padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));background:rgba(6,5,24,.45);overflow:auto}
+.panel{width:min(520px,100%);padding:18px 22px 20px;text-align:center}
+.panel h1{margin:0;font-size:clamp(40px,9vw,64px);letter-spacing:.14em;color:var(--accent);line-height:1}
+.panel h2{margin:0 0 10px;font-size:26px;letter-spacing:.06em}
+.sub{margin:4px 0 14px;color:var(--dim);letter-spacing:.2em;text-transform:uppercase;font-size:14px}
+.ctrl{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;text-align:left;font-size:14px;margin:0 auto 12px;max-width:340px}
+.ctrl b{color:var(--accent);font-weight:600}
+.ctrl.touch{display:none}
+@media (pointer:coarse){ .ctrl.desk{display:none} .ctrl.touch{display:grid} }
+.tip{font-size:13px;color:var(--dim);margin:0 0 12px;line-height:1.4}
+#bestTxt{color:var(--dim);font-size:14px;margin:0 0 14px}
+.btn{padding:10px 22px;font-size:18px;margin:4px}
+#titleScr{background:linear-gradient(180deg,rgba(6,5,24,.1),rgba(6,5,24,.55))}
+#titleScr{align-items:flex-start;padding-left:max(24px,6vw)}
+#titleScr .panel{width:min(470px,100%)}
+@media (max-aspect-ratio:1/1){ #titleScr{align-items:center;padding-left:16px} #titleScr > .panel{margin-top:auto;margin-bottom:12px;max-height:60vh;overflow:auto} #titleScr .ctrl{display:none !important} #titleScr h1{font-size:44px} }
+#overStats{display:grid;gap:4px;text-align:left;margin:0 auto 14px;max-width:340px;font-size:15px}
+#overStats b{display:inline-block;min-width:6.5em;color:var(--dim);font-weight:400}
+#overStats em{color:var(--accent);font-style:normal}
+#overStats .ups{line-height:1.4}
+.uptitle{padding:8px 22px;font-size:22px;letter-spacing:.06em}
+#cards{display:grid;grid-template-columns:repeat(3,minmax(0,220px));gap:14px;max-width:100%}
+.card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:14px 14px 16px;min-height:170px;position:relative;transition:transform .08s}
+.card:hover,.card:focus-visible{transform:translateY(-4px)}
+.card .key{position:absolute;right:10px;top:8px;color:var(--dim);font-size:13px}
+.card .rar{font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.card .cname{font-size:18px;font-weight:600;color:var(--ink)}
+.card .cdesc{font-size:14px;line-height:1.35;color:#dfe3ff}
+.card .lvl{margin-top:auto;font-size:12px;color:var(--accent)}
+@media (max-width:720px){
+  #cards{grid-template-columns:1fr;width:min(420px,100%)} .card{min-height:0}
+  #hud{width:210px;font-size:13px}
+  #waveBox{top:calc(92px + env(safe-area-inset-top,0px));left:12px;transform:none;font-size:13px}
+  #bossBox{top:calc(130px + env(safe-area-inset-top,0px))}
+  #menu ul{min-width:200px}
+}
+
+#hud .frag{color:var(--accent);font-size:13px}
+.fr{color:var(--accent)}
+#fragGain{color:var(--accent);font-size:18px;margin:0 0 12px}
+#fragGain span{color:var(--dim);font-size:14px}
+#cards{grid-template-columns:repeat(auto-fit,minmax(180px,220px));justify-content:center;width:min(960px,100%)}
+#rerollBtn{font-size:15px;padding:8px 18px}
+.shrine{width:min(900px,100%);max-height:100%;overflow:auto}
+@media (min-width:760px){ #shrineList{grid-template-columns:1fr 1fr} }
+.sub2{margin:0 0 6px;color:var(--dim);font-size:14px}
+#fragTotal{margin:0 0 12px;color:var(--accent);font-size:20px}
+#shrineList{display:grid;gap:8px;margin-bottom:14px}
+.srow{display:grid;grid-template-columns:1fr auto;gap:2px 12px;text-align:left;padding:8px 12px;align-items:center}
+.srow .sname{font-weight:600;font-size:16px}
+.srow .spips{color:var(--accent);letter-spacing:.1em;justify-self:end}
+.srow .sdesc{font-size:13px;color:#dfe3ff}
+.srow .scost{justify-self:end;color:var(--accent);font-weight:600}
+.srow .scost.no{color:#9aa0c8}
+.srow:disabled{cursor:default;filter:saturate(.6) brightness(.85)}
+.srow:not(:disabled):hover{filter:brightness(1.15)}
