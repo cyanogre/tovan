@@ -209,11 +209,11 @@ function mpDibujaRadar(){
   const X = (x, z) => C + (x * rx + z * rz) * k, Y = (x, z) => C - (x * fx + z * fz) * k;
   const dot = (x, z, r, col) => { g.fillStyle = col; g.beginPath(); g.arc(X(x, z), Y(x, z), r, 0, TAU); g.fill(); };
   g.clearRect(0, 0, W, W);
-  g.fillStyle = 'rgba(8,10,40,.78)'; g.beginPath(); g.arc(C, C, R + 5, 0, TAU); g.fill();
+  g.fillStyle = 'rgba(10,11,16,.8)'; g.beginPath(); g.arc(C, C, R + 5, 0, TAU); g.fill();
   if (M){ for (const z of M.agua) dot(z.x, z.z, z.r * k, 'rgba(70,140,220,.6)'); for (const z of M.hielo) dot(z.x, z.z, z.r * k, 'rgba(190,232,255,.45)');
     for (const o of M.obst) dot(o.x, o.z, Math.max(1.2, o.r * k), o.h < 1.4 ? 'rgba(150,150,190,.55)' : 'rgba(170,175,215,.85)');
     g.strokeStyle = '#7ff5ff'; g.lineWidth = 1.5; for (const p of M.pads){ g.beginPath(); g.arc(X(p.x, p.z), Y(p.x, p.z), 3, 0, TAU); g.stroke(); } }
-  g.strokeStyle = 'rgba(238,240,255,.85)'; g.lineWidth = 2; g.beginPath(); g.arc(C, C, R, 0, TAU); g.stroke();
+  g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1.5; g.beginPath(); g.arc(C, C, R, 0, TAU); g.stroke();
   const o = typeof OBJ !== 'undefined' ? OBJ.cur : null;
   if (o && o.tipo === 'sello'){ g.strokeStyle = o.ok ? '#ffd23a' : '#d07aff'; g.lineWidth = 2; g.beginPath(); g.arc(X(o.x, o.z), Y(o.x, o.z), Math.max(3, OBJ_SR * k), 0, TAU); g.stroke(); }
   if (o && o.tipo === 'paquete' && !o.pk.lost){ const p = o.pk.g.position;

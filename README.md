@@ -96,6 +96,8 @@ Crea tus ficheros nuevos y añádelos a `index.html` en el hueco **`<!-- Tus añ
 
 Los iconos con emoji se cambian solos por pixel art si el emoji está en la hoja (`js/interfaz/iconos-pixel.js`).
 
+**Aspecto de la interfaz:** `css/interfaz.css`, el último de la cascada, da a HUD y menús su estilo actual: paneles oscuros con filete fino, un solo acento ámbar (`--accent`) y las fuentes Barlow y Barlow Condensed. Sus colores están arriba del todo, en `:root`. Solo pisa estilos de los ficheros anteriores: si se quita su `<link>`, vuelven las ventanas azules de antes. Los números de daño y las parodias (Canal X, cuelgue, novela…) conservan su estilo propio y la fuente Pixelify Sans.
+
 ## Objetivos de oleada y capitanes
 
 Inspirados en las misiones de *Hyrule Warriors* y en las piezas rompibles de *Monster Hunter*.
