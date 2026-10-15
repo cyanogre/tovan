@@ -1,0 +1,34 @@
+/* ---------- Objetivos de oleada y capitanes (js/partida/objetivos.js, js/enemigos/capitanes.js) ---------- */
+#objCol{position:fixed;top:calc(64px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(380px,calc(100% - 24px));
+  display:flex;flex-direction:column;gap:6px;pointer-events:none;z-index:6}
+#objBox,#capBox{padding:6px 12px 8px;font-size:14px}
+.objtit{display:flex;gap:8px;align-items:center;color:var(--accent);letter-spacing:.03em}
+#objIc{font-size:16px;line-height:1}
+#objLin{font-size:13px;color:#e8ebff;margin:2px 0 5px}
+#objBox .wprog i{background:linear-gradient(90deg,#b04aff,#ffd23a)}
+#objBox.alerta{border-color:#ff8a6a;animation:objAlerta .5s steps(2) infinite}
+#objBox.alerta #objLin{color:#ffb08a}
+#objBox.ok{border-color:#7dff8a} #objBox.ok #objLin{color:#7dff8a}
+#objBox.mal{border-color:#ff8a6a} #objBox.mal #objLin{color:#ffb08a}
+@keyframes objAlerta{50%{box-shadow:0 0 0 2px #10102a,0 0 14px rgba(255,120,90,.7),4px 4px 0 rgba(0,0,0,.45)}}
+.caphead{display:flex;justify-content:space-between;gap:10px;color:#ffb08a;margin-bottom:4px;letter-spacing:.04em}
+#capInfo{color:var(--accent)}
+#capParts{display:flex;gap:6px;margin-top:6px}
+.cpart{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:12px;padding:3px 5px;border-radius:4px;background:rgba(8,10,40,.6);border:1px solid rgba(238,240,255,.3)}
+.cpart b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cpart i{display:block;height:4px;background:#07082a;border:1px solid rgba(238,240,255,.4);border-radius:2px;overflow:hidden}
+.cpart u{display:block;height:100%;background:linear-gradient(90deg,#ffd23a,#ff8a3a);text-decoration:none}
+.cpart em{font-style:normal;color:var(--dim);font-size:11px;white-space:nowrap}
+.cpart.roto{border-color:#ffd23a;background:rgba(80,60,8,.55)}
+.cpart.roto b{text-decoration:line-through;color:#c8c0a0}
+.cpart.roto em{color:#ffd23a}
+body.cine #objCol{display:none}
+body.con-obj #banner{top:max(15%,calc(var(--objfin,0px) + 10px))}
+@media (max-width:720px){
+  #objCol{top:calc(130px + env(safe-area-inset-top,0px));width:min(340px,calc(100% - 16px));gap:4px}
+  body.con-obj #bark{top:calc(var(--objfin,150px) + 8px)}
+  body.con-obj #comboBox{top:calc(var(--objfin,30%) + 12px)}
+  #objBox,#capBox{padding:4px 8px 6px;font-size:13px}
+  #objLin{font-size:12px;margin:1px 0 3px}
+  #capParts{gap:4px} .cpart{font-size:11px;padding:2px 4px} .cpart em{font-size:10px}
+}

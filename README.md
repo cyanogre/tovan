@@ -27,10 +27,10 @@ js/
   audio/              efectos y música sintetizados (WebAudio), banda sonora v3, mp3 de jefes
   entrada/            mando, teclado, ratón y táctil
   jugador/            modelo de Tovan, movimientos, acciones, ataque cargado, inercia, acrobacias
-  enemigos/           enemigos base, oni, realistas; regiones/ = enemigos propios de cada escenario
+  enemigos/           enemigos base, oni, realistas, capitanes (piezas rompibles); regiones/ = enemigos propios de cada escenario
   jefes/              Ryūjin, Gashadokuro, Tetera de Utah, ERROR 404, Seis Ojos, Míster Confianza, Gato final…
   mundo/              escenarios (biomas), ambiente, playa, ruinas corruptas, castillo, capítulos
-  partida/            oleadas, mejoras, ciclo de partida (empezar / perder / volver al título)
+  partida/            oleadas, objetivos de oleada, mejoras, ciclo de partida (empezar / perder / volver al título)
   combate/            combo, billetes, limpieza de restos, sensación de impacto
   sinergias/          elementos, reacciones, rayos, sinergias emergentes
   poderes/            cartas de poder por versiones (otaku, v5, anime, v13, ramas, Súper Repartidor)
@@ -89,9 +89,43 @@ Crea tus ficheros nuevos y añádelos a `index.html` en el hueco **`<!-- Tus añ
 | **Un sonido / una canción** | `Object.assign(SFX, { nombre: () => { tone({…}); } })` y `play('nombre')`; canciones en `SONGS` (o `js/audio/banda-sonora/temas.js`). |
 | **Diálogo / historia** | Entradas en `STORY` (`js/historia/textos.js`): `['tovan' \| 'lumen' \| 'narr', 'texto']`. |
 | **La canción mp3 de un jefe** | El mp3 en `assets/audio/` con el nombre de `BOSS_FILES` (`js/audio/canciones-jefes.js`). |
+| **Un objetivo de oleada** | Una entrada en `OBJ_INFO` y otra en `OBJ_DEF` (`empieza`, `tick`, `linea`, `premio` y, si quieres, `prog` y `alerta`) en `js/partida/objetivos.js`, y su nombre en la bolsa de `objSiguiente`. Ver [Objetivos y capitanes](#objetivos-de-oleada-y-capitanes). |
+| **Un capitán o una pieza** | Su entrada en `CAP_DEF` (nombre, vida y piezas con `zone`: `frente`, `espalda` o `aire`), un `makeCapX()` que monte las piezas con `capPieza()` y una IA que mire `capHas(e, 'pieza')` antes de cada ataque. Todo en `js/enemigos/capitanes.js`. |
 | **Una textura** | Dibújala en un hueco de su hoja (`assets/texturas/jefes.png`…), añade su rectángulo al `.json` de la hoja y en el código `texAsset('jefes/<nombre>')`. Ver [Texturas](#texturas). |
 
 Los iconos con emoji se cambian solos por pixel art si el emoji está en la hoja (`js/interfaz/iconos-pixel.js`).
+
+## Objetivos de oleada y capitanes
+
+Inspirados en las misiones de *Hyrule Warriors* y en las piezas rompibles de *Monster Hunter*.
+
+**Objetivos** (`js/partida/objetivos.js`). En la 2.ª y la 4.ª oleada de cada capítulo hay una misión con premio; sale en el panel bajo la oleada y en el rótulo de inicio. Sin objetivos: la oleada 1, las de jefe, el Canal X, el nivel del bug, el castillo y el final.
+
+| Objetivo | Cómo va | Premio | Si falla |
+|---|---|---|---|
+| 📦 **Protege el paquete** | Unos ladrones van a por él. El que lo coge huye hacia el borde; si lo tumbas, el paquete se queda en el suelo. Siempre es el primer objetivo de la partida. | +12 ✦ y un 15 % de vida | Si un ladrón sale del mapa, se pierde |
+| 🏯 **Destruye los puestos** | Tres puestos corruptos sueltan un enemigo cada pocos segundos (hasta 6 cada uno). | +4 ✦ y vida por puesto; +6 ✦ al final | — |
+| 💰 **Caza al capitán del botín** | Un capitán lleva el botín. Desde el capítulo 2. | Una carta extra y +10 ✦ | A los 50 s huye; si llega al borde, se escapa |
+| ⛩️ **Purifica la zona** | Quédate dentro del círculo sin enemigos dentro. Hasta que se purifica llegan refuerzos y la oleada no se cierra. | ÍMP al máximo y +10 ✦; la luz hiere a los que quedan | A los 70 s se corrompe: sin premio |
+
+En la 3.ª oleada de cada capítulo, desde el 2, se presenta además un capitán a media oleada.
+
+**Capitanes** (`js/enemigos/capitanes.js`). Son enemigos grandes con tres piezas que solo se dañan desde un lado. El panel del capitán muestra cada pieza, cuánto le queda y desde dónde se rompe. Un golpe normal no los interrumpe; romper una pieza los deja aturdidos, la pieza sale volando y les cambia el estilo:
+
+| Capitán | Pieza | Se rompe | Al romperla |
+|---|---|---|---|
+| **Kanabō** (oni) | Kanabō | de frente | Pierde el mazazo y el barrido: pelea a puñetazos y embestidas, más rápido |
+| | Cuernos | desde el aire (golpeando en pleno salto) | Ya no lanza el grito de guerra que llama refuerzos |
+| | Calabaza | por la espalda | Ya no bebe para curarse (pegarle mientras bebe también lo corta), pero va ebrio |
+| **Muralla** (gólem) | Escudo | de frente | Deja de frenar la mitad del daño frontal y de embestir; ahora lanza cascotes |
+| | Núcleo | por la espalda | Ya no salta con onda expansiva: solo pisotea |
+| | Ojo de cristal | desde el aire | Se acaba el láser de barrido |
+
+Cada pieza rota da +3 ✦ y una curación; tumbar al capitán, +5 ✦ y dos curaciones.
+
+**Probarlos desde la consola (F12)**, en plena partida:
+- Un capitán ya: `spawnCaptain('caponi')` o `spawnCaptain('capgolem')`.
+- Un objetivo concreto: `OBJ.n = 1; OBJ.bolsa = ['sello']; startWave(9)` (cambia `'sello'` por `'paquete'`, `'puestos'` o `'capitan'`, y usa una oleada que sea 2.ª o 4.ª de su capítulo: 2, 4, 7, 9, 12…).
 
 ## Texturas
 
