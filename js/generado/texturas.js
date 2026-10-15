@@ -1,5 +1,5 @@
 // GENERADO por herramientas/texturas.py: no lo edites a mano.
-// Edita los PNG de assets/texturas y ejecuta actualizar-texturas.bat.
+// Edita los PNG de assets/texturas; al subirlos a GitHub este fichero se regenera solo.
 'use strict';
 const TEXTURAS = {
   'armas/abanico': [32, 16, 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAYAAAB3AH1ZAAAAjElEQVR4AeySoQ2AMBBFLxWICiQChUQiGYEZGIIwC0Mg0YyARLIN3DckZxq+adOEpl9c0pf8vpyrvb9Txkni4+ailK1q3sSejYHuWGW6dtoJOIQGFTAFdI5+TYGzH2VpB7oEOIQGFTAFdI5+8ymAJUNYRVjqEJePASwZwhrAUoe4fAywP//6/jeQ3MADAAD//8IQnB4AAAAGSURBVAMAEg1XQbCL3bwAAAAASUVORK5CYII='],

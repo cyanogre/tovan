@@ -1,7 +1,7 @@
 'use strict';
 /* ---------- Texturas en archivos: assets/texturas/*.png ----------
-   Las imágenes se editan en assets/texturas y se empaquetan en js/generado/texturas.js con
-   actualizar-texturas.bat: con el juego abierto desde un archivo (doble clic), el navegador no deja
+   Las imágenes se editan en assets/texturas y herramientas/texturas.py las empaqueta en js/generado/texturas.js
+   (GitHub lo hace solo al subirlas): con el juego abierto desde un archivo (doble clic), el navegador no deja
    que WebGL use imágenes sueltas, pero sí las que van dentro de un .js.
    El nombre de cada textura es su ruta sin «.png»: assets/texturas/jefes/gato-cara.png -> 'jefes/gato-cara'. */
 const TEX_IMG = {};
@@ -26,7 +26,7 @@ const TEX_RND = {
 const TEX_PINTADAS = [];
 function texDatos(nombre){
   const d = TEXTURAS[nombre];
-  if (!d) throw new Error(`Falta la textura «${nombre}». ¿Está en assets/texturas y has ejecutado actualizar-texturas.bat?`);
+  if (!d) throw new Error(`Falta la textura «${nombre}». ¿Está en assets/texturas y se ha empaquetado (py -3 herramientas/texturas.py)?`);
   return d;
 }
 // Imagen tal cual, para dibujarla en 2D con drawImage (retratos, show…). Ya está cargada cuando empieza la partida.

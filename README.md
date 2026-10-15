@@ -7,21 +7,21 @@ Roguelike 3D por oleadas con look de PlayStation 1, hecho con [three.js](https:/
 - **Abrir el juego:** doble clic en `index.html`. No hace falta servidor ni instalar nada.
 - **Requisito:** conexión a internet la primera vez (three.js y la fuente Pixelify Sans vienen de CDN).
 - **Editar código:** cambia el `.js` o `.css` que toque y recarga la página (F5).
-- **Editar texturas:** cambia el PNG en `assets/texturas/`, haz doble clic en **`actualizar-texturas.bat`** y recarga (F5). Ver [Texturas](#texturas).
+- **Editar texturas:** cambia el PNG en `assets/texturas/`. Al subirlo a GitHub se empaqueta solo; para verlo en local antes de subirlo, ver [Texturas](#texturas).
 - **Depurar:** todo el estado del juego es global, así que desde la consola del navegador (F12) puedes inspeccionar o tocar cosas directamente: `player.hp = 999`, `wave`, `enemies`, `meta`, `UPGRADES`…
 
 ## Estructura
 
 ```
 index.html            esqueleto de la página + lista ordenada de <link> y <script>
-actualizar-texturas.bat  empaqueta los PNG de assets/texturas para el juego (ejecútalo tras editarlos)
 css/                  estilos, en el orden de la cascada original
 assets/texturas/      todas las texturas y retratos del juego en PNG, por carpetas (mundo, jugador, jefes…)
 assets/audio/         canciones de jefes (mp3); si falta alguna, suena la versión sintetizada
 assets/img/           iconos-16px.png (hoja de iconos que usa el juego) e iconos-tovan.png (vista ampliada)
-herramientas/         texturas.py, el script que usa actualizar-texturas.bat
+herramientas/         texturas.py, empaqueta los PNG de assets/texturas para el juego
+.github/workflows/    texturas.yml, ejecuta texturas.py en GitHub cada vez que se suben PNG
 js/
-  generado/           texturas.js, creado por actualizar-texturas.bat (no se edita a mano)
+  generado/           texturas.js, creado por herramientas/texturas.py (no se edita a mano)
   motor/              renderer, carga de texturas (assets.js), shader PS1, resolución
   nucleo/             utilidades matemáticas, estado global, referencias al DOM
   audio/              efectos y música sintetizados (WebAudio), banda sonora v3, mp3 de jefes
@@ -89,7 +89,7 @@ Crea tus ficheros nuevos y añádelos a `index.html` en el hueco **`<!-- Tus añ
 | **Un sonido / una canción** | `Object.assign(SFX, { nombre: () => { tone({…}); } })` y `play('nombre')`; canciones en `SONGS` (o `js/audio/banda-sonora/temas.js`). |
 | **Diálogo / historia** | Entradas en `STORY` (`js/historia/textos.js`): `['tovan' \| 'lumen' \| 'narr', 'texto']`. |
 | **La canción mp3 de un jefe** | El mp3 en `assets/audio/` con el nombre de `BOSS_FILES` (`js/audio/canciones-jefes.js`). |
-| **Una textura** | El PNG en `assets/texturas/<carpeta>/`, `actualizar-texturas.bat` y en el código `texAsset('<carpeta>/<nombre>')`. Ver [Texturas](#texturas). |
+| **Una textura** | El PNG en `assets/texturas/<carpeta>/` y en el código `texAsset('<carpeta>/<nombre>')`. Ver [Texturas](#texturas). |
 
 Los iconos con emoji se cambian solos por pixel art si el emoji está en la hoja (`js/interfaz/iconos-pixel.js`).
 
@@ -97,10 +97,13 @@ Los iconos con emoji se cambian solos por pixel art si el emoji está en la hoja
 
 Todas las texturas y retratos del juego son PNG en `assets/texturas/`, agrupados en carpetas: `mundo`, `jugador`, `enemigos`, `jefes`, `canal-x`, `cinematica`, `efectos`, `objetos`, `armas` y `retratos`. Puedes editarlos con cualquier programa: Aseprite, Photoshop, Paint.NET, GIMP…
 
-**Después de editar, haz doble clic en `actualizar-texturas.bat`** y recarga el juego. El script mete todos los PNG en `js/generado/texturas.js`, que es lo que lee el juego. Hace falta porque, al abrir el juego con doble clic, el navegador no deja que WebGL use imágenes sueltas, pero sí las que van dentro de un `.js`. Si no lo ejecutas, el juego seguirá mostrando la versión anterior. Necesita Python, que ya tienes instalado.
+El juego no lee los PNG directamente, sino `js/generado/texturas.js`, que los lleva todos dentro. Hace falta porque, al abrir el juego con doble clic, el navegador no deja que WebGL use imágenes sueltas (da un error de seguridad), pero sí las que van dentro de un `.js`. Ese fichero lo crea `herramientas/texturas.py` y no hay que acordarse de ejecutarlo:
+
+- **Al subir a GitHub** (con git, GitHub Desktop o la web), el workflow `.github/workflows/texturas.yml` lo vuelve a crear y lo sube en un commit aparte si ha cambiado. Después, haz *pull* para tenerlo también en tu copia.
+- **Para ver en local un PNG editado antes de subirlo**, deja abierto mientras editas `py -3 herramientas/texturas.py --vigilar`: cada vez que guardes un PNG lo vuelve a empaquetar y solo tienes que recargar el juego (F5). Sin `--vigilar` empaqueta una vez y termina.
 
 - **El nombre de una textura** es su ruta sin `.png`: `assets/texturas/jefes/gato-cara.png` es `'jefes/gato-cara'`.
-- **Usar una textura nueva:** ponla en `assets/texturas/`, ejecuta el `.bat` y, en el código, `makeMat(0xffffff, { map: texAsset('carpeta/nombre') })`.
+- **Usar una textura nueva:** ponla en `assets/texturas/` y, en el código, `makeMat(0xffffff, { map: texAsset('carpeta/nombre') })`.
   - Por defecto se ve con píxel nítido y repetida, como todas las del juego.
   - `texAsset(nombre, { suave: true })` la suaviza (para texturas realistas).
   - `{ borde: true }` hace que no se repita.
