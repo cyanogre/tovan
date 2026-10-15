@@ -12,7 +12,7 @@ const CH = [
 let chActive = false, chMode = null, chIdx = 0, chT = 22, chEp = 0, chFrame = 0, shotT = 0, onoT = 0, resOverride = null;
 let trust = 0, trustRank = 9999, chSeen = new Set();
 const epCard = document.getElementById('epCard'), tvStatic = document.getElementById('tvStatic'), trustEl = document.getElementById('trust');
-tvStatic.style.backgroundImage = `url(${TEXTURAS['canal-x/estatica'][2]})`;
+assetCanvas('canal-x/estatica', c => tvStatic.style.backgroundImage = `url(${c.toDataURL()})`);
 
 /* ---------- Plató ---------- */
 const stageTex = texAsset('canal-x/plato-suelo');

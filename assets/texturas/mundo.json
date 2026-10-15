@@ -1,0 +1,13 @@
+{
+  "mundo/hierba": [2, 2, 16, 16],
+  "mundo/santuario-suelo": [20, 2, 32, 32],
+  "mundo/cumbre-suelo": [54, 2, 32, 32],
+  "mundo/azotea-tejado": [88, 2, 32, 32],
+  "mundo/anticuario-suelo": [122, 2, 32, 32],
+  "mundo/anticuario-pared": [156, 2, 16, 16],
+  "mundo/ruinas-suelo": [2, 36, 32, 32],
+  "mundo/ruinas-ladrillo": [36, 36, 32, 32],
+  "mundo/castillo-tatami": [70, 36, 32, 32],
+  "mundo/castillo-shoji": [104, 36, 32, 32],
+  "mundo/castillo-fusuma": [138, 36, 32, 32]
+}

@@ -1,0 +1,34 @@
+# Regenera js/generado/texturas.js cuando cambian los PNG de assets/texturas, para que nadie tenga que
+# acordarse de empaquetarlos (ver herramientas/texturas.py). Si el fichero ya estaba al día, no hace nada.
+name: Texturas
+
+on:
+  push:
+    branches: ['**']
+    paths: ['assets/texturas/**', 'herramientas/texturas.py', 'js/generado/**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: texturas-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  empaquetar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Empaquetar los PNG
+        run: python3 herramientas/texturas.py
+      - name: Subir texturas.js si ha cambiado
+        run: |
+          git add js/generado
+          if git diff --cached --quiet; then echo 'texturas.js ya estaba al día.'; exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Regenera js/generado/texturas.js a partir de assets/texturas'
+          git push

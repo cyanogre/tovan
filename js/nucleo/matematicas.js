@@ -2,7 +2,8 @@
 /* ======================================================================
    ROGUELIKE POR OLEADAS
    ====================================================================== */
-const V3 = THREE.Vector3, TAU = Math.PI * 2, ARENA = 6.3;
+const V3 = THREE.Vector3, TAU = Math.PI * 2;
+let ARENA = 6.3;   // radio del mapa jugable: js/mundo/mapas-grandes.js lo agranda en las oleadas normales de los tres primeros escenarios
 const lerp = (a, b, t) => a + (b - a) * t;
 const smooth = t => t * t * (3 - 2 * t);
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));

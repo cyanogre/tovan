@@ -1,0 +1,9 @@
+{
+  "efectos/circulo-alquimia": [2, 2, 64, 64],
+  "efectos/circulo-estrella": [68, 2, 64, 64],
+  "efectos/circulo-reloj": [134, 2, 64, 64],
+  "efectos/circulo-runas": [200, 2, 64, 64],
+  "efectos/runas-linterna": [266, 2, 64, 64],
+  "efectos/sello-firmado": [2, 68, 64, 32],
+  "efectos/sombra": [68, 68, 32, 32]
+}

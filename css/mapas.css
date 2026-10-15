@@ -1,0 +1,5 @@
+/* ---------- Mapas grandes: radar (js/mundo/mapas-grandes.js) ---------- */
+#mpRadar{position:fixed;top:calc(58px + env(safe-area-inset-top,0px));right:12px;width:132px;height:132px;image-rendering:pixelated;pointer-events:none;z-index:6;
+  filter:drop-shadow(3px 3px 0 rgba(0,0,0,.45))}
+body.cine #mpRadar{display:none}
+@media (max-width:720px){ #mpRadar{top:calc(52px + env(safe-area-inset-top,0px));right:8px;width:96px;height:96px} }
