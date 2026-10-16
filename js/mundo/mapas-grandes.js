@@ -79,10 +79,11 @@ function mpEmpuja(p, rad, y){
     const dx = p.x - o.x, dz = p.z - o.z, d = Math.hypot(dx, dz), m = o.r + rad;
     if (d < m){ if (d < 1e-4){ p.x = o.x + m; continue; } p.x = o.x + dx / d * m; p.z = o.z + dz / d * m; } }
 }
+const MP_BAJO = 0.6;   // los enemigos pasan por encima de lo que mide menos de 0,7 m (rocas sueltas, muretes); Tovan lo salta
 const _separateEnemiesMP = separateEnemies;
 separateEnemies = function(){
   _separateEnemiesMP(); if (!MP.on) return;
-  for (const e of enemies) if (e.alive && e.spawnT <= 0 && !e.noSep && e.type !== 'dragon' && e.type !== 'puesto') mpEmpuja(e.g.position, e.r * 0.8, e.g.position.y);
+  for (const e of enemies) if (e.alive && e.spawnT <= 0 && !e.noSep && e.type !== 'dragon' && e.type !== 'puesto') mpEmpuja(e.g.position, e.r * 0.8, Math.max(e.g.position.y, MP_BAJO));   // las rocas bajas las pasan por encima
 };
 
 /* ---------- Rodeos: los enemigos no se quedan atascados detrás de un muro ---------- */
@@ -94,7 +95,7 @@ function mpRejilla(M){
   if (M.rej) return M.rej;
   const n = Math.ceil(ARENA_GRANDE * 2 / MP_CEL), libre = new Uint8Array(n * n);
   for (let j = 0; j < n; j++) for (let i = 0; i < n; i++){ const x = -ARENA_GRANDE + (i + 0.5) * MP_CEL, z = -ARENA_GRANDE + (j + 0.5) * MP_CEL;
-    libre[j * n + i] = Math.hypot(x, z) < ARENA_GRANDE - 0.6 && !M.obst.some(o => Math.hypot(x - o.x, z - o.z) < o.r + 0.4) ? 1 : 0; }
+    libre[j * n + i] = Math.hypot(x, z) < ARENA_GRANDE - 0.6 && !M.obst.some(o => o.h > MP_BAJO + 0.1 && Math.hypot(x - o.x, z - o.z) < o.r + 0.4) ? 1 : 0; }
   return M.rej = { n, libre, cola: new Int32Array(n * n), campos: new Map() };
 }
 const mpCelda = (R, x, z) => { const i = Math.floor((x + ARENA_GRANDE) / MP_CEL), j = Math.floor((z + ARENA_GRANDE) / MP_CEL); return i < 0 || j < 0 || i >= R.n || j >= R.n ? -1 : j * R.n + i; };
@@ -133,7 +134,7 @@ function mpCamino(R, D, x, z){   // rumbo [dx, dz] hacia la celda que está tres
 }
 function mpVe(M, x, z, p, r){   // ¿línea recta libre desde (x, z) hasta p?
   const dx = p.x - x, dz = p.z - z, L2 = dx * dx + dz * dz; if (L2 < 0.01) return true;
-  for (const o of M.obst){ const t = clamp(((o.x - x) * dx + (o.z - z) * dz) / L2, 0, 1), px = x + dx * t - o.x, pz = z + dz * t - o.z; if (px * px + pz * pz < (o.r + r) ** 2) return false; }
+  for (const o of M.obst){ if (o.h <= MP_BAJO + 0.1) continue; const t = clamp(((o.x - x) * dx + (o.z - z) * dz) / L2, 0, 1), px = x + dx * t - o.x, pz = z + dz * t - o.z; if (px * px + pz * pz < (o.r + r) ** 2) return false; }
   return true;
 }
 const _updateEnemyMP = updateEnemy;
