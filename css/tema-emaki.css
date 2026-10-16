@@ -1,0 +1,267 @@
+/* ======================================================================
+   TEMA «EMAKI» (body[data-ui=emaki]): tinta sumi, papel washi y sellos
+   bermellón, como un rollo ilustrado de yokai. Fuentes: Shippori Mincho B1,
+   Yuji Syuku (pincel) y Zen Kaku Gothic New (en el <link> de Google Fonts).
+   Los filtros #uiPincel, #uiPincel2 y #uiSello los crea js/interfaz/temas.js.
+   ====================================================================== */
+body[data-ui=emaki]{
+  --washi:#efe6d2; --washi2:#e2d5ba; --sumi:#15120f; --sumi2:#2a251f; --shu:#c7402d; --kin:#c4a066; --ai:#2c4166; --tenue:#7d7262; --claro:#cbbfa8;
+  --ink:var(--washi); --dim:var(--claro); --accent:var(--shu); --hp:var(--shu); --hp-low:#ff6a4a; --mp:#5f93d6; --boss:var(--shu);
+  --fibra:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.012 .9' numOctaves='3' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .45  0 0 0 0 .38  0 0 0 0 .26  0 0 0 .5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.38'/></svg>");
+  --washiBg:var(--fibra),radial-gradient(ellipse at 30% 20%,#f6efdf,var(--washi) 55%,#e6dac2);
+  --sumiBg:radial-gradient(ellipse at 30% 30%,rgba(28,24,19,.9),rgba(14,12,9,.86));
+  --rasgado:polygon(0 4%,4% 0,30% 3%,60% 0,92% 2%,100% 0,99% 40%,100% 100%,70% 97%,40% 100%,8% 97%,0 100%,1% 50%);
+  --mancha:40% 12% 34% 14%/30% 22% 40% 26%;
+  --mincho:'Shippori Mincho B1',serif; --fude:'Yuji Syuku',serif; --goth:'Zen Kaku Gothic New',sans-serif;
+  font-family:var(--mincho);
+
+  .win{background:var(--sumiBg);color:var(--washi);border:0;border-radius:var(--mancha);box-shadow:0 10px 26px rgba(0,0,0,.5);text-shadow:none}
+  button.win:focus-visible{outline:2px solid var(--kin);outline-offset:3px}
+  .overlay{background:radial-gradient(ellipse at 50% 50%,rgba(21,18,15,.55),rgba(10,8,6,.9) 80%)}
+  .dim{color:var(--claro)}
+  .chip{background:rgba(14,12,9,.82);border:1px solid color-mix(in srgb,var(--c) 55%,transparent);border-radius:12px;text-shadow:none;font-family:var(--goth);font-size:11.5px}
+  .cnew{color:#3a7a3a;animation:none}
+
+  /* ---------- HUD: mancha de tinta con el retrato y la pincelada de vida ---------- */
+  #hud{width:360px;padding:12px 22px 12px 14px;gap:14px;border-radius:46% 18% 40% 22%/58% 30% 60% 34%;background:radial-gradient(ellipse at 40% 40%,rgba(18,15,11,.9) 55%,rgba(18,15,11,.6) 80%,rgba(18,15,11,0) 100%);box-shadow:none}
+  #portrait{width:62px;height:62px;border:2px solid var(--kin);border-radius:0;box-shadow:0 0 0 3px rgba(21,18,15,.7);background:#20232e}
+  #hud .nm{font:400 27px/1 var(--fude);color:var(--washi);letter-spacing:.04em;margin-bottom:7px}
+  #hud .nm small{font:500 12px var(--mincho);color:var(--claro);letter-spacing:.04em}
+  #hud .lb{font:500 10px var(--goth);color:var(--claro);letter-spacing:.14em;width:3em}
+  #hud .num{font:600 14px var(--mincho);color:var(--washi)}
+  .bar{height:11px;background:rgba(239,230,210,.16);border:0;border-radius:50% 10% 40% 12%/60% 30% 50% 40%;box-shadow:none;filter:url(#uiPincel2)}
+  .bar i{background:linear-gradient(180deg,#e05a44,var(--shu) 60%,#9e2c1e);border-radius:inherit}
+  .bar i.low{background:linear-gradient(180deg,#ff8a6a,#ff5a3a)}
+  .bar b{background:rgba(239,230,210,.4);border-radius:inherit}
+  /* ímpetu: cuatro cuentas (las separa la máscara) */
+  .bar.mp{height:16px;background:rgba(95,147,214,.18);border-radius:0;filter:none;
+    -webkit-mask:radial-gradient(circle at center,#000 6.6px,transparent 7.4px) 0 0/25% 100% repeat-x;mask:radial-gradient(circle at center,#000 6.6px,transparent 7.4px) 0 0/25% 100% repeat-x}
+  .bar.mp i{background:radial-gradient(circle at 35% 35%,#cfe6ff,#5f93d6 55%,#2c4f8a) 0 0/25% 100%;border-radius:0}
+  .bar.mp::after{display:none}
+  #hud .frag,.fr{color:var(--kin)} #hud .frag{font:600 13px var(--mincho)}
+  #hud.danger #portrait{animation:none;border-color:var(--shu);box-shadow:0 0 0 3px var(--shu),0 0 16px rgba(199,64,45,.7)}
+
+  /* ---------- Oleada: ensō con el número en kanji ---------- */
+  #waveBox{background:none;box-shadow:none;border-radius:0;padding:0;min-width:0;gap:0}
+  #waveBox .wtop,#waveBox .wprog{display:none}
+  .uiOla{display:grid;justify-items:center;position:relative;color:var(--washi)}
+  .uiOla::before{content:'';width:92px;height:92px;border-radius:50%;background:radial-gradient(circle,rgba(16,13,10,.84) 60%,rgba(16,13,10,.5) 70%,transparent 72%);
+    box-shadow:inset 0 0 0 6px var(--shu);filter:url(#uiPincel);grid-area:1/1}
+  .uiOla .k{position:relative;z-index:1;grid-area:1/1;align-self:center;font:400 46px/1 var(--fude);text-shadow:0 3px 10px rgba(0,0,0,.7)}
+  .uiOla .t,.uiOla .n{display:none}
+  .uiOla .q{margin-top:3px;font:600 12px var(--mincho);letter-spacing:.24em;text-shadow:0 2px 6px rgba(0,0,0,.95);white-space:nowrap}
+  .uiOla .q::before{content:'Quedan '} .uiOla .q b{color:#f08a74} .uiOla .q i{font-style:normal;margin-left:.35em}
+  #waveBox:hover .uiOla::before{box-shadow:inset 0 0 0 6px var(--kin)}
+
+  /* ---------- Jefe: su nombre a pincel y la vida en una pincelada ---------- */
+  #bossBox{background:none;box-shadow:none;border-radius:0;padding:0;width:min(560px,calc(100% - 24px));text-align:center}
+  #bossName{font:400 30px/1.1 var(--fude);color:var(--washi);letter-spacing:.06em;text-shadow:0 3px 10px rgba(0,0,0,.9);margin-bottom:6px}
+  .bar.boss{height:14px;background:rgba(16,13,10,.7)}
+
+  /* ---------- Rótulos: tira de washi con pincelada roja ---------- */
+  #banner{background:var(--washiBg);color:var(--sumi);border-radius:0;clip-path:var(--rasgado);padding:12px 48px 16px;font:400 clamp(26px,3.6vw,38px)/1.1 var(--fude);letter-spacing:.08em}
+  #banner small{font:600 13px var(--mincho);letter-spacing:.04em;color:var(--shu);margin-top:6px}
+
+  /* ---------- Combo: número a pincel y sello vertical ---------- */
+  #comboBox{text-shadow:0 4px 0 rgba(21,18,15,.65),0 0 18px rgba(0,0,0,.6)}
+  #comboNum{font:400 clamp(64px,8vw,96px)/.9 var(--fude);color:var(--washi)}
+  .clabel{font:600 13px var(--mincho);letter-spacing:.4em;color:var(--washi)}
+  .clabel::after{content:'連撃';display:inline-block;margin-left:10px;padding:3px 4px;background:var(--shu);color:#f8ecd9;font:400 13px var(--fude);letter-spacing:0;writing-mode:vertical-rl;vertical-align:middle;border-radius:3px;filter:url(#uiSello);text-shadow:none}
+  .ctime{background:rgba(239,230,210,.2);border:0;height:3px} .ctime i{background:var(--shu)}
+  #comboBonus{color:var(--kin);font-family:var(--mincho)} #comboWord{font:400 26px var(--fude);color:var(--washi)}
+
+  /* ---------- Opciones ---------- */
+  #menu{border-radius:6px;padding:0;background:var(--sumiBg)}
+  #menuHead{padding:7px 12px !important;font:500 12px var(--goth);letter-spacing:.2em;color:var(--claro)}
+  #menuHead .mlabel::before{content:'設 ';color:var(--shu);font-family:var(--fude)}
+  #menu ul{margin:0;padding:6px 8px 8px;border-top:1px solid rgba(239,230,210,.15);min-width:250px}
+  #menu button{padding:6px 6px;border-radius:3px;font-family:var(--mincho)}
+  #menu button:hover,#menu button:focus-visible{background:rgba(239,230,210,.08)}
+  #menu .cur{display:none} #menu .val{color:var(--kin);font:600 12px var(--goth)}
+
+  /* ---------- Misión: tira de washi · Capitán: mancha de tinta con sellos ---------- */
+  #objBox{background:var(--washiBg);color:var(--sumi);border-radius:0;clip-path:var(--rasgado);padding:12px 16px 12px 18px}
+  .objtit{font:800 17px var(--mincho);letter-spacing:.02em;color:var(--sumi);gap:10px}
+  .objtit::before{content:'任';display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:var(--shu);color:#f8ecd9;font:400 17px var(--fude);filter:url(#uiSello)}
+  #objIc{display:none}
+  #objLin{font:500 13px var(--mincho);color:var(--sumi2);margin:4px 0 7px 40px}
+  #objBox .wprog{margin-left:40px;height:3px;background:rgba(21,18,15,.15);border:0} #objBox .wprog i{background:var(--sumi)}
+  #objBox.alerta{animation:none} #objBox.alerta #objLin,#objBox.mal #objLin{color:var(--shu);font-weight:800} #objBox.alerta .objtit::before{background:#ff5a3a}
+  #objBox.ok #objLin{color:#3a7a3a;font-weight:800}
+  #capBox{padding:14px 18px 16px}
+  .caphead{flex-direction:column;align-items:flex-start;gap:0;font:400 24px/1.1 var(--fude);color:var(--washi);letter-spacing:.04em;margin-bottom:6px}
+  #capInfo{font:600 11px var(--mincho);letter-spacing:.18em;color:var(--kin)}
+  #capBox .bar.boss{height:11px;margin-bottom:6px}
+  #capParts{gap:8px;margin-top:8px;justify-content:space-between}
+  .cpart{flex:1;align-items:center;text-align:center;background:none;border:0;padding:0;gap:2px}
+  .cpart::before{content:attr(data-k);display:grid;place-items:center;width:46px;height:46px;margin-bottom:4px;border-radius:50%;border:2.5px solid var(--washi);font:400 24px var(--fude);color:var(--washi)}
+  .cpart b{font:600 14px var(--mincho);color:var(--washi);text-transform:none;letter-spacing:0}
+  .cpart em{font:500 10.5px var(--goth);color:var(--claro)}
+  .cpart i{display:none}
+  .cpart.roto{background:none;border:0;position:relative}
+  .cpart.roto::before{border-color:rgba(239,230,210,.3);color:rgba(239,230,210,.3)}
+  .cpart.roto::after{content:'';position:absolute;left:50%;top:-4px;width:56px;height:56px;margin-left:-28px;filter:url(#uiPincel2);
+    background:linear-gradient(45deg,transparent 45%,var(--shu) 45% 54%,transparent 54%),linear-gradient(-45deg,transparent 46%,var(--shu) 46% 53%,transparent 53%)}
+  .cpart.roto b{color:rgba(239,230,210,.5);text-decoration:line-through} .cpart.roto em{color:var(--shu)}
+
+  /* ---------- Lumen y diálogos: hoja de washi ---------- */
+  #bark{width:max-content;background:var(--washiBg);color:var(--sumi);border-radius:0;clip-path:var(--rasgado);padding:10px 22px 10px 12px;gap:14px;font:500 15px/1.45 var(--mincho)}
+  #barkPic{width:44px;height:44px;border:2px solid var(--kin);border-radius:0}
+  #dlg{background:var(--washiBg);color:var(--sumi);border-radius:0;clip-path:polygon(0 6%,3% 0,50% 3%,97% 0,100% 8%,99% 60%,100% 96%,60% 100%,4% 97%,0 100%,1% 40%);padding:20px 28px 26px 22px;gap:20px}
+  #dlgPic{border:2px solid var(--kin);border-radius:0;background:#101820}
+  #dlgName{font:400 20px var(--fude);color:var(--shu);letter-spacing:.06em;margin-bottom:4px}
+  #dlg.who-lumen #dlgName{color:var(--ai)}
+  #dlgText{font:500 clamp(16px,2vw,19px)/1.55 var(--mincho);color:var(--sumi)}
+  #dlg.who-narr #dlgText{color:var(--sumi2)}
+  #dlgArrow{color:var(--shu)}
+  #dlgSkip,#csSkip{background:var(--sumiBg);color:var(--washi);border-radius:4px;font:500 12px var(--goth);letter-spacing:.14em;padding:5px 12px;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+  #dlgSkip:hover,#csSkip:hover{color:#f08a74}
+
+  /* ---------- Avisos ---------- */
+  .toast{background:var(--washiBg);color:var(--sumi);border-radius:0;clip-path:var(--rasgado);padding:12px 18px}
+  .toast .ti{filter:none}
+  .toast .tt{font:500 10px var(--goth);letter-spacing:.24em;color:var(--shu)}
+  .toast .tn{font:800 17px var(--mincho);color:var(--sumi)}
+  .toast .tr{font:500 12px var(--mincho);color:var(--sumi2)}
+
+  /* ---------- Paneles: hoja de washi enmarcada en seda ---------- */
+  .panel{background:var(--washiBg);color:var(--sumi);border-radius:0;padding:24px 28px 24px;box-shadow:0 0 0 10px var(--ai),0 0 0 12px var(--kin),0 30px 60px rgba(0,0,0,.65)}
+  .panel h2{font:400 32px var(--fude);letter-spacing:.12em;color:var(--sumi);margin:0 0 14px;padding-bottom:10px;position:relative}
+  .panel h2::after{content:'';position:absolute;left:50%;bottom:0;width:160px;height:5px;margin-left:-80px;background:var(--shu);border-radius:40% 10% 50% 20%;filter:url(#uiPincel)}
+  .sub2,.panel .dim{color:var(--tenue)}
+  .btn,.win.btn{background:transparent;color:var(--sumi);border:0;border-radius:0;box-shadow:inset 0 -2px 0 rgba(21,18,15,.3);font:800 16px var(--mincho);letter-spacing:.08em;padding:9px 20px}
+  .btn:hover,.btn:focus-visible{color:var(--shu);box-shadow:inset 0 -3px 0 var(--shu);outline:0}
+  .win.btn.sm{font-size:14px;padding:7px 14px}
+  #resumeBtn,#retryBtn,#endBack{position:relative;z-index:0;color:var(--washi);box-shadow:none}
+  #resumeBtn::before,#retryBtn::before,#endBack::before{content:'';position:absolute;inset:0 -6px;z-index:-1;background:var(--sumi);border-radius:40% 8% 30% 10%/60% 20% 50% 30%;filter:url(#uiPincel2)}
+  #resumeBtn:hover,#retryBtn:hover,#endBack:hover,#resumeBtn:focus-visible,#retryBtn:focus-visible,#endBack:focus-visible{color:#fff;box-shadow:none}
+  #resumeBtn:hover::before,#retryBtn:hover::before,#endBack:hover::before,#resumeBtn:focus-visible::before,#retryBtn:focus-visible::before,#endBack:focus-visible::before{background:var(--shu)}
+  .btn.danger{color:var(--shu);box-shadow:inset 0 -2px 0 var(--shu)}
+  .ptabs,#pwTabs,#wardTabs{gap:4px;border-bottom:1px solid rgba(21,18,15,.2);margin-bottom:12px}
+  .ptab,.win.ptab,.wtab,.win.wtab{background:none;color:var(--tenue);border:0;border-radius:0;box-shadow:none;padding:6px 12px;font:600 14px var(--mincho);letter-spacing:.04em;margin-bottom:-1px;border-bottom:3px solid transparent}
+  .ptab.on,.wtab.on,#pwTabs .ptab.on{color:var(--sumi);border-bottom-color:var(--shu);box-shadow:none}
+  .bsec h3{font:500 11px var(--goth);letter-spacing:.24em;color:var(--shu)}
+  .bitem{background:rgba(255,255,255,.4);border:1px solid rgba(21,18,15,.25);border-radius:12px;color:var(--sumi)}
+  .bitem.r-rara{border-color:var(--ai)} .bitem.r-epica,.bitem.r-leyenda{border-color:var(--shu);color:#7a2a1a}
+  .bonus,.rx{color:var(--sumi)} .rx span{color:var(--tenue)} .rx.unk{color:#a39882}
+  .pbody .moves b,#pauseBuild .moves b{color:var(--shu)}
+  .syncodex div{background:rgba(255,255,255,.35) !important;border:1px solid rgba(21,18,15,.2) !important;color:var(--sumi)}
+  #overStats b{color:var(--tenue)} #overStats em{color:var(--shu);font-weight:800}
+  #overTip{color:var(--ai)} #overTip span[style]{color:#8a5a10 !important}
+  #fragGain{font:400 22px var(--fude);color:var(--shu)} #fragGain span{color:var(--tenue);font-family:var(--mincho)}
+  #fragTotal{font:400 24px var(--fude);color:var(--shu)}
+  .srow{background:rgba(255,255,255,.35);border:0;border-bottom:1px solid rgba(21,18,15,.18);border-radius:0;box-shadow:none;color:var(--sumi)}
+  .srow:not(:disabled):hover,.srow:not(:disabled):focus-visible{filter:none;background:rgba(199,64,45,.08)}
+  .srow:disabled{filter:none;opacity:.6}
+  .srow .sname{font-weight:800} .srow .sdesc{color:var(--sumi2)} .srow .spips{color:var(--shu)}
+  .srow .scost{font:600 14px var(--mincho);color:var(--sumi)} .srow .scost.no{color:#a39882}
+  #achCount,#pwCount{font:400 22px var(--fude);color:var(--shu)}
+  .abar{background:rgba(21,18,15,.12);border:0;border-radius:4px} .abar i{background:var(--shu)}
+  .ach,.endi{background:rgba(255,255,255,.3);border:1px solid rgba(21,18,15,.15);border-radius:3px;opacity:.75}
+  .ach.ok,.endi.ok{opacity:1;background:rgba(255,255,255,.55);border-color:var(--kin)}
+  .ach .an,.endi .et2{color:var(--sumi)} .ach .ad,.endi .ed2,#pwList .pwnote{color:var(--sumi2)} .ach .ap{color:var(--tenue)} .ach .ar{color:var(--ai)}
+  .pwi .ad.lock{color:#8a5a10} .pwi .pwr{color:var(--tenue) !important} .pwi.r-rara .pwr{color:var(--ai) !important} .pwi.r-epica .pwr,.pwi.r-leyenda .pwr{color:var(--shu) !important} #pwList .pwh{color:var(--shu)}
+  .endi .en2{font:400 26px var(--fude);color:var(--shu)}
+  #endPct,#pctTxt{color:var(--shu)}
+  .wslot{background:rgba(255,255,255,.3);border:1px solid rgba(21,18,15,.2);border-radius:50%;aspect-ratio:1;justify-content:center;color:var(--sumi);text-shadow:none}
+  .wslot .wsl{color:var(--tenue)} .wslot.on{background:var(--sumi);border-color:var(--sumi);box-shadow:0 0 0 3px var(--shu)} .wslot.on .wsl{color:var(--washi)}
+  .witem{background:rgba(255,255,255,.35);border:1px solid rgba(21,18,15,.2);border-radius:3px;box-shadow:none;color:var(--sumi)}
+  .witem .wr{color:var(--tenue)} .witem .wp{color:#3a7a3a} .witem .weq{color:var(--shu)}
+  .witem.on{border-color:var(--shu);box-shadow:inset 0 0 0 2px var(--shu)} .witem.sel{outline:2px solid var(--ai);outline-offset:-2px}
+  #wardInfo{background:rgba(255,255,255,.45);border:1px solid rgba(21,18,15,.2);border-radius:3px}
+  #wardInfo .bn{font:400 22px var(--fude);color:var(--sumi)} #wardInfo .bs{color:var(--tenue)} #wardInfo .bs .ok{color:#3a7a3a} #wardInfo .bp{color:var(--sumi)} #wardInfo .bp b{color:var(--ai)} #wardInfo .bc{color:#8a5a10} #wardInfo .bp2{color:#3a7a3a}
+  .wstats i b{background:rgba(21,18,15,.12);border:0} .wstats i b.f{background:var(--shu)}
+  #wardCount{color:var(--shu)}
+
+  /* ---------- Título: kakejiku (rollo colgante) ---------- */
+  #titleScr{background:linear-gradient(90deg,rgba(10,8,6,.6),rgba(10,8,6,.12) 46%,transparent 64%)}
+  #titleScr .tpanel{position:relative;width:min(420px,100%) !important;margin-top:-16px !important;padding:96px 34px 30px !important;text-align:left;border-radius:0;
+    background:var(--washiBg);box-shadow:0 0 0 18px var(--ai),0 0 0 21px var(--kin),0 40px 70px rgba(0,0,0,.6)}
+  #titleScr .tpanel::before{content:'灯を消すな';position:absolute;left:12px;top:20px;writing-mode:vertical-rl;font:400 14px var(--fude);letter-spacing:.3em;color:var(--shu)}
+  #titleScr .tpanel::after{content:'灯';position:absolute;right:16px;top:18px;width:44px;height:44px;display:grid;place-items:center;background:var(--shu);color:#f8ecd9;font:400 28px var(--fude);border-radius:4px;filter:url(#uiSello)}
+  #titleScr h1{position:absolute;left:0;right:0;top:20px;text-align:center;font:400 62px/1 var(--fude);letter-spacing:.06em;color:var(--sumi)}
+  #titleScr .sub{position:absolute;left:0;right:0;top:86px;text-align:center;margin:0;font:600 12px var(--mincho);letter-spacing:.36em;color:var(--sumi2)}
+  .tmenu{gap:0;margin:22px 0 14px;max-width:none}
+  .tbtn,.win.tbtn{grid-template-columns:26px 1fr auto;gap:8px;padding:7px 4px;background:none;border:0;border-bottom:1px solid rgba(21,18,15,.12);border-radius:0;box-shadow:none;font:600 17px var(--mincho);color:var(--sumi);transition:none}
+  .tbtn::before,.tbtn:hover::before,.tbtn:focus-visible::before{display:none}
+  .tbtn .ti{font-size:14px;filter:saturate(.7)}
+  .tbtn .td{font:500 11.5px var(--goth);color:var(--tenue)}
+  .tbtn:hover,.tbtn:focus-visible{transform:none;filter:none;background:rgba(199,64,45,.07);outline:0}
+  .tbtn:hover .tl,.tbtn:focus-visible .tl{color:var(--shu)}
+  .tbtn.main,.win.tbtn.main{position:relative;z-index:0;margin:0 -10px 6px;padding:12px 14px;background:none;border:0;box-shadow:none;font:800 21px var(--mincho);color:var(--washi)}
+  .tbtn.main::after{content:'';position:absolute;inset:3px -4px 2px;z-index:-1;background:var(--sumi);border-radius:40% 8% 30% 10%/60% 20% 50% 30%;filter:url(#uiPincel2)}
+  .tbtn.main .tl,.tbtn.main .ti,.tbtn.main:hover .tl,.tbtn.main:focus-visible .tl{color:var(--washi)} .tbtn.main .td{color:var(--claro)}
+  .tbtn.main:hover::after,.tbtn.main:focus-visible::after{background:var(--shu)}
+  .tbtn.main:focus-visible{outline:0}
+  .tstats{border-top:1px solid rgba(21,18,15,.18);padding-top:10px} .tstats p{color:var(--tenue) !important;font-family:var(--goth)} .tstats b{color:var(--sumi)}
+  .tkeys{font:500 11.5px var(--goth);color:var(--tenue)}
+  #titleScr .tip{color:var(--sumi2);font:500 13px/1.5 var(--mincho)}
+
+  /* ---------- Cartas de mejora: ofuda ---------- */
+  .uptitle{background:none;box-shadow:none;border-radius:0;padding:0 0 10px;position:relative;font:400 42px var(--fude);letter-spacing:.12em;color:var(--washi);text-shadow:0 4px 14px rgba(0,0,0,.8)}
+  .uptitle::after{content:'';position:absolute;left:50%;bottom:0;width:300px;height:6px;margin-left:-150px;background:var(--shu);border-radius:40% 10% 50% 20%;filter:url(#uiPincel)}
+  .card{--rc:var(--sumi2);align-items:center;text-align:center;padding:24px 22px 18px;gap:6px;min-height:340px;border-radius:0;background:var(--washiBg);color:var(--sumi);box-shadow:0 22px 44px rgba(0,0,0,.65)}
+  .card::before{content:'';position:absolute;inset:8px;border:2px solid var(--rc);pointer-events:none}
+  .card::after{content:'';position:absolute;inset:13px;border:1px solid var(--rc);opacity:.5;pointer-events:none}
+  .card.r-rara{--rc:var(--ai)} .card.r-epica,.card.r-leyenda{--rc:var(--shu)} .card.r-menor{--rc:var(--tenue)}
+  .card.r-rara,.card.r-epica,.card.r-leyenda,.card.r-menor,.card.wcard{border:0;background:var(--washiBg);box-shadow:0 22px 44px rgba(0,0,0,.65)}
+  .card.r-epica,.card.r-leyenda{box-shadow:0 22px 44px rgba(0,0,0,.65),0 0 0 2px var(--kin)}
+  .card.r-leyenda{animation:cardIn .35s cubic-bezier(.2,1.4,.4,1) both}
+  .card:hover,.card:focus-visible{transform:translateY(-10px);outline:0;box-shadow:0 0 0 2px var(--kin),0 30px 60px rgba(0,0,0,.75),0 0 40px rgba(196,160,102,.35)}
+  .card .key{top:auto;bottom:16px;left:22px;right:auto;border:0;padding:0;font:400 30px/1 var(--fude);color:var(--rc)}
+  .card .rar{order:-2;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--rc);color:var(--washi) !important;font:400 0 var(--fude) !important;letter-spacing:0;filter:url(#uiSello)}
+  .card .rar::before{content:'並';font-size:24px}
+  .card.r-rara .rar::before{content:'稀'} .card.r-epica .rar::before{content:'極'} .card.r-leyenda .rar::before{content:'伝'} .card.r-menor .rar::before{content:'小'}
+  .card .rar .cnew{position:absolute;top:100%;margin-top:4px;font:700 10px var(--goth);color:#3a7a3a;white-space:nowrap;filter:none}
+  .card .cic{order:-1;display:grid;place-items:center;width:84px;height:84px;margin:4px 0;border-radius:50%;box-shadow:inset 0 0 0 4px color-mix(in srgb,var(--rc) 55%,transparent);font-size:40px;filter:none}
+  .card .cname{font:800 22px/1.15 var(--mincho);color:var(--sumi)}
+  .card .cdesc{font:500 14px/1.6 var(--mincho);color:var(--sumi2);text-align:left}
+  .card .ctags{justify-content:center} .card .ctags .chip{background:rgba(255,255,255,.5);color:var(--sumi);border-color:color-mix(in srgb,var(--c) 60%,#15120f)}
+  .card .cset{color:#3a7a3a} .card .cset.warn{color:var(--shu)} .card .cstk{color:#8a5a10} .card .cfam{color:color-mix(in srgb,var(--c) 45%,#15120f);font-weight:700} .card .csyn{color:#5a4a8a}
+  .card .lvl{align-self:stretch;margin-top:auto;padding-top:6px;text-align:right;font:500 11px var(--goth);letter-spacing:.14em;color:var(--tenue);border:0}
+  .card.r-menor .cname{color:var(--sumi)}
+  #upBuild .dim,#upScr > .dim{color:var(--claro)}
+  .fb10{background:rgba(239,230,210,.92);color:var(--sumi);border-left-width:4px} .fb10 b{color:color-mix(in srgb,var(--c) 45%,#15120f)} .fb10 i{color:#8a5a10} .fb10.on{background:#f6efdf}
+
+  /* ---------- Capítulos y jefes ---------- */
+  #chapter .cnum{font:500 15px var(--goth);letter-spacing:.5em;color:var(--claro)}
+  #chapter .cname{font:400 clamp(48px,7vw,86px)/1.1 var(--fude);color:var(--washi);letter-spacing:.06em}
+  #chapter .csub{font:500 20px var(--mincho);font-style:normal;color:var(--kin)}
+  #bossCard .bc-n{font-family:var(--fude);font-weight:400;transform:none}
+  #bossCard .bc-s{font-family:var(--mincho)}
+
+  /* ---------- Táctil ---------- */
+  #joy{background:rgba(16,13,10,.35);border:2px solid rgba(239,230,210,.45)}
+  #knob{background:var(--washiBg);border:2px solid var(--sumi)}
+  #pad button{background:rgba(16,13,10,.62);color:var(--washi);border:2px solid rgba(239,230,210,.6);font:600 12px var(--mincho);box-shadow:0 4px 10px rgba(0,0,0,.4)}
+  #pad .big{background:var(--shu);border-color:#f0c0a8;color:#fff;font-size:15px} #pad [data-act=special]{border-color:#8fb8e8;color:#cfe6ff}
+
+  /* ---------- Radar: ensō ---------- */
+  #mpRadar{border-radius:50%;box-shadow:0 0 0 4px rgba(239,230,210,.85),0 8px 18px rgba(0,0,0,.5);filter:url(#uiPincel2)}
+
+  /* ---------- Móvil ---------- */
+  @media (max-width:720px), (max-height:520px){
+    #hud{width:250px;padding:8px 14px 8px 8px;gap:9px}
+    #portrait{width:38px;height:38px}
+    #hud .nm{font-size:19px}
+    .uiOla{grid-template-columns:auto auto;align-items:center;column-gap:8px}
+    .uiOla::before{width:54px;height:54px;box-shadow:inset 0 0 0 4px var(--shu)} .uiOla .k{font-size:26px}
+    .uiOla .q{grid-area:1/2;font-size:11px;letter-spacing:.12em}
+    #bossName{font-size:20px}
+    #banner{font-size:22px;padding:8px 22px 12px}
+    #objBox{padding:8px 12px 9px} .objtit{font-size:14px} .objtit::before{width:24px;height:24px;font-size:14px} #objLin,#objBox .wprog{margin-left:34px}
+    #capBox{padding:8px 12px 10px} .caphead{font-size:19px} .cpart::before{width:34px;height:34px;font-size:18px} .cpart.roto::after{width:42px;height:42px;margin-left:-21px}
+    .panel{padding:14px 14px 14px;box-shadow:0 0 0 6px var(--ai),0 0 0 8px var(--kin),0 20px 40px rgba(0,0,0,.6)}
+    .panel h2{font-size:24px}
+    #titleScr .tpanel{margin-top:auto !important;padding:78px 20px 14px !important;box-shadow:0 0 0 8px var(--ai),0 0 0 10px var(--kin),0 30px 60px rgba(0,0,0,.6)}
+    #titleScr h1{font-size:46px;top:14px} #titleScr .sub{top:66px;font-size:10px}
+    #titleScr .tpanel::before{display:none} #titleScr .tpanel::after{width:32px;height:32px;font-size:20px;top:12px;right:12px}
+    .tbtn,.win.tbtn{font-size:14px;padding:6px 2px} .tbtn.main,.win.tbtn.main{font-size:17px;margin:0 -6px 4px}
+    .uptitle{font-size:24px !important;letter-spacing:.04em;white-space:nowrap} .uptitle::after{width:180px;margin-left:-90px}
+    #cards .card{min-height:0;align-items:flex-start;text-align:left;padding:18px 20px 16px !important}
+    .card .cmini span{color:color-mix(in srgb,var(--c,#7d7262) 45%,#15120f);border-color:color-mix(in srgb,var(--c,#7d7262) 60%,#15120f);background:rgba(255,255,255,.5)} .card .rar{position:absolute;right:16px;top:14px;width:32px;height:32px} .card .rar::before{font-size:18px}
+    .card .cic{display:none} .card .key{display:none} .card .ctags{justify-content:flex-start}
+    .card .rar{width:28px;height:28px;right:12px;top:12px} .card .rar::before{font-size:15px} .card .cname{padding-right:34px}
+    .card .rar .cnew{top:50%;right:100%;margin:0 6px 0 0;transform:translateY(-50%)} #cards .card:has(.cnew) .cname{padding-right:100px}
+  }
+}
