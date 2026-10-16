@@ -126,12 +126,13 @@ Al sacar a Lumen de la caja, el sello se partió en **seis trozos** y cada uno a
 | 1 | Ruinas del Ocaso | el Guardián de piedra | Ese no era el Guardián: era su estatua |
 | 2 | Santuario de los Cerezos | Ryūjin | El Guardián la metió en la caja para protegerla |
 | 3 | Cumbre Nevada | Gashadokuro | El remitente del paquete era el propio Guardián |
-| 4 | Canal X | Míster Confianza (lo usa de trofeo) | La dirección es la tienda del anticuario… donde había un gato |
-| 5 | Playa del Mundo Real | la Tetera de Utah | El Guardián no es una persona |
+| 4 | Canal X | Míster Confianza (lo usa de trofeo) | La dirección es la tienda del anticuario, donde «no abrió nadie» |
+| 5 | Playa del Mundo Real | la Tetera de Utah | Ya recuerda cómo es el Guardián… pero no lo dice |
 | 6 | Ruinas corruptas | el ERROR | El sello está completo: rumbo a la azotea |
-| Destino | La azotea del anticuario | el Gato (el destinatario) | (la pelea final y los finales de siempre) |
+| Destino | La azotea del anticuario | el destinatario | (la pelea final y los finales de siempre) |
 
 - **Al empezar la partida**, una tarjeta enseña la hoja de ruta con la parada actual (sustituye al rótulo de la 1.ª oleada). La intro termina explicando lo de los seis trozos.
+- Los recuerdos crean intriga sin desvelar quién es el Guardián (no se dice hasta la pelea final).
 - **En cada capítulo**, Lumen dice qué se busca en la 1.ª oleada (la primera vez, con detalle; después, en corto) y da una pista en la 3.ª (solo la primera vez).
 - **Al tumbar al jefe**: «Trozo del sello N de 6» y el recuerdo de Lumen (`STORY.trozo_N`, un diálogo la primera vez; después, un comentario de `TROZO_CORTO`).
 - **En el viaje entre capítulos**, la tarjeta del capítulo lleva la ruta con la parada nueva sellada. También sale en la **pausa** y al **caer**.
@@ -185,6 +186,26 @@ El capítulo 4 imita cómo cambia de estilo *To Be Hero X*: cada tramo se ve com
 - **Cortinilla de cambio de estilo.** Tres bandas en diagonal con los colores del estilo nuevo, su nombre en grande en caracteres chinos (`CX_ESTILO`), el episodio y el título. El estilo cambia por debajo mientras las bandas tapan la pantalla, sin estática ni pantallazo.
 - **Índice de confianza** como rótulo de emisión (信任値, con el número rodando y el puesto en el ranking).
 - Las franjas de cine dentro del Canal X son de emisión (degradado, línea de color y «EN DIRECTO»), y los conos de luz del plató ya no tapan la vista lateral de la recreativa.
+
+## Tráiler
+
+En el menú de título, **Tráiler** pone un tráiler ridículo y épico de ~80 s hecho con el motor de cinemáticas del juego (`js/cinematicas/trailer.js`, `css/trailer.css`). Tiene:
+- Créditos absurdos.
+- La calle bajo la lluvia y el portal: «ESTE OTOÑO».
+- Acción con las técnicas foil.
+- Enemigos colosales… y una tetera.
+- El Canal X cambiando de estilo.
+- Un romance (Tovan y el paquete, entre cerezos al atardecer).
+- Una amistad legendaria ante la puesta de sol en las Ruinas del Ocaso.
+- Críticas, el esqueleto colosal y el logo.
+
+El jefe final no sale, para no destripar nada. Se salta con «Saltar» o Esc.
+
+**Grabarlo a vídeo** (necesita Node, Playwright con Chromium y ffmpeg): `node backup/herramientas-migracion/trailer_video.js <proyecto> trailer.mp4 [fps] [ancho] [alto]`. Lo hace en dos pasadas:
+1. **Imagen:** el bucle del juego avanza fotograma a fotograma, con un `dt` exacto, y las animaciones CSS se colocan con el mismo reloj.
+2. **Sonido:** se graba la salida de WebAudio en tiempo real, sin dibujar.
+
+Al final, ffmpeg junta las dos. Por eso el guion solo mueve cosas con `csTween`/`csWait`, nunca con animaciones CSS.
 
 ## Objetivos de oleada y capitanes
 

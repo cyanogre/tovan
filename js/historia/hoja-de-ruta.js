@@ -4,7 +4,8 @@
    Al sacar a Lumen de la caja, el sello se partió en seis trozos y cada
    uno acabó dentro de un jefe. La partida es una ruta de reparto:
    seis paradas (un capítulo y un trozo cada una) y la entrega final en
-   la azotea del anticuario, donde espera el destinatario (el Gato).
+   la azotea del anticuario, donde espera el destinatario (quién es, no se
+   dice hasta el final: los recuerdos de Lumen dan intriga, no pistas).
      · Tarjeta de la ruta al empezar la partida y en cada viaje (#rutaCard y el capítulo)
      · Lumen cuenta qué se busca en cada parada (1.ª y 3.ª oleada del capítulo)
      · Al tumbar al jefe: «Trozo del sello N de 6» (#trozoFx) y un recuerdo de Lumen
@@ -40,15 +41,15 @@ const RUTA = [
 ];
 Object.assign(STORY, {
   trozo_1: [['lumen', '¡Primer trozo del sello! Y… espera. Me ha vuelto un recuerdo.'], ['lumen', 'Ese no era el Guardián de las Ruinas. Era su estatua: le hacía de portero.'],
-    ['tovan', '¿Entonces a quién le firmo el albarán?'], ['lumen', 'Al de verdad. Era más pequeño. Y más… peludo, creo.']],
+    ['tovan', '¿Entonces a quién le firmo el albarán?'], ['lumen', 'Al de verdad. Todavía no recuerdo quién es. Pero lo sabremos.']],
   trozo_2: [['lumen', 'Segundo trozo. Otro recuerdo: el Guardián me metió en la caja para protegerme, no para castigarme.'],
     ['tovan', 'Qué detalle. A mí mi casero me encierra para cobrarme.'], ['lumen', 'Y luego alguien escribió una dirección en la caja y llamó a una mensajería.']],
   trozo_3: [['lumen', 'Tercer trozo. Ya sé quién envió el paquete: el propio Guardián.'], ['tovan', '¿Se mandó una linterna a sí mismo?'],
     ['lumen', 'Para que alguien me llevara de vuelta encendida. Alguien valiente. O despistado.'], ['tovan', 'Las dos cosas, gracias.', 'happy']],
   trozo_4: [['lumen', 'Cuarto trozo. Recuerdo la dirección de entrega: una tienda de antigüedades. La del cartel.'],
-    ['tovan', '¿El anticuario? ¡Pero si allí solo había un gato!'], ['lumen', '…Sí. Solo había un gato.']],
-  trozo_5: [['lumen', 'Quinto trozo. Tovan, tengo que decírtelo: el Guardián no es una persona.'], ['tovan', '¿Es una tetera? Dime que no es una tetera.'],
-    ['lumen', 'Tiene bigotes, cuatro patas y odia que llegues tarde.']],
+    ['tovan', '¿El anticuario? ¡Pero si allí no me abrió nadie!'], ['lumen', 'Nadie… que tú vieras.']],
+  trozo_5: [['lumen', 'Quinto trozo. Ya recuerdo cómo es el Guardián…'], ['tovan', '¿Y? ¿Es una tetera? Dime que no es una tetera.'],
+    ['lumen', 'Prefiero que lo veas tú. No me creerías. Solo te diré una cosa: odia que llegues tarde.']],
   trozo_6: [['lumen', '¡El sello está completo! Ya puedo abrir el camino hasta la dirección de entrega.'], ['tovan', '¿Y el destinatario nos espera?'],
     ['lumen', 'En la azotea del anticuario. Lleva tres semanas esperando.'], ['tovan', 'Uy. Eso es una estrella en la valoración, mínimo.']]
 });
