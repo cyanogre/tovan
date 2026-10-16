@@ -28,7 +28,7 @@ js/
   entrada/            mando, teclado, ratón y táctil
   jugador/            modelo de Tovan, movimientos, acciones, ataque cargado, inercia, acrobacias
   enemigos/           enemigos base, oni, realistas, capitanes (piezas rompibles); regiones/ = enemigos propios de cada escenario
-  jefes/              Ryūjin, Gashadokuro, Tetera de Utah, ERROR 404, Seis Ojos, Míster Confianza, Gato final…
+  jefes/              Ryūjin (y su segunda vida colosal), Gashadokuro, Tetera de Utah, ERROR 404, Seis Ojos, Míster Confianza, Gato final…
   mundo/              escenarios (biomas), ambiente, playa, ruinas corruptas, castillo, capítulos, mapas grandes (mapas-*.js)
   partida/            oleadas, objetivos de oleada, mejoras, ciclo de partida (empezar / perder / volver al título)
   combate/            combo, billetes, limpieza de restos, sensación de impacto
@@ -206,6 +206,18 @@ El jefe final no sale, para no destripar nada. Se salta con «Saltar» o Esc.
 2. **Sonido:** se graba la salida de WebAudio en tiempo real, sin dibujar.
 
 Al final, ffmpeg junta las dos. Por eso el guion solo mueve cosas con `csTween`/`csWait`, nunca con animaciones CSS.
+
+## Ryūjin colosal (la segunda vida del dragón)
+
+Al dejar a Ryūjin (oleada 10) a cero, no muere: brilla, toca la bocina como Camión-kun, atropella a Tovan y crece hasta el «tamaño mudanza». La pelea sigue en el cielo, a lomos del dragón, al estilo *Shadow of the Colossus* (`js/jefes/ryujin-colosal.js`, `css/ryujin-colosal.css`). Sale siempre que el dragón cae en una partida normal; no sale en el Canal X, en el castillo ni en los marcianitos.
+- **El lomo** es una pasarela de escudos dorados entre dos filas de púas. El dragón ondula de lado y arrastra a Tovan. Abajo hay un mar de nubes, montañas y campos; alrededor, nubes, líneas de velocidad y viento (también se oye).
+- **Tres sellos de jade** (las escamas que brillan, con una columna de luz) que hay que romper a golpes.
+- **Sacudidas:** «¡AGÁRRATE!». Hay que mantener RODAR (K o Shift; en el móvil el botón pasa a «Agarra» y parpadea). Un aro de aguante se vacía mientras te agarras. Si no te agarras, te escurres hacia el lado que baja; si te caes, Lumen te recoge y te cobra un 12 % de la vida (nunca te mata).
+- **Púas** que salen del lomo en franjas rojas (se saltan o se esquivan) y **lluvia de fuego**: gira el cuello para mirarte y escupe a los círculos.
+- **El picado:** con los tres sellos rotos se lanza hacia abajo, el cuello se allana y aparece la perla entre los cuernos. Hay viento de cara y ráfagas (también para agarrarse).
+- **Remate:** «¡ENTREGADO!», el dragón se deshace en jade, Tovan cae al santuario y sigue lo de siempre: «¡Ryūjin derrotado!», el diálogo, el trozo de la hoja de ruta y las cartas.
+
+La barra de jefe enseña los sellos que quedan y la perla. Si mueres arriba, reintentar o volver al título deja el santuario como estaba.
 
 ## Objetivos de oleada y capitanes
 

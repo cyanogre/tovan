@@ -1,0 +1,19 @@
+/* ---------- Ryūjin colosal: viento, aviso de agarre y aguante ---------- */
+/* Líneas de velocidad de anime en los bordes; --k = fuerza del viento (la pone el JS), --r = giro para que tiemblen */
+#colViento{position:fixed;inset:-12%;pointer-events:none;z-index:3;opacity:var(--k,.2);
+  background:repeating-conic-gradient(from var(--r,0deg) at 50% 50%,rgba(255,255,255,0) 0deg 2.2deg,rgba(255,255,255,.6) 2.2deg 2.5deg,rgba(255,255,255,0) 2.5deg 4.9deg,rgba(255,250,235,.35) 4.9deg 5.1deg);
+  -webkit-mask:radial-gradient(closest-side,transparent 55%,#000 100%);mask:radial-gradient(closest-side,transparent 55%,#000 100%)}
+#colAviso{position:fixed;left:50%;top:21%;transform:translate(-50%,-50%);z-index:30;text-align:center;pointer-events:none;color:#fff;
+  text-shadow:0 3px 0 #000,0 0 18px rgba(255,80,40,.85);animation:colLatido .45s ease-in-out infinite alternate;white-space:nowrap}
+#colAviso b{display:block;font-size:clamp(34px,6.5vw,68px);letter-spacing:.04em;line-height:1}
+#colAviso small{display:block;font-size:clamp(14px,2vw,20px);margin-top:6px}
+#colAviso.ok{color:#c8ffe9;text-shadow:0 3px 0 #000,0 0 18px rgba(80,255,190,.85);animation:none}
+@keyframes colLatido{from{transform:translate(-50%,-50%) scale(1)}to{transform:translate(-50%,-50%) scale(1.07)}}
+/* Aro de aguante sobre Tovan (como el de Shadow of the Colossus) */
+#colAgarre{position:fixed;left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;z-index:12;pointer-events:none;
+  background:conic-gradient(#7fffd0 calc(var(--k,1) * 360deg),rgba(0,0,0,.5) 0);
+  -webkit-mask:radial-gradient(closest-side,transparent 60%,#000 64%);mask:radial-gradient(closest-side,transparent 60%,#000 64%)}
+#colAgarre.bajo{background:conic-gradient(#ff6a4a calc(var(--k,1) * 360deg),rgba(0,0,0,.5) 0)}
+body.cine #colAviso,body.cine #colAgarre{display:none}
+body.trailer #colViento{display:none}
+@media (max-width:720px){ #colAviso{top:22%} }
