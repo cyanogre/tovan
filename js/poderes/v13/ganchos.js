@@ -66,7 +66,7 @@ diveHold = function(mv){
     }
   } catch (err) { console.error(err); }
 };
-const _jumpMul13 = jumpMul; jumpMul = function(){ return _jumpMul13() * (1 + 0.12 * lvl('altura13')); };
+const _jumpMul13 = jumpMul; jumpMul = function(){ return _jumpMul13() * (1 + 0.2 * lvl('altura13')); };
 
 /* ---------- Acrobacias: críticos tras un mortal, impulsos aéreos extra, rebufo ---------- */
 const acroCrit13 = () => { if (lvl('mortal13')) P13.acroUntil = time + 1.5 + S10('mortal13'); };
@@ -126,15 +126,15 @@ cosDmgMul = function(e, src){ let m = _cosDmgMul13(e, src);
 const _cosSpd13 = cosSpd;
 cosSpd = function(){ let m = _cosSpd13();
   if (gameState !== 'play') return m;
-  if (lvl('parkour13')) m *= 1 + 0.08 * lvl('parkour13');
-  if (P13.turboT > 0) m *= syn13('dobleExpreso') ? 1.5 : 1.3;
+  if (lvl('parkour13')) m *= 1 + 0.15 * lvl('parkour13');
+  if (P13.turboT > 0) m *= syn13('dobleExpreso') ? 1.8 : 1.5;
   if (lvl('caraCruz13') && P13.coin === 'cruz') m *= 1.3;
-  if (lvl('adrenalina13') && player.hp < player.maxHp * 0.35) m *= 1.2;
+  if (lvl('adrenalina13') && player.hp < player.maxHp * 0.35) m *= 1.4;
   if (syn13('zen') && player.meter >= 100) m *= 1.15;
   return m; };
 const _atkSpd13 = atkSpd;
 atkSpd = function(){ let m = _atkSpd13();
-  if (P13.turboT > 0) m *= syn13('dobleExpreso') ? 1.5 : 1.3;
+  if (P13.turboT > 0) m *= syn13('dobleExpreso') ? 1.8 : 1.5;
   if (P13.impT > 0) m *= 1.25;
   return m; };
 const _cosFragMul13 = cosFragMul; cosFragMul = function(){ return _cosFragMul13() * (lvl('caraCruz13') && P13.coin === 'cruz' ? 1.3 : 1); };
@@ -146,7 +146,7 @@ hurtPlayer = function(dmg, sx, sz, knock){
   const charging = state === 'charge' || (state === 'attack' && curMove && curMove.special);
   if (play_){
     if (lvl('muralla13') && charging) d *= lvl('muralla13') > 1 ? 0.3 : 0.5;
-    if (lvl('adrenalina13') && player.hp < player.maxHp * 0.35) d *= 0.7;
+    if (lvl('adrenalina13') && player.hp < player.maxHp * 0.35) d *= 0.6;
     if (lvl('apuesta13')) d *= 1.2;
     const F = P13.fort;
     if (F && canAct() && player.inv <= 0 && state !== 'roll' && grounded){ const a = Math.min(d, F.cap - F.got);
@@ -160,7 +160,7 @@ hurtPlayer = function(dmg, sx, sz, knock){
     P13.lastHurt = time;
     if (lvl('tsundere13')){ const e = nearestFrom(sx, sz, 4, null); if (e){ P13.tsun = e; tA.set(e.g.position.x, e.numY + 0.6, e.g.position.z); spawnNumber(tA, '💢 Apuntado', 'react', '#ff7ad8'); if (syn13('noMeToques')) discover('s13_noMeToques', 'No me toques', SYNM13.noMeToques[4]); } }
     if (lvl('chaleco13')){ const at = syn13('atestado'), R = at ? 3.6 : 2.5; flash('#fff6a0', 0.12); gring(hero.position.x, 0.1, hero.position.z, 0xfff27a, 0.3, R, 0.3);
-      for (const e of liveE10()) if (Math.hypot(e.g.position.x - hero.position.x, e.g.position.z - hero.position.z) - e.r < R) stunE(e, at ? 1.2 : 0.6);
+      for (const e of liveE10()) if (Math.hypot(e.g.position.x - hero.position.x, e.g.position.z - hero.position.z) - e.r < R) stunE(e, at ? 2 : 1);
       if (at) discover('s13_atestado', 'Atestado', SYNM13.atestado[4]); }
     if (syn13('erizo') && charging){ explode(hero.position.x, hero.position.z, 2.7, 0xffc070, 32, { kind: 'impact', knock: 6 }); crystals7(hero.position.x, hero.position.z, 8, 1.8); discover('s13_erizo', 'Erizo', SYNM13.erizo[4]); }
   }
@@ -173,7 +173,7 @@ const _killEnemy13 = killEnemy;
 killEnemy = function(e){
   const was = e && e.alive; _killEnemy13(e);
   if (!was || gameState !== 'play' || MG.active) return;
-  if (lvl('sed13')){ heal(lvl('sed13') * (syn13('banquete') ? 3 : 1), true); if (syn13('banquete')) discover('s13_banquete', 'Banquete', SYNM13.banquete[4]); }
+  if (lvl('sed13')){ heal(2 * lvl('sed13') * (syn13('banquete') ? 3 : 1), true); if (syn13('banquete')) discover('s13_banquete', 'Banquete', SYNM13.banquete[4]); }
   if (setOn('fortuna') && !e.isBoss && rnd() < 0.08) dropPickup(e.g.position.x, e.g.position.z);
   if (P13.refundT > 0 && lvl('reembolso13')){ const per = 6 + 4 * S10('reembolso13'), cap = syn13('propina') ? 999 : 40;
     const add = Math.max(0, Math.min(per, cap - P13.refundGot)); if (add > 0){ P13.refundGot += add; player.meter = Math.min(100, player.meter + add); }

@@ -92,7 +92,7 @@ function updAnime(dt, pdt, playing){
       if (D.e.alive){ hitEnemy(D.e, rdmg(90), true, 0, 0, 0, 4, false, { src: 'aoe' }); if (D.e.alive) stunE(D.e, 1.5); } puffAt(D.x, D.z, 10, 2, 0xf6f2ea); }
     if (D.t > 1.6){ scene.remove(D.g); P6.dogs.splice(i, 1); } }
   // ranas
-  if (lvl('frogs') && any){ P6.frogT -= pdt; if (P6.frogT <= 0){ P6.frogT = Math.max(5, 10 - 2 * S10('frogs')); for (let k = 0; k < 2 + lvl('frogs'); k++){ const g = mkFrog(), a = rnd() * TAU; g.position.set(hx + Math.cos(a) * 0.8, 0, hz + Math.sin(a) * 0.8); P6.frogs.push({ g, t: 6, hop: 0, tgt: null, st: 'hop', lick: 0 }); } play('squeak'); } }
+  if (lvl('frogs') && any){ P6.frogT -= pdt; if (P6.frogT <= 0){ P6.frogT = Math.max(5, 10 - 2 * S10('frogs')); for (let k = 0; k < 2 + lvl('frogs'); k++){ const g = mkFrog(), a = rnd() * TAU; g.position.set(hx + Math.cos(a) * 0.8, 0, hz + Math.sin(a) * 0.8); P6.frogs.push({ g, t: 6, hop: 0, tgt: null, st: 'hop', lick: 0 }); } play('squeak'); tA.set(hx, hero.position.y + 2.6, hz); spawnNumber(tA, '¡Gero gero!', 'react', '#6ad84a'); } }
   for (let i = P6.frogs.length - 1; i >= 0; i--){ const F = P6.frogs[i]; F.t -= edt; const p = F.g.position, tg = F.g.userData.tg;
     if (!F.tgt || !F.tgt.alive) F.tgt = nearestFrom(p.x, p.z, 10);
     if (F.st === 'hop' && F.tgt){ const a = angTo(p.x, p.z, F.tgt.g.position.x, F.tgt.g.position.z), d = Math.hypot(F.tgt.g.position.x - p.x, F.tgt.g.position.z - p.z); F.g.rotation.y = a;
@@ -129,9 +129,7 @@ function updAnime(dt, pdt, playing){
   // Campo AT
   if (lvl('atfield') && !P6.atReady){ P6.atT -= pdt; if (P6.atT <= 0){ P6.atReady = true; tA.set(hx, hero.position.y + 2.4, hz); spawnNumber(tA, 'Campo AT listo', 'react', '#ff9a2a'); } }
   for (let i = P6.hexes.length - 1; i >= 0; i--){ const H = P6.hexes[i]; H.t -= pdt; H.m.material.uniforms.uOpacity.value = Math.max(0, H.t * 1.4); H.m.scale.setScalar(1 + (0.5 - H.t) * 0.6); if (H.t <= 0){ scene.remove(H.m); P6.hexes.splice(i, 1); } }
-  // corte de nuca
-  if (lvl('titan') && state === 'roll') for (const e of enemies){ if (!e.alive || e.spawnT > 0 || P6.titanSet.has(e)) continue;
-    if (Math.hypot(e.g.position.x - hx, e.g.position.z - hz) - e.r < 0.8){ P6.titanSet.add(e); const c = rnd() < 0.3 + up.crit; hitEnemy(e, Math.round(rdmg(14) * (c ? critMul() : 1)), c, 0, 0, 1, 2, false, { src: 'aoe' }); tB.set(e.g.position.x, 1.2, e.g.position.z); slashFx(tB, rnd() * TAU, 0xffffff, 1.8); } }
+  // corte de nuca: ahora es una maniobra con ganchos (js/poderes/corte-nuca.js)
 }
 const _v3UpdateA6 = v3Update;
 v3Update = function(dt, pdt, playing){ _v3UpdateA6(dt, pdt, playing); try { updAnime(dt, pdt, playing); } catch (err) { console.error(err); } };
@@ -149,7 +147,7 @@ cosRange = function(mv){ let r = _cosRangeA6(mv); if (mv && !mv.special && lvl('
 const _knockMulA6 = knockMul;
 knockMul = function(){ return _knockMulA6() * (lvl('gomu') && state === 'attack' && curMove && curMove.slam ? 2 : 1); };
 const _rollMulA6 = rollMul;
-rollMul = function(){ return _rollMulA6() * (lvl('titan') ? 1.15 + 0.08 * S10('titan') : 1); };
+rollMul = function(){ return _rollMulA6(); };   // (el Corte de nuca ya no alarga la voltereta)
 const _rollDamageA6 = rollDamage;
 rollDamage = function(mv){ const [v, c] = _rollDamageA6(mv); if (P6.cardCritT > 0 && !c) return [Math.round(v * critMul()), true]; return [v, c]; };
 const _hitEnemyA6 = hitEnemy;

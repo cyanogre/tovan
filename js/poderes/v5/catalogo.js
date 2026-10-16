@@ -19,7 +19,7 @@ RAR.menor = ['Mejora menor', '#aab2cc', 0];
 /* ---------- Poderes nuevos ---------- */
 UPGRADES.push(
   // reparto
-  { id: 'express', r: 'comun', tags: ['reparto'], ic: '🛵', name: 'Envío exprés', desc: '+8 % de velocidad. Durante 1,5 s después de rodar pegas un 25 % más.', max: 3, apply: () => { up.speed += 0.08; } },
+  { id: 'express', r: 'comun', tags: ['reparto'], ic: '🛵', name: 'Envío exprés', desc: '+15 % de velocidad. Durante 1,5 s después de rodar pegas un 25 % más.', max: 3, apply: () => { up.speed += 0.15; } },
   { id: 'parcel', r: 'rara', tags: ['reparto', 'impacto'], ic: '📦', name: 'Paquete sorpresa', desc: 'Cada pocos segundos dejas un paquete a tus pies. Explota cuando lo toca un enemigo (o al rato).', max: 3, apply: () => { P5.parcelT = 2; } },
   { id: 'signature', r: 'rara', tags: ['reparto'], ic: '✍️', name: 'Firme aquí', desc: 'Los enemigos (no los jefes) con menos del 12 % de vida caen al siguiente golpe. Nivel 2: 20 %.', max: 2, apply: () => {} },
   { id: 'returns', r: 'rara', tags: ['reparto'], ic: '↩️', name: 'Devolución al remitente', desc: 'Si esquivas un golpe rodando, el atacante recibe un buen golpe y se queda aturdido.', max: 2, apply: () => {} },
@@ -27,11 +27,11 @@ UPGRADES.push(
   { id: 'deliveryGod', r: 'leyenda', tags: ['reparto', 'impacto'], ic: '🚐', name: 'Repartidor del mes', desc: 'Cada 12 s cae del cielo una furgoneta de reparto sobre el enemigo más duro. Firma aquí.', max: 1, req: () => has('reparto', 2), apply: () => { P5.vanT = 3; } },
   // generales
   { id: 'magnet', r: 'comun', ic: '🧲', name: 'Bolsillos con imán', desc: 'Los orbes verdes y los billetes vienen solos desde lejos, y los orbes curan un poco más.', max: 1, apply: () => {} },
-  { id: 'cafe', r: 'comun', ic: '☕', name: 'Café de máquina', desc: '+10 % de velocidad de ataque. Sabe a rayos, pero funciona.', max: 3, apply: () => {} },
+  { id: 'cafe', r: 'comun', ic: '☕', name: 'Café de máquina', desc: '+15 % de velocidad de ataque. Sabe a rayos, pero funciona.', max: 3, apply: () => {} },
   { id: 'meterKill', r: 'comun', ic: '🌟', name: 'Hambre de gloria', desc: 'Cada enemigo derrotado carga la barra ÍMP.', max: 2, apply: () => {} },
   { id: 'springs', r: 'comun', ic: '👟', name: 'Zapatillas con muelles', desc: 'Puedes saltar otra vez en el aire. Con el patito, hasta tres saltos.', max: 1, apply: () => {} },
   { id: 'lucky', r: 'comun', ic: '🍀', name: 'Trébol de cuatro hojas', desc: '+6 % de crítico, y cada crítico carga un poco la barra ÍMP.', max: 2, apply: () => { up.crit += 0.06; } },
-  { id: 'siesta', r: 'rara', tags: ['sangre'], ic: '😴', name: 'Siesta', desc: 'Si pasas 2 s sin atacar ni recibir daño, recuperas un 1 % de PV por segundo. Nivel 2: 1,8 %.', max: 2, apply: () => {} },
+  { id: 'siesta', r: 'rara', tags: ['sangre'], ic: '😴', name: 'Siesta', desc: 'Si pasas 1,5 s sin atacar ni recibir daño, recuperas un 2 % de PV por segundo. Nivel 2: 3 %.', max: 2, apply: () => {} },
   { id: 'berserk', r: 'rara', tags: ['sangre'], ic: '😡', name: 'Furia ciega', desc: 'Cuanta menos vida te queda, más rápido atacas: hasta un 45 % por debajo del 30 % de PV.', max: 1, apply: () => {} },
   { id: 'thorns', r: 'rara', tags: ['impacto'], ic: '🌵', name: 'Cactus', desc: 'Quien te pega recibe el doble del daño que te hace (el triple en nivel 2), y los de al lado, la mitad.', max: 2, apply: () => {} },
   { id: 'frostArmor', r: 'rara', tags: ['hielo'], ic: '🧥', name: 'Abrigo de escarcha', desc: 'Quien te golpea se queda congelado 1,2 s (como mucho cada 3 s).', max: 1, apply: () => {} },
@@ -70,7 +70,7 @@ const SHOOTERS = ['storm', 'static', 'thunder', 'kame', 'genki', 'truck', 'orbit
 const BOOMERS = ['boom', 'pyre', 'supernova', 'after', 'parcel', 'meteor', 'blackhole', 'deliveryGod', 'truck', 'shards', 'plague'];
 const anyLv = ids => ids.some(id => lvl(id));
 const USEFUL = {
-  potion: () => player.hp < player.maxHp * 0.85, crit: () => up.crit < 0.9, lucky: () => up.crit < 0.9, armor: () => up.armor < 0.7, speed: () => up.speed < 1.9,
+  potion: () => player.hp < player.maxHp * 0.85, crit: () => up.crit < 0.9, lucky: () => up.crit < 0.9, armor: () => up.armor < 0.7, speed: () => up.speed < 2.6,
   reflect: () => BIOMES[curBiome].id !== 'render', mirror: () => anyLv(SHOOTERS), homing: () => anyLv(SHOOTERS), echo: () => anyLv(BOOMERS) || setOn('fuego'),
   giant: () => anyLv(SHOOTERS) || anyLv(BOOMERS), prism: () => up.orbs > 0, tempest: () => up.orbs > 0, vampOrbs: () => up.orbs > 0 || lvl('orbit') > 0,
   glassCannon: () => player.maxHp > 130, express: () => up.speed < 1.9, spin: () => !WSTYLE[curW()] || WSTYLE[curW()].seq.length <= 4

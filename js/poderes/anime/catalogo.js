@@ -67,11 +67,27 @@ const cardMat = makeMat(0xffffff, { map: cardTex, emissive: 0.6, side: THREE.Dou
 function mkBall(){ const g = new THREE.Group(); scene.add(g);
   mesh(new THREE.SphereGeometry(0.17, 10, 5, 0, TAU, 0, Math.PI / 2), A6.ballA, 0, 0, 0, g); mesh(new THREE.SphereGeometry(0.17, 10, 5, 0, TAU, Math.PI / 2, Math.PI / 2), A6.ballB, 0, 0, 0, g);
   const band = mesh(new THREE.TorusGeometry(0.17, 0.02, 4, 14), A6.ballK, 0, 0, 0, g); band.rotation.x = Math.PI / 2; mesh(new THREE.OctahedronGeometry(0.05, 0), A6.eyeW, 0, 0, 0.17, g); return g; }
-function mkFrog(){ const g = new THREE.Group(); scene.add(g); const b = mesh(new THREE.IcosahedronGeometry(0.2, 1), A6.frog, 0, 0.16, 0, g); b.scale.set(1.1, 0.75, 1.2);
-  const belly = mesh(new THREE.IcosahedronGeometry(0.15, 1), A6.frogB, 0, 0.12, 0.08, g); belly.scale.set(1, 0.6, 1);
-  for (const s of [-1, 1]){ mesh(new THREE.IcosahedronGeometry(0.075, 1), A6.eyeW, 0.09 * s, 0.32, 0.1, g); mesh(new THREE.IcosahedronGeometry(0.035, 0), A6.eyeK, 0.09 * s, 0.33, 0.165, g);
-    const l = mesh(new THREE.IcosahedronGeometry(0.08, 0), A6.frog, 0.17 * s, 0.06, -0.08, g); l.scale.set(0.8, 0.6, 1.5); }
-  const tg = mesh(B(0.04, 0.02, 1), A6.tongue, 0, 0.18, 0.2, g); tg.geometry.translate(0, 0, 0.5); tg.scale.z = 0.01; g.userData.tg = tg; g.scale.setScalar(1.3); return g; }
+// Ranas soldado al estilo Keroro: cabezota verde con la mitad de abajo blanca, gorro amarillo con orejeras
+// y estrella roja, estrella amarilla (con borde rojo) en la barriga y ojazos. Cuerpecito de pie, bracitos y pies.
+const frogStarGeo = (() => { const sh = new THREE.Shape(); for (let k = 0; k < 10; k++){ const a = Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? 0.42 : 1; const x = Math.cos(a) * r, y = Math.sin(a) * r; if (k) sh.lineTo(x, y); else sh.moveTo(x, y); } sh.closePath(); return new THREE.ShapeGeometry(sh); })();
+const A6K = { verde: makeMat(0x4fb83a), blanco: makeMat(0xf4f6ea), gorro: makeMat(0xf0d24a), estrellaR: makeMat(0xe0262a, { side: THREE.DoubleSide }), estrellaA: makeMat(0xffd83a, { emissive: 0.25, side: THREE.DoubleSide }),
+  ojo: makeMat(0xffffff), pupila: makeMat(0x101014), boca: makeMat(0x1a2a14) };
+function mkFrog(){ const g = new THREE.Group(); scene.add(g);
+  const ico = (r, m, x, y, z, sx, sy, sz) => { const o = mesh(new THREE.IcosahedronGeometry(r, 1), m, x, y, z, g); o.scale.set(sx || 1, sy || 1, sz || 1); return o; };
+  // cuerpo de pie, barriga blanca con la estrella
+  ico(0.12, A6K.verde, 0, 0.15, 0, 1, 1.1, 0.9); ico(0.1, A6K.blanco, 0, 0.14, 0.04, 0.95, 1, 0.75);
+  const er = mesh(frogStarGeo, A6K.estrellaR, 0, 0.15, 0.118, g); er.scale.setScalar(0.075); const ea = mesh(frogStarGeo, A6K.estrellaA, 0, 0.15, 0.121, g); ea.scale.setScalar(0.058);
+  for (const s of [-1, 1]){ ico(0.045, A6K.verde, 0.13 * s, 0.17, 0.02, 0.8, 1.3, 0.8); ico(0.05, A6K.verde, 0.06 * s, 0.02, 0.03, 1.1, 0.5, 1.5); }   // bracitos y pies
+  // cabezota: verde arriba, blanca abajo; ojos grandes delante y boca ancha
+  ico(0.2, A6K.verde, 0, 0.4, 0, 1.15, 0.92, 1); ico(0.185, A6K.blanco, 0, 0.36, 0.02, 1.12, 0.62, 0.98);
+  for (const s of [-1, 1]){ ico(0.075, A6K.ojo, 0.09 * s, 0.44, 0.15, 0.9, 1.1, 0.5); ico(0.03, A6K.pupila, 0.085 * s, 0.44, 0.185, 0.8, 1.3, 0.5); }
+  mesh(B(0.12, 0.012, 0.01), A6K.boca, 0, 0.35, 0.205, g);
+  // gorro: casquete amarillo, orejeras que cuelgan a los lados y estrella roja delante
+  const cas = mesh(new THREE.SphereGeometry(0.218, 12, 6, 0, TAU, 0, Math.PI * 0.37), A6K.gorro, 0, 0.42, -0.005, g); cas.scale.set(1.16, 0.95, 1.02);
+  for (const s of [-1, 1]){ const f = mesh(B(0.035, 0.2, 0.16), A6K.gorro, 0.225 * s, 0.38, -0.03, g); f.rotation.z = 0.18 * s; }
+  mesh(B(0.32, 0.14, 0.035), A6K.gorro, 0, 0.42, -0.2, g);   // faldón de la nuca
+  const es = mesh(frogStarGeo, A6K.estrellaR, 0, 0.56, 0.172, g); es.scale.setScalar(0.06); es.rotation.x = -0.62;
+  const tg = mesh(B(0.04, 0.02, 1), A6.tongue, 0, 0.35, 0.2, g); tg.geometry.translate(0, 0, 0.5); tg.scale.z = 0.01; g.userData.tg = tg; g.scale.setScalar(1.4); return g; }
 function mkDog(){ const g = new THREE.Group(); scene.add(g); const head = new THREE.Group(); g.add(head);
   const h = mesh(new THREE.IcosahedronGeometry(0.95, 1), A6.dog, 0, 0, 0, head); h.scale.set(1.15, 1, 1.05);
   const sn = mesh(new THREE.IcosahedronGeometry(0.45, 1), A6.dog, 0, -0.25, 0.85, head); sn.scale.set(1, 0.75, 1);

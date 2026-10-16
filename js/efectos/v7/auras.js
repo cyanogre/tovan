@@ -27,8 +27,11 @@ function e7Arms(dt, live){
   if (dt > 0){ E7.armV += ((tgt - E7.armS) * 330 - E7.armV * 9) * dt; E7.armS = clamp(E7.armS + E7.armV * dt, 0.7, 5.2);
     const tl = 1 + walkW * 0.7 * Math.abs(Math.sin(phase)) + (grounded ? 0 : 0.7) + (state === 'attack' ? 0.8 : 0);
     E7.armLV += ((tl - E7.armLS) * 170 - E7.armLV * 5) * dt; E7.armLS = clamp(E7.armLS + E7.armLV * dt, 0.7, 3.2); }
-  const extR = Math.max(0, E7.armS - 1) * 0.62, extL = Math.max(0, E7.armLS - 1) * 0.5;
+  const extR = Math.max(0, E7.armS - 1) * 0.62 + (E7.puno ? E7.puno.ext : 0), extL = Math.max(0, E7.armLS - 1) * 0.5;
   setExt7(P.armR, extR); setExt7(P.armL, extL);
+  { const F = P.armR.puno7, on = !!E7.puno;   // Pistola de goma: la mano se hace un puño gordo (el brazo apunta al blanco en legendPose)
+    if (on) P.armR.hand.scale.setScalar(1 + 1.4 * E7.puno.k);
+    if (F && F.visible !== on){ F.visible = on; P.armR.hand.children.forEach(c => { if (c !== F) c.visible = !on; }); } }
   if (staffInHand) staff.position.y = -0.84 - extR;
   // líneas elásticas a lo largo del brazo cuando se estira mucho
   if (extR > 0.6 && dt > 0) for (let k = 0; k < 2; k++){ P.armR.el.localToWorld(t7a.set((rnd() - 0.5) * 0.1, -0.2 - rnd() * extR, 0)); P.armR.el.localToWorld(t7b.set(0, -1, 0)).sub(P.armR.el.getWorldPosition(t7c));
@@ -38,24 +41,32 @@ const _heroMinYE7 = heroMinY;
 heroMinY = function(){ const r = P.armR.hand.position.y, l = P.armL.hand.position.y, sr = P.armR.hand.scale.x, sl = P.armL.hand.scale.x; if (r === 0 && l === 0) return _heroMinYE7();
   P.armR.hand.position.y = 0; P.armL.hand.position.y = 0; P.armR.hand.scale.setScalar(1); P.armL.hand.scale.setScalar(1);
   const v = _heroMinYE7(); P.armR.hand.position.y = r; P.armL.hand.position.y = l; P.armR.hand.scale.setScalar(sr); P.armL.hand.scale.setScalar(sl); return v; };
-// puño de goma gigante: «¡Pistola de goma!»
+// Mientras dura la Pistola de goma, el hombro apunta al blanco (el brazo se estira a lo largo de su −y)
+const _legendPoseG7 = legendPose, gomuQ7 = new THREE.Quaternion(), gomuY7 = new V3(0, -1, 0);
+legendPose = function(){ _legendPoseG7(); const G = E7.puno; if (!G) return;
+  const sh = P.armR.sh; sh.parent.updateWorldMatrix(true, false); sh.parent.localToWorld(t7c.copy(sh.position));
+  t7d.set(G.tx - t7c.x, G.ty - t7c.y, G.tz - t7c.z).normalize(); sh.parent.getWorldQuaternion(gomuQ7).invert(); t7d.applyQuaternion(gomuQ7);
+  gomuQ7.setFromUnitVectors(gomuY7, t7d); sh.quaternion.slerp(gomuQ7, Math.min(1, G.k * 3)); P.armR.el.rotation.set(0, 0, 0); };
+// «¡Pistola de goma!»: el propio brazo izquierdo (P.armR, el del arma) se estira hasta el enemigo y la mano se hincha.
+// Antes salía un puño con su brazo desde el hombro, junto al de verdad, y parecía que Tovan tuviera tres brazos.
 function gomuPunch7(){
   const hx = hero.position.x, hz = hero.position.z, f = hero.rotation.y;
   let t = null, bd = 7.5; for (const e of enemies){ if (!e.alive || e.spawnT > 0) continue; const dx = e.g.position.x - hx, dz = e.g.position.z - hz, d = Math.hypot(dx, dz);
     if (d < bd && (dx * Math.sin(f) + dz * Math.cos(f)) / (d || 1) > 0.55){ bd = d; t = e; } }
   const tx = t ? t.g.position.x : hx + Math.sin(f) * 5.5, tz = t ? t.g.position.z : hz + Math.cos(f) * 5.5, ty = t ? 0.9 * (t.scale || 1) : 1.1;
-  const fist = fistProto7.clone(); scene.add(fist); const arm = addMesh7(new THREE.BoxGeometry(1, 1, 1), MA7.skin);
-  const hitSet = new Set();
-  ob7({ m: fist, upd(o, dt){ P.armR.sh.getWorldPosition(t7a); const k = o.t < 0.11 ? smooth(o.t / 0.11) : o.t < 0.2 ? 1 : 1 - smooth(Math.min(1, (o.t - 0.2) / 0.22));
-      const wob = o.t > 0.2 ? Math.sin(o.t * 50) * 0.25 * (1 - k) : 0;
-      fist.position.set(lerp(t7a.x, tx, k) + wob, lerp(t7a.y, ty, k), lerp(t7a.z, tz, k)); fist.lookAt(tx, ty, tz); fist.scale.setScalar(0.4 + 0.6 * k);
-      line7(arm, t7a.x, t7a.y, t7a.z, fist.position.x, fist.position.y, fist.position.z, 0.12 * (1 - 0.4 * k)); arm.visible = k > 0.05;
-      if (o.t < 0.11) streak7(fist.position.x, fist.position.y, fist.position.z, tx - t7a.x, 0, tz - t7a.z, 1.2, 0xffffff, 0.12, 0.03, 0);
+  if (!P.armR.puno7){ const F = P.armR.puno7 = fistProto7.clone(); F.rotation.x = Math.PI / 2; F.position.y = -0.27; F.scale.setScalar(0.6); F.visible = false; P.armR.hand.add(F); }
+  const hitSet = new Set(), G = E7.puno = { tx, ty, tz, ext: 0, k: 0 };
+  ob7({ upd(o, dt){ if (E7.puno !== G) return true;
+      P.armR.el.getWorldPosition(t7a); const dist = Math.hypot(tx - t7a.x, ty - t7a.y, tz - t7a.z);
+      const k = o.t < 0.11 ? smooth(o.t / 0.11) : o.t < 0.2 ? 1 : 1 - smooth(Math.min(1, (o.t - 0.2) / 0.22));
+      G.k = k; G.ext = Math.max(0, dist - 0.45) * k * (1 + (o.t > 0.2 ? Math.sin(o.t * 50) * 0.08 * (1 - k) : 0));
+      P.armR.hand.getWorldPosition(t7b);
+      if (o.t < 0.11) streak7(t7b.x, t7b.y, t7b.z, tx - t7a.x, 0, tz - t7a.z, 1.2, 0xffffff, 0.12, 0.03, 0);
       if (o.t >= 0.11 && !o.hit){ o.hit = true; shake = Math.max(shake, 0.3); play('slam'); shout7('¡PISTOLA DE GOMA!', '#ffd070', tx, ty + 1.6, tz);
         gring(tx, ty, tz, 0xffffff, 0.3, 2.2, 0.3, angTo(hx, hz, tx, tz)); gring(tx, 0.1, tz, 0xffc070, 0.3, 2.6, 0.35); burst7(PA7, tx, ty, tz, 22, [0xffe070, 0xffffff, 0xffb060], 7, 0.2, 0.4, 2, 2, 0, SH7.star);
         for (const e of enemies){ if (!e.alive || e.spawnT > 0 || hitSet.has(e)) continue; const dx = e.g.position.x - tx, dz = e.g.position.z - tz, d = Math.hypot(dx, dz);
           if (d - e.r < 1.2){ hitSet.add(e); const a = angTo(hx, hz, e.g.position.x, e.g.position.z); hitEnemy(e, rdmg(16), rnd() < up.crit, Math.sin(a), Math.cos(a), 7, 2, false, { src: 'aoe' }); } } }
-      return o.t > 0.42; }, end(){ scene.remove(arm); arm.geometry.dispose(); } });
+      return o.t > 0.42; }, end(){ if (E7.puno === G) E7.puno = null; } });
 }
 
 /* ---------- Auras ---------- */

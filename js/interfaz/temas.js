@@ -96,3 +96,21 @@ document.addEventListener('DOMContentLoaded', () => {
   li.appendChild(b); document.getElementById('menuList').prepend(li);
 });
 uiAplica(uiTema);
+
+/* ---------- Rótulo de las cartas: que quepa en una línea ----------
+   En los temas que lo ponen en una franja de altura fija (white-space: nowrap, como Relámpago), los rótulos
+   largos («✦ Especial de rama», «⚔ La chancla de la abuela», «Común ¡Nueva!») se salían o se cortaban:
+   se encoge la letra hasta que cabe. Donde el rótulo puede partirse en dos líneas no se toca. */
+function rarAjusta(){
+  for (const el of cardsEl.querySelectorAll('.card .rar')){
+    el.style.removeProperty('font-size');
+    if (!el.clientWidth || getComputedStyle(el).whiteSpace !== 'nowrap') continue;
+    let fs = parseFloat(getComputedStyle(el).fontSize), n = 0;
+    while (el.scrollWidth > el.clientWidth + 1 && fs > 9 && n++ < 12){ fs = Math.max(9, Math.min(fs - 0.5, Math.floor(fs * el.clientWidth / el.scrollWidth * 2) / 2)); el.style.setProperty('font-size', fs + 'px', 'important'); }
+  }
+}
+{ let pend = false; const pide = () => { if (pend) return; pend = true; requestAnimationFrame(() => { pend = false; rarAjusta(); }); };
+  new MutationObserver(pide).observe(cardsEl, { childList: true, subtree: true, characterData: true });
+  new MutationObserver(pide).observe(upScr, { attributes: true, attributeFilter: ['hidden', 'class'] });   // (oculto no se puede medir)
+  if (document.fonts) document.fonts.addEventListener('loadingdone', pide);   // (con la letra de reserva mide otra cosa)
+  addEventListener('resize', pide); const _uiAplicaRar = uiAplica; uiAplica = function(t){ _uiAplicaRar(t); pide(); }; }
