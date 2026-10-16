@@ -117,6 +117,49 @@ En los tres temas nuevos, en pantallas anchas, la misión y el capitán van en l
 
 Los números de daño y las parodias (Canal X, cuelgue, novela…) conservan su propio estilo en todos los temas.
 
+## La historia de la partida (hoja de ruta)
+
+Al sacar a Lumen de la caja, el sello se partió en **seis trozos** y cada uno acabó dentro de un jefe. La partida es una ruta de reparto: seis paradas, una por capítulo, y la entrega final en la azotea del anticuario. Todo está en `js/historia/hoja-de-ruta.js` (datos en `RUTA`) y `css/hoja-de-ruta.css`.
+
+| Parada | Capítulo | Quién tiene el trozo | Lo que recuerda Lumen al recuperarlo |
+|---|---|---|---|
+| 1 | Ruinas del Ocaso | el Guardián de piedra | Ese no era el Guardián: era su estatua |
+| 2 | Santuario de los Cerezos | Ryūjin | El Guardián la metió en la caja para protegerla |
+| 3 | Cumbre Nevada | Gashadokuro | El remitente del paquete era el propio Guardián |
+| 4 | Canal X | Míster Confianza (lo usa de trofeo) | La dirección es la tienda del anticuario… donde había un gato |
+| 5 | Playa del Mundo Real | la Tetera de Utah | El Guardián no es una persona |
+| 6 | Ruinas corruptas | el ERROR | El sello está completo: rumbo a la azotea |
+| Destino | La azotea del anticuario | el Gato (el destinatario) | (la pelea final y los finales de siempre) |
+
+- **Al empezar la partida**, una tarjeta enseña la hoja de ruta con la parada actual (sustituye al rótulo de la 1.ª oleada). La intro termina explicando lo de los seis trozos.
+- **En cada capítulo**, Lumen dice qué se busca en la 1.ª oleada (la primera vez, con detalle; después, en corto) y da una pista en la 3.ª (solo la primera vez).
+- **Al tumbar al jefe**: «Trozo del sello N de 6» y el recuerdo de Lumen (`STORY.trozo_N`, un diálogo la primera vez; después, un comentario de `TROZO_CORTO`).
+- **En el viaje entre capítulos**, la tarjeta del capítulo lleva la ruta con la parada nueva sellada. También sale en la **pausa** y al **caer**.
+- El Castillo Infinito (el isekai) cuenta como desvío: no tiene trozo.
+
+## Tutorial
+
+En la primera partida, la 1.ª oleada es un tutorial (`js/partida/tutorial.js`, `css/tutorial.css`): Lumen enseña paso a paso a moverse, girar la cámara, atacar, rodar, saltar, pelear, usar el especial y elegir carta. Mientras se aprenden los movimientos no sale ningún enemigo; en el táctil parpadea el botón que toca pulsar. Se puede saltar, y se repite desde **Opciones → Tutorial** (`localStorage` `tovan-tuto`).
+
+## HUD limpio
+
+**Opciones → HUD: Limpio | Completo** (`js/interfaz/hud-limpio.js`, `css/hud-limpio.css`; por defecto, Limpio). Con el limpio, en la partida solo queda lo que hay que mirar:
+- Tu estado (retrato, vida e ímpetu), sin nombre, título ni fragmentos; la oleada, el radar, los rótulos y el combo, más pequeños.
+- El menú de opciones solo sale en el título, la pausa y el final. Las familias de la build, en la pausa y en las cartas.
+- La misión, en una sola línea.
+- **El capitán ya no tiene panel**: su nombre, su vida y sus tres piezas (con desde dónde se rompe cada una: ▲ de frente, ▼ por detrás, ⤒ saltando) flotan sobre su cabeza. Si está fuera de cámara, queda una etiqueta pequeña en el borde con una flecha.
+- Lumen hace menos chistes (uno cada 40 s como mucho); los avisos de juego y la historia, sí.
+
+Con cualquier HUD, en el móvil en vertical la cámara se abre al jugar (antes se veían unos 3 m de lado a lado).
+
+## Canal X
+
+El capítulo 4 imita cómo cambia de estilo *To Be Hero X*: cada tramo se ve como una animación distinta (anime, manga, vectorial, recreativa, marcianitos y papel recortado). Lo nuevo está en `js/canal-x/emision.js` y `css/canal-x-emision.css`:
+- **Contornos de tinta limpios.** La segunda pasada (el contorno negro) empuja cada vértice por la normal media de los vértices que comparten su sitio; antes cada cara salía por su lado y en las esquinas de los cubos quedaban astillas negras. Las piezas planas, translúcidas o que no son mallas no se entintan.
+- **Cortinilla de cambio de estilo.** Tres bandas en diagonal con los colores del estilo nuevo, su nombre en grande en caracteres chinos (`CX_ESTILO`), el episodio y el título. El estilo cambia por debajo mientras las bandas tapan la pantalla, sin estática ni pantallazo.
+- **Índice de confianza** como rótulo de emisión (信任値, con el número rodando y el puesto en el ranking).
+- Las franjas de cine dentro del Canal X son de emisión (degradado, línea de color y «EN DIRECTO»), y los conos de luz del plató ya no tapan la vista lateral de la recreativa.
+
 ## Objetivos de oleada y capitanes
 
 Inspirados en las misiones de *Hyrule Warriors* y en las piezas rompibles de *Monster Hunter*.
@@ -132,7 +175,7 @@ Inspirados en las misiones de *Hyrule Warriors* y en las piezas rompibles de *Mo
 
 En la 3.ª oleada de cada capítulo, desde el 2, se presenta además un capitán a media oleada.
 
-**Capitanes** (`js/enemigos/capitanes.js`). Son enemigos grandes con tres piezas que solo se dañan desde un lado. El panel del capitán muestra cada pieza, cuánto le queda y desde dónde se rompe. Un golpe normal no los interrumpe; romper una pieza los deja aturdidos, la pieza sale volando y les cambia el estilo:
+**Capitanes** (`js/enemigos/capitanes.js`). Son enemigos grandes con tres piezas que solo se dañan desde un lado. Con el HUD limpio, la etiqueta que flota sobre el capitán muestra cada pieza, cuánto le queda y desde dónde se rompe (con el completo, el panel de siempre). Un golpe normal no los interrumpe; romper una pieza los deja aturdidos, la pieza sale volando y les cambia el estilo:
 
 | Capitán | Pieza | Se rompe | Al romperla |
 |---|---|---|---|
@@ -233,6 +276,8 @@ Se guardan en el `localStorage` del navegador:
 - `tovan-det13`: detalles de las cartas.
 - `tovan-ui`: tema de la interfaz.
 - `tovan-fs`: pantalla completa en móvil (Opciones → Pantalla completa).
+- `tovan-hud`: HUD limpio o completo (Opciones → HUD).
+- `tovan-tuto`: si ya se hizo el tutorial (`1`) o se ha pedido repetirlo (`0`).
 
 Van ligadas a la dirección desde la que se abre el juego. Si un día lo sirves desde un servidor web (`http://…`), las partidas de `file://` no se verán allí.
 
