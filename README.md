@@ -96,7 +96,22 @@ Crea tus ficheros nuevos y añádelos a `index.html` en el hueco **`<!-- Tus añ
 
 Los iconos con emoji se cambian solos por pixel art si el emoji está en la hoja (`js/interfaz/iconos-pixel.js`).
 
-**Aspecto de la interfaz:** `css/interfaz.css`, el último de la cascada, da a HUD y menús su estilo actual: paneles oscuros con filete fino, un solo acento ámbar (`--accent`) y las fuentes Barlow y Barlow Condensed. Sus colores están arriba del todo, en `:root`. Solo pisa estilos de los ficheros anteriores: si se quita su `<link>`, vuelven las ventanas azules de antes. Los números de daño y las parodias (Canal X, cuelgue, novela…) conservan su estilo propio y la fuente Pixelify Sans.
+**Temas de la interfaz** (Opciones → Interfaz). HUD y menús tienen cuatro aspectos; la elección se guarda en el navegador. Por defecto sale Albarán.
+
+| Tema | Idea | Fichero |
+|---|---|---|
+| **Albarán** | El material de trabajo de Tovan: etiqueta de envío con código de barras, la oleada en un ticket de caja, la misión en un pósit, el capitán como parte de incidencia, sellos de goma y menús en un albarán sobre cartón | `css/tema-albaran.css` |
+| **Emaki** | Tinta sumi, papel washi y sellos bermellón: la vida es una pincelada, el ímpetu son cuentas, la oleada un ensō con el número en kanji, cada pieza del capitán un sello y las cartas, ofuda | `css/tema-emaki.css` |
+| **Relámpago** | Gráfico y cinético: diagonales, bloques de amarillo, negro y rosa, sombras duras, tipografía enorme y bocadillos de cómic | `css/tema-relampago.css` |
+| **Clásica** | Las ventanas azules de siempre | (los CSS de siempre) |
+
+En los tres temas nuevos, en pantallas anchas, la misión y el capitán van en la columna izquierda bajo tu estado, y arriba en el centro solo queda la oleada.
+- **Cómo funciona:** `js/interfaz/temas.js` pone `<body data-ui="albaran|emaki|relampago|clasica">`, y cada `css/tema-*.css` solo se aplica con su valor; `css/temas.css` lleva lo común.
+- **Lo que preparan para los CSS:** también crean los filtros SVG de tinta, el número de la oleada por separado (en `.uiOla`, también en kanji), el kanji de cada pieza de los capitanes y los colores del radar (`UI_RADAR`).
+- **Fuentes:** Archivo, IBM Plex Mono, Permanent Marker, Libre Barcode 128, Big Shoulders Stencil Display, Shippori Mincho B1, Yuji Syuku, Zen Kaku Gothic New, Anton y Rubik. Se cargan en el mismo `<link>` de Google Fonts que Pixelify Sans.
+- **Otro tema:** añade un `css/tema-x.css` con `body[data-ui=x]{ … }` y una entrada en `UI_TEMAS`.
+
+Los números de daño y las parodias (Canal X, cuelgue, novela…) conservan su propio estilo en todos los temas.
 
 ## Objetivos de oleada y capitanes
 
@@ -212,6 +227,7 @@ Se guardan en el `localStorage` del navegador:
 - `tovan-best`: récord.
 - `tovan-audio`: música y efectos activados.
 - `tovan-det13`: detalles de las cartas.
+- `tovan-ui`: tema de la interfaz.
 
 Van ligadas a la dirección desde la que se abre el juego. Si un día lo sirves desde un servidor web (`http://…`), las partidas de `file://` no se verán allí.
 

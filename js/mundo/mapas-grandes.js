@@ -200,35 +200,42 @@ function mpAroTick(){
 /* ---------- Radar ---------- */
 const mpRadar = document.createElement('canvas'); mpRadar.id = 'mpRadar'; mpRadar.width = mpRadar.height = 132; mpRadar.hidden = true; document.body.appendChild(mpRadar);
 const mpRx = mpRadar.getContext('2d');
+// Colores del radar (los cambia cada tema de la interfaz: js/interfaz/temas.js)
+const MP_RCOL_CLASICA = { fondo: 'rgba(8,10,40,.78)', borde: 'rgba(238,240,255,.85)', bordeW: 2, agua: 'rgba(70,140,220,.6)', hielo: 'rgba(190,232,255,.45)', bajo: 'rgba(150,150,190,.55)', alto: 'rgba(170,175,215,.85)',
+  pad: '#7ff5ff', sello: '#d07aff', selloOk: '#ffd23a', paquete: '#ffd23a', robo: '#ff6a3a', perim: 'rgba(255,210,58,.8)', cura: '#7dff8a', puesto: '#d04aff', cap1: '#ff8a3a', cap2: '#ffd23a',
+  enemigo: '#ff4a4a', elite: '#ffd970', ladron: '#ffb0ff', frente: '#ff4a4a', heroe: '#ffffff', heroeBorde: null };
+const MP_RCOL = Object.assign({}, MP_RCOL_CLASICA);
 function mpDibujaRadar(){
   const show = MP.on && !hud.hidden && (gameState === 'play' || gameState === 'paused');
   if (mpRadar.hidden !== !show){ mpRadar.hidden = !show; if (typeof objColT === 'number') objColT = 0; }
   if (!show || !mpRx) return;
-  const g = mpRx, W = mpRadar.width, C = W / 2, R = C - 7, k = R / ARENA, M = mpActual();
+  const g = mpRx, W = mpRadar.width, C = W / 2, R = C - 7, k = R / ARENA, M = mpActual(), P = MP_RCOL;
   const fx = -Math.sin(camYaw), fz = -Math.cos(camYaw), rx = -fz, rz = fx;   // arriba = hacia donde mira la cámara
   const X = (x, z) => C + (x * rx + z * rz) * k, Y = (x, z) => C - (x * fx + z * fz) * k;
   const dot = (x, z, r, col) => { g.fillStyle = col; g.beginPath(); g.arc(X(x, z), Y(x, z), r, 0, TAU); g.fill(); };
   g.clearRect(0, 0, W, W);
-  g.fillStyle = 'rgba(10,11,16,.8)'; g.beginPath(); g.arc(C, C, R + 5, 0, TAU); g.fill();
-  if (M){ for (const z of M.agua) dot(z.x, z.z, z.r * k, 'rgba(70,140,220,.6)'); for (const z of M.hielo) dot(z.x, z.z, z.r * k, 'rgba(190,232,255,.45)');
-    for (const o of M.obst) dot(o.x, o.z, Math.max(1.2, o.r * k), o.h < 1.4 ? 'rgba(150,150,190,.55)' : 'rgba(170,175,215,.85)');
-    g.strokeStyle = '#7ff5ff'; g.lineWidth = 1.5; for (const p of M.pads){ g.beginPath(); g.arc(X(p.x, p.z), Y(p.x, p.z), 3, 0, TAU); g.stroke(); } }
-  g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1.5; g.beginPath(); g.arc(C, C, R, 0, TAU); g.stroke();
+  g.fillStyle = P.fondo; g.beginPath(); g.arc(C, C, R + 5, 0, TAU); g.fill();
+  if (M){ for (const z of M.agua) dot(z.x, z.z, z.r * k, P.agua); for (const z of M.hielo) dot(z.x, z.z, z.r * k, P.hielo);
+    for (const o of M.obst) dot(o.x, o.z, Math.max(1.2, o.r * k), o.h < 1.4 ? P.bajo : P.alto);
+    g.strokeStyle = P.pad; g.lineWidth = 1.5; for (const p of M.pads){ g.beginPath(); g.arc(X(p.x, p.z), Y(p.x, p.z), 3, 0, TAU); g.stroke(); } }
+  if (P.bordeW){ g.strokeStyle = P.borde; g.lineWidth = P.bordeW; g.beginPath(); g.arc(C, C, R, 0, TAU); g.stroke(); }
   const o = typeof OBJ !== 'undefined' ? OBJ.cur : null;
-  if (o && o.tipo === 'sello'){ g.strokeStyle = o.ok ? '#ffd23a' : '#d07aff'; g.lineWidth = 2; g.beginPath(); g.arc(X(o.x, o.z), Y(o.x, o.z), Math.max(3, OBJ_SR * k), 0, TAU); g.stroke(); }
+  if (o && o.tipo === 'sello'){ g.strokeStyle = o.ok ? P.selloOk : P.sello; g.lineWidth = 2; g.beginPath(); g.arc(X(o.x, o.z), Y(o.x, o.z), Math.max(3, OBJ_SR * k), 0, TAU); g.stroke(); }
   if (o && o.tipo === 'paquete' && !o.pk.lost){ const p = o.pk.g.position;
-    if (o.pk.hx != null){ g.setLineDash([3, 3]); g.strokeStyle = 'rgba(255,210,58,.8)'; g.lineWidth = 1.5; g.beginPath(); g.arc(X(o.pk.hx, o.pk.hz), Y(o.pk.hx, o.pk.hz), OBJ_PK_R * k, 0, TAU); g.stroke(); g.setLineDash([]); } g.fillStyle = Math.sin(time * 10) > 0 || !o.pk.carrier ? '#ffd23a' : '#ff6a3a'; g.fillRect(X(p.x, p.z) - 3, Y(p.x, p.z) - 3, 6, 6); }
-  for (const p of pickups) dot(p.m.position.x, p.m.position.z, 1.6, '#7dff8a');
+    if (o.pk.hx != null){ g.setLineDash([3, 3]); g.strokeStyle = P.perim; g.lineWidth = 1.5; g.beginPath(); g.arc(X(o.pk.hx, o.pk.hz), Y(o.pk.hx, o.pk.hz), OBJ_PK_R * k, 0, TAU); g.stroke(); g.setLineDash([]); }
+    g.fillStyle = Math.sin(time * 10) > 0 || !o.pk.carrier ? P.paquete : P.robo; g.fillRect(X(p.x, p.z) - 3, Y(p.x, p.z) - 3, 6, 6); }
+  for (const p of pickups) dot(p.m.position.x, p.m.position.z, 1.6, P.cura);
   for (const e of enemies){ if (!e.alive) continue; const x = e.g.position.x, z = e.g.position.z;
-    if (e.type === 'puesto'){ g.fillStyle = '#d04aff'; g.fillRect(X(x, z) - 3, Y(x, z) - 3, 6, 6); }
-    else if (e.cap) dot(x, z, 4, Math.sin(time * 8) > 0 ? '#ff8a3a' : '#ffd23a');
-    else dot(x, z, e.heavy ? 2.6 : 2, e.elite ? '#ffd970' : e.type === 'ladron' ? '#ffb0ff' : '#ff4a4a'); }
+    if (e.type === 'puesto'){ g.fillStyle = P.puesto; g.fillRect(X(x, z) - 3, Y(x, z) - 3, 6, 6); }
+    else if (e.cap) dot(x, z, 4, Math.sin(time * 8) > 0 ? P.cap1 : P.cap2);
+    else dot(x, z, e.heavy ? 2.6 : 2, e.elite ? P.elite : e.type === 'ladron' ? P.ladron : P.enemigo); }
   if (queue.length && Math.sin(time * 6) > -0.3) for (const f of MP.frentes){   // por dónde llegan
     const sx = Math.sin(f), sz = Math.cos(f), px = sx * rx + sz * rz, py = -(sx * fx + sz * fz), ax = C + px * (R - 2), ay = C + py * (R - 2);
-    g.fillStyle = '#ff4a4a'; g.beginPath(); g.moveTo(ax + px * 6, ay + py * 6); g.lineTo(ax - py * 5, ay + px * 5); g.lineTo(ax + py * 5, ay - px * 5); g.fill(); }
+    g.fillStyle = P.frente; g.beginPath(); g.moveTo(ax + px * 6, ay + py * 6); g.lineTo(ax - py * 5, ay + px * 5); g.lineTo(ax + py * 5, ay - px * 5); g.fill(); }
   const hx = X(hero.position.x, hero.position.z), hy = Y(hero.position.x, hero.position.z), ha = hero.rotation.y, sx = Math.sin(ha), sz = Math.cos(ha);
   const ux = sx * rx + sz * rz, uy = -(sx * fx + sz * fz);
-  g.fillStyle = '#ffffff'; g.beginPath(); g.moveTo(hx + ux * 6, hy + uy * 6); g.lineTo(hx - ux * 4 - uy * 4, hy - uy * 4 + ux * 4); g.lineTo(hx - ux * 4 + uy * 4, hy - uy * 4 - ux * 4); g.fill();
+  g.fillStyle = P.heroe; g.beginPath(); g.moveTo(hx + ux * 6, hy + uy * 6); g.lineTo(hx - ux * 4 - uy * 4, hy - uy * 4 + ux * 4); g.lineTo(hx - ux * 4 + uy * 4, hy - uy * 4 - ux * 4); g.closePath(); g.fill();
+  if (P.heroeBorde){ g.strokeStyle = P.heroeBorde; g.lineWidth = 1.5; g.stroke(); }
 }
 
 /* ---------- Ganchos ---------- */

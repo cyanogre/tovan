@@ -1,0 +1,18 @@
+/* ======================================================================
+   TEMAS DE LA INTERFAZ: lo común a todos (js/interfaz/temas.js elige el tema
+   con <body data-ui="clasica|albaran|emaki|relampago">; cada tema nuevo tiene
+   su css/tema-*.css, que solo se aplica con su data-ui)
+   ====================================================================== */
+/* Con una pantalla encima (pausa, cartas, menús) no asoman los paneles de juego */
+.overlay{z-index:20}
+body:has(.overlay:not([hidden])) #objCol,body:has(.overlay:not([hidden])) #mpRadar,body:has(.overlay:not([hidden])) #bark{visibility:hidden}
+/* El número de la oleada troceado (temas.js): solo lo usan los temas nuevos */
+.uiOla{display:none}
+/* Temas nuevos en pantalla ancha: misión y capitán en la columna izquierda, bajo el HUD */
+#objBox,#capBox{position:relative}   /* para los adornos ::before/::after de los temas */
+#objCol.uiLado{left:22px;transform:none;width:340px;gap:12px}
+@media (min-width:721px) and (min-height:521px){
+  body[data-ui]:not([data-ui=clasica]).bossfight #waveBox{display:none}   /* en el jefe manda su barra */
+  body[data-ui]:not([data-ui=clasica]) #bossBox{top:calc(16px + env(safe-area-inset-top,0px))}
+  body[data-ui]:not([data-ui=clasica]).cine #bossBox{top:calc(clamp(36px,8vh,64px) + 12px)}
+}
