@@ -47,6 +47,11 @@
 <link rel="stylesheet" href="css/canal-x-emision.css">
 </head>
 <body>
+<script>/* Tema y HUD antes del primer pintado: temas.js y hud-limpio.js cargan al final y, sin esto, se veía un instante la interfaz clásica (los temas válidos son los de UI_TEMAS) */
+{ const b = document.body; let t = 'albaran', limpio = true;
+  try { const v = localStorage.getItem('tovan-ui'); if (/^(clasica|albaran|emaki|relampago)$/.test(v)) t = v; limpio = localStorage.getItem('tovan-hud') !== 'completo'; } catch (e) {}
+  b.dataset.ui = t; if (limpio) b.classList.add('hudmin'); }
+</script>
 <canvas id="c"></canvas>
 <div class="vignette"></div>
 <div class="scan" id="scan"></div>
