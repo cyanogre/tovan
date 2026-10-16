@@ -1,0 +1,29 @@
+/* ======================================================================
+   TRÁILER (js/cinematicas/trailer.js): rótulos de cine. Sin transiciones
+   ni animaciones CSS: el JS mueve todo con el tiempo de la cinemática.
+   ====================================================================== */
+#trailer{position:fixed;inset:0;z-index:48;pointer-events:none}
+#trailer .tnegro{position:absolute;inset:0;background:#000;opacity:0}
+#trailer .tcard{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,1100px);text-align:center;opacity:0;color:#f4f0e6}
+#trailer .tcard small{display:block;margin-bottom:.5em;font:600 clamp(13px,1.6vw,20px)/1.2 Archivo,sans-serif;letter-spacing:.32em;text-transform:uppercase;opacity:.85}
+#trailer .tcard.epico{font:400 clamp(34px,6.2vw,86px)/1.02 Anton,Impact,sans-serif;letter-spacing:.04em;text-transform:uppercase;text-shadow:0 4px 24px rgba(0,0,0,.85),0 0 2px #000}
+#trailer .tcard.grande{font-size:clamp(52px,11vw,150px)}
+#trailer .tcard.romance{font:italic 500 clamp(30px,5vw,68px)/1.15 'Shippori Mincho B1',Georgia,serif;color:#ffe3ec;letter-spacing:.06em;text-shadow:0 0 18px rgba(255,106,168,.7),0 3px 14px rgba(0,0,0,.7)}
+#trailer .tcard.romance small{margin:.6em 0 0;font:italic 400 clamp(14px,1.8vw,22px) 'Shippori Mincho B1',Georgia,serif;letter-spacing:.1em;text-transform:none;color:#ffc0d4}
+#trailer .tcard.critica{font:400 clamp(22px,3.4vw,44px)/1.25 'Shippori Mincho B1',Georgia,serif}
+#trailer .tcard.critica i{display:block}
+#trailer .tcard.critica b{display:block;margin:.4em 0 .2em;color:#ffd23a;letter-spacing:.12em;font:400 clamp(26px,3.6vw,46px) Anton,Impact,sans-serif}
+#trailer .tcard.critica small{margin:0;letter-spacing:.2em}
+#trailer .tcard.logo .lt{display:block;font:400 clamp(80px,16vw,220px)/.9 Anton,Impact,sans-serif;letter-spacing:.06em;color:#fff;text-shadow:0 0 40px rgba(159,246,255,.6),0 6px 30px rgba(0,0,0,.9)}
+#trailer .tcard.logo .ls{display:block;margin-top:.3em;font:700 clamp(16px,2.4vw,30px) Archivo,sans-serif;letter-spacing:.5em;color:#9ff6ff}
+#trailer .tcard.logo .lp{display:block;margin-top:1.6em;font:400 clamp(20px,3vw,40px) Anton,Impact,sans-serif;letter-spacing:.12em;color:#ffd23a}
+#trailer .tcard.logo .lx{display:block;margin-top:.3em;font:italic 500 clamp(13px,1.6vw,19px) Archivo,sans-serif;opacity:.8}
+#trailer .tcard.logo .lr{display:inline-block;margin-top:1.4em;padding:4px 12px;border:2px solid currentColor;font:800 clamp(11px,1.3vw,15px) Archivo,sans-serif;letter-spacing:.2em;opacity:.85}
+#trailer .tsub{position:absolute;left:50%;bottom:calc(clamp(36px,8vh,64px) + 22px);transform:translateX(-50%);width:max-content;max-width:min(90vw,900px);opacity:0;
+  font:500 clamp(16px,2.2vw,26px)/1.3 'Shippori Mincho B1',Georgia,serif;color:#fff;text-align:center;text-shadow:0 2px 6px #000,0 0 2px #000}
+#trailer .tsub b{color:#ffd23a;font-weight:800}
+#trailer .tgrito{position:absolute;left:50%;top:36%;transform:translate(-50%,-50%) rotate(-7deg);opacity:0;white-space:nowrap;
+  font:400 clamp(40px,7.5vw,110px)/1 Anton,Impact,sans-serif;letter-spacing:.02em;-webkit-text-stroke:3px #000;text-shadow:7px 7px 0 #000}
+/* durante el tráiler no asoma nada del juego */
+body.trailer :is(#hud,#waveBox,#objCol,#mpRadar,#bark,#comboBox,#tags,#capTag,#cxTrust,#trust,#banner,#bossBox,#bossCard,#menu,#toasts,#joy,#pad,#valora,#rutaCard,#trozoFx,#tuto,#pop7,#epCard,#dlg,#csCap,#csShout,#arcadeTxt){display:none !important}
+body.grabando #csSkip{display:none !important}
