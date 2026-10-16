@@ -139,7 +139,7 @@ Al sacar a Lumen de la caja, el sello se partió en **seis trozos** y cada uno a
 
 ## Tutorial
 
-En la primera partida, la 1.ª oleada es un tutorial (`js/partida/tutorial.js`, `css/tutorial.css`): Lumen enseña paso a paso a moverse, girar la cámara, atacar, rodar, saltar, pelear, usar el especial y elegir carta. Mientras se aprenden los movimientos no sale ningún enemigo; en el táctil parpadea el botón que toca pulsar. Se puede saltar, y se repite desde **Opciones → Tutorial** (`localStorage` `tovan-tuto`).
+En la primera partida, la 1.ª oleada es un tutorial (`js/partida/tutorial.js`, `css/tutorial.css`): Lumen enseña paso a paso a moverse, girar la cámara, atacar, rodar, saltar, pelear, usar el especial y elegir carta. Mientras se aprenden los movimientos no sale ningún enemigo; en el táctil parpadea el botón que toca pulsar. Se puede saltar, y se repite desde **Opciones → Tutorial** (`localStorage` `tovan-tuto`). Aunque tumbes a todos antes de tiempo, no se salta pasos: mientras quedan cosas por enseñar van saliendo diablillos de práctica, y el ímpetu se queda lleno hasta que sueltas el especial.
 
 ## HUD limpio
 
@@ -150,7 +150,33 @@ En la primera partida, la 1.ª oleada es un tutorial (`js/partida/tutorial.js`, 
 - **El capitán ya no tiene panel**: su nombre, su vida y sus tres piezas (con desde dónde se rompe cada una: ▲ de frente, ▼ por detrás, ⤒ saltando) flotan sobre su cabeza. Si está fuera de cámara, queda una etiqueta pequeña en el borde con una flecha.
 - Lumen hace menos chistes (uno cada 40 s como mucho); los avisos de juego y la historia, sí.
 
-Con cualquier HUD, en el móvil en vertical la cámara se abre al jugar (antes se veían unos 3 m de lado a lado).
+Con cualquier HUD, en el móvil en vertical la cámara se abre al jugar (antes se veían unos 3 m de lado a lado). En el móvil, **pellizcar con dos dedos** acerca o aleja la cámara, como la rueda del ratón (`js/entrada/zoom-tactil.js`).
+
+## Valoración del cliente (premios y castigos)
+
+Cada oleada se puntúa de 1 a 5 estrellas al cerrarse (`js/partida/valoracion.js`, `css/valoracion.css`). Cuenta la vida perdida (más del 8 %, 30 % y 60 % resta una estrella cada umbral), el tiempo frente al tiempo de entrega (10 s + 1,8 s por enemigo; ×1,35 en los mapas grandes; 70 s en las de jefe), el encargo de la oleada (si falla, resta una) y el combo (×25 o más suma una).
+
+| Estrellas | Efecto |
+|---|---|
+| ★★★★★ | +8 ✦ y una carta más en la oferta (y la peor sube de rareza). Tres seguidas: «Cliente fiel», la siguiente oferta trae una legendaria |
+| ★★★★ | +3 ✦ |
+| ★★★ | Nada |
+| ★★ | Queja: una carta menos |
+| ★ | Reclamación: una carta menos, −5 ✦ y la oleada siguiente viene con ganas (+20 % de daño y +15 % de vida) |
+
+No puntúan el tutorial, el Castillo Infinito ni la pelea final. La valoración sale en un sello al cerrar la oleada y encima de las cartas.
+
+## Poderes FOIL
+
+Una rareza por encima de las legendarias, con carta holográfica (`js/poderes/foil.js`, `css/foil.css`). No salen en el reparto: se ganan **salvando el paquete de la horda** (si ya las tienes todas, te dan una legendaria). Cambian los ataques normales: cada golpe deja un trazo de tinta (cintas con un shader de pincel: centro claro, cuerpo de color, vetas de cerdas y borde negro y roto) y el remate del combo lanza la técnica. Cada una viene de una serie distinta y abre una forma de jugar:
+
+| Poder | Golpes normales | Remate del combo | Jugabilidad |
+|---|---|---|---|
+| 🌊 **Respiración del agua** (la rara de antes, reconvertida) | Tajos de agua que enfrían | Un dragón de agua de tinta blanco y azul, con la cabeza pintada a pincel, que se enrosca alrededor de Tovan y recorre el campo | **Fluir:** si ruedas con el dragón fuera, cabalgas su corriente hasta la cabeza, intocable y arrollando |
+| ⚡ **Mil pájaros** | Tajos eléctricos azules | Un relámpago que cruza hasta 6 enemigos; apareces detrás del último y la descarga llega después | **Carga:** quieto 0,8 s, el siguiente llega el doble de lejos y pega un 50 % más |
+| 🔥 **Puño de fuego** | Arcos de fuego | Un puño de llamas en línea recta | **Ardor:** sube con cada golpe que acierta mientras no te den (+5 % de daño por nivel, máx. 12); al máximo, el remate es «Gran llamarada», un sol que arrasa a 6 m. Si te dan, se apaga |
+
+Para verlas desde la consola (F12): `taken.waterBreath = 1` (o `foilChidori`, `foilHiken`) y ataca; o directamente `aguaDragon(heading)`, `truenoPrimera(heading)`, `fuegoPuno(heading)`, `FOIL.danza = 12; fuegoRueda(heading)`.
 
 ## Canal X
 
@@ -164,12 +190,12 @@ El capítulo 4 imita cómo cambia de estilo *To Be Hero X*: cada tramo se ve com
 
 Inspirados en las misiones de *Hyrule Warriors* y en las piezas rompibles de *Monster Hunter*.
 
-**Objetivos** (`js/partida/objetivos.js`). En la 2.ª y la 4.ª oleada de cada capítulo hay una misión con premio; sale en el panel bajo la oleada y en el rótulo de inicio. Sin objetivos: la oleada 1, las de jefe, el Canal X, el nivel del bug, el castillo y el final.
+**Objetivos** (`js/partida/objetivos.js`; la horda y los puestos que se defienden, en `js/partida/objetivos-hordas.js`). En la 2.ª y la 4.ª oleada de cada capítulo hay una misión con premio; sale en el panel bajo la oleada y en el rótulo de inicio. Sin objetivos: la oleada 1, las de jefe, el Canal X, el nivel del bug, el castillo y el final.
 
 | Objetivo | Cómo va | Premio | Si falla |
 |---|---|---|---|
-| 📦 **Protege el paquete** | Unos ladrones van a por él. El que lo coge huye hacia el borde; si lo tumbas, el paquete se queda en el suelo. Siempre es el primer objetivo de la partida. | +12 ✦ y un 15 % de vida | Si un ladrón sale del mapa (en los mapas grandes, del círculo dorado), se pierde |
-| 🏯 **Destruye los puestos** | Tres puestos corruptos sueltan un enemigo cada pocos segundos (hasta 6 cada uno). | +4 ✦ y vida por puesto; +6 ✦ al final | — |
+| 📦 **Protege el paquete** | Llega una **horda** de ladrones (14 + 1,2 por oleada, hasta 36) en tres asaltos, y la oleada no se cierra hasta el último. El que coge el paquete huye hacia el borde; si lo tumbas, el paquete se queda en el suelo. Siempre es el primer objetivo de la partida. | Si ninguno se lo lleva: **una carta FOIL**, +20 ✦ y un 15 % de vida | Si un ladrón sale del mapa (en los mapas grandes, del círculo dorado): reclamación, −10 ✦, y se acaban los asaltos |
+| 🏯 **Destruye los puestos** | Son anclas de la corrupción: **mientras quede uno en pie, la oleada no se acaba** y siguen saliendo bichos. Cada puesto invoca defensores atados a él con un hilo morado; mientras viva alguno, el puesto tiene escudo (recibe un 30 % del daño). Si te acercas o le pegas, llama a más. Al romperlo, sus defensores caen con él. | +4 ✦ y vida por puesto; +6 ✦ al final | — |
 | 💰 **Caza al capitán del botín** | Un capitán lleva el botín. Desde el capítulo 2. | Una carta extra y +10 ✦ | A los 50 s huye; si llega al borde (en los mapas grandes, si se aleja 10 m), se escapa |
 | ⛩️ **Purifica la zona** | Quédate dentro del círculo sin enemigos dentro. Hasta que se purifica llegan refuerzos y la oleada no se cierra. | ÍMP al máximo y +10 ✦; la luz hiere a los que quedan | A los 70 s se corrompe: sin premio |
 

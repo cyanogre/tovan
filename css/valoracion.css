@@ -1,0 +1,20 @@
+/* ======================================================================
+   VALORACIÓN DEL CLIENTE (js/partida/valoracion.js) y la horda/puestos
+   ====================================================================== */
+#valora{position:fixed;top:calc(24% + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:15;pointer-events:none;text-align:center;
+  padding:8px 18px 10px;color:#f2ecdf;background:rgba(14,12,20,.82);border:1px solid rgba(255,255,255,.18);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:calc(100% - 24px)}
+#valora.on{animation:valIn 3.2s ease both}
+@keyframes valIn{0%{opacity:0;scale:.7}8%{opacity:1;scale:1.05}14%,86%{opacity:1;scale:1}100%{opacity:0;scale:1}}
+#valora .vt{font-size:11px;letter-spacing:.24em;text-transform:uppercase;opacity:.8}
+#valora .ve{font-size:30px;line-height:1.1;letter-spacing:.08em;color:#ffd23a;text-shadow:0 0 12px rgba(255,210,58,.5)}
+#valora.s1 .ve,#valora.s2 .ve{color:#ff7a5a;text-shadow:none}
+#valora .vm{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 10px;margin-top:2px;font-size:12px}
+#valora .vm .si{color:#9fe8a8} #valora .vm .si::before{content:'✔ '} #valora .vm .no{color:#ffb08a} #valora .vm .no::before{content:'✘ '}
+#valora .vf{margin-top:4px;font-size:13px;font-weight:700;color:#ffe9a0}
+#valora.s1 .vf,#valora.s2 .vf{color:#ffb08a}
+body.cine #valora{display:none}
+#valUp{align-self:center;width:max-content;max-width:calc(100% - 24px);margin:2px auto 8px;padding:3px 12px;font-size:14px;color:#f2ecdf;background:rgba(14,12,20,.82);border-radius:20px;text-align:center}
+#valUp b{color:#ffd23a;letter-spacing:.06em;font-size:17px} #valUp b.s1,#valUp b.s2{color:#ff7a5a} #valUp span{margin-left:6px}
+@media (max-width:720px){ #valora{top:calc(34% + 54px);padding:6px 12px 8px;width:max-content} #valora .vt{letter-spacing:.12em;font-size:10px} #valora .ve{font-size:24px} #valora .vm{font-size:11px} #valora .vf{font-size:12px} }
+@media (max-height:520px) and (min-width:521px){ #valora{top:calc(60px + env(safe-area-inset-top,0px))} }
+body:has(.overlay:not([hidden])) #valora{visibility:hidden}

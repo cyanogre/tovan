@@ -1,0 +1,25 @@
+/* ======================================================================
+   CARTAS FOIL (js/poderes/foil.js): holográficas en todos los temas
+   La capa .holo la añade el JS a cada carta foil; el resto es de la carta.
+   ====================================================================== */
+#cards .card.r-foil{position:relative;overflow:hidden;isolation:isolate;border-color:#eaf6ff !important;
+  box-shadow:0 0 0 2px #fff,0 0 22px rgba(160,220,255,.75),0 0 46px rgba(255,140,240,.35) !important;animation:foilIn .6s cubic-bezier(.2,1.4,.4,1) both}
+#cards .card.r-foil .holo{position:absolute;inset:0;z-index:-1;pointer-events:none;mix-blend-mode:color-dodge;opacity:.7;
+  background:linear-gradient(115deg,transparent 18%,rgba(255,80,200,.55) 30%,rgba(255,230,90,.55) 40%,rgba(90,255,180,.55) 50%,rgba(80,170,255,.6) 60%,rgba(190,110,255,.55) 70%,transparent 82%) 0 0/300% 300%,
+    repeating-linear-gradient(45deg,rgba(255,255,255,.12) 0 2px,transparent 2px 7px);
+  animation:foilBrillo 3.2s linear infinite}
+#cards .card.r-foil .holo::after{content:'✦';position:absolute;right:12%;top:18%;font-size:22px;color:#fff;text-shadow:0 0 12px #fff;animation:foilChispa 1.6s ease-in-out infinite}
+#cards .card.r-foil:hover .holo,#cards .card.r-foil:focus-visible .holo{opacity:1;animation-duration:1.4s}
+#cards .card.r-foil .rar{background:linear-gradient(90deg,#ff7ad0,#ffe14a,#7dffb0,#6ab8ff,#c08aff);-webkit-background-clip:text;background-clip:text;color:transparent !important;font-weight:900;letter-spacing:.14em}
+#cards .card.r-foil .rar::before{content:'✦ '} #cards .card.r-foil .rar::after{content:' ✦'}
+@keyframes foilBrillo{0%{background-position:0% 0%,0 0}100%{background-position:300% 300%,40px 0}}
+@keyframes foilChispa{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:1;transform:scale(1.1) rotate(45deg)}}
+@keyframes foilIn{0%{opacity:0;transform:translateY(30px) rotateY(80deg)}100%{opacity:1;transform:none}}
+#upScr.foilScr .uptitle{background:linear-gradient(90deg,#ff7ad0,#ffe14a,#7dffb0,#6ab8ff,#c08aff,#ff7ad0) 0 0/200% 100% !important;-webkit-background-clip:text !important;background-clip:text !important;
+  color:transparent !important;animation:foilBrillo 4s linear infinite;text-shadow:none !important}
+#upScr.foilScr::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 50% 45%,rgba(160,220,255,.22),transparent 60%)}
+/* en la build (pausa) y en «Poderes» */
+.bitem.r-foil{border-color:#eaf6ff !important;background:linear-gradient(90deg,rgba(255,122,208,.2),rgba(106,184,255,.2)) !important;box-shadow:0 0 8px rgba(160,220,255,.6)}
+.pwi.r-foil{border-color:#eaf6ff !important;box-shadow:0 0 8px rgba(160,220,255,.6)}
+/* Albarán: la etiqueta de la carta */
+body[data-ui=albaran] .card.r-foil::before{content:'FOIL · TÉCNICA LEGENDARIA';background:linear-gradient(90deg,#ff5ab4,#d4a017,#2d8a3e,#2448a0,#7a3fb0)}
