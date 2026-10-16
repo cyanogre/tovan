@@ -55,3 +55,11 @@ body:has(.overlay:not([hidden])) #objCol,body:has(.overlay:not([hidden])) #mpRad
   body[data-ui] #banner,body[data-ui].con-obj #banner{top:26% !important;left:calc(50% + 70px) !important;max-width:calc(100% - 460px)}
   body[data-ui] #comboBox{top:52% !important}
 }
+
+/* ---------- Contraseña y «▶ Ver» de los finales (js/interfaz/contrasena.js) ---------- */
+.passp{width:min(400px,100%)}
+#passIn{display:block;width:100%;margin:10px 0 6px;padding:10px 12px;font:600 20px ui-monospace,monospace;letter-spacing:.2em;text-align:center;
+  color:inherit;background:rgba(0,0,0,.25);border:2px solid currentColor;border-radius:4px;outline:0;user-select:text;-webkit-user-select:text}
+#passIn:focus{box-shadow:0 0 0 3px var(--accent,#ffd970)}
+#passMsg{min-height:1.3em;margin:4px 0 10px;font-size:14px} #passMsg.ok{color:#2fb35a} #passMsg.mal{color:#e0503b}
+.endi{position:relative} .endi .verfin{margin:0 0 0 auto;align-self:center;flex:none;font-size:12px;padding:5px 10px}

@@ -96,6 +96,8 @@ Crea tus ficheros nuevos y añádelos a `index.html` en el hueco **`<!-- Tus añ
 
 Los iconos con emoji se cambian solos por pixel art si el emoji está en la hoja (`js/interfaz/iconos-pixel.js`).
 
+**Contraseña** (menú de título → Contraseña, `js/interfaz/contrasena.js`): `marckbyn` desbloquea todo (logros y estéticos, finales, poderes, jefes, sinergias y 9999 ✦). En **Finales**, cada final conseguido tiene «▶ Ver» para repetir su escena.
+
 **Pantalla completa en móvil:** en pantallas táctiles el juego pasa a pantalla completa al primer toque (`js/interfaz/pantalla-completa.js`; se desactiva en Opciones). En iPhone, Safari no lo permite: usa Compartir → «Añadir a pantalla de inicio» (`manifest.webmanifest`) y se abrirá sin barras.
 
 **Temas de la interfaz** (Opciones → Interfaz). HUD y menús tienen cuatro aspectos; la elección se guarda en el navegador. Por defecto sale Albarán.
