@@ -129,6 +129,7 @@ function frame(now){
   P.armR.sh.rotation.x = -s * swing * 0.9 * walkW + br * 0.03 * idle;
   P.armL.sh.rotation.z = -0.14; P.armR.sh.rotation.y = 0;
   P.armL.el.rotation.x = P.armR.el.rotation.x = -(0.22 + 0.3 * walkW + 0.6 * runW);
+  P.armL.el.rotation.z = 0;   // los gestos de reposo (mano en la cadera, bostezo) la giran y nadie la devolvía: el brazo se quedaba torcido
   P.neck.rotation.y = Math.sin(time * 0.6) * 0.35 * idle;
   P.neck.rotation.x = -0.04 * walkW - 0.06 * runW + Math.sin(time * 1.1) * 0.03 * idle;
   P.tail.scale.set(1 + 0.08 * walkW, 1, 1 + 0.12 * walkW + 0.1 * runW);

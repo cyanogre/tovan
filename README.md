@@ -43,7 +43,7 @@ js/
   interfaz/           pantallas y menús (título, pausa, vestidor, logros, poderes, móvil…)
   canal-x/            el capítulo que cambia de estilo, y los marcianitos
   show/               el show de Míster Confianza (4 minijuegos)
-  ajustes/            ajustes de equilibrio (v8, v10)
+  ajustes/            ajustes de equilibrio (v8, v10) y la dificultad (escudo de jefe, enemigos más duros)
   main.js             bucle principal; arranca el juego
 backup/               el index.html original de un solo archivo y las herramientas con las que se partió
 ```
@@ -169,13 +169,16 @@ No puntúan el tutorial, el Castillo Infinito ni la pelea final. La valoración 
 
 ## Poderes FOIL
 
-Una rareza por encima de las legendarias, con carta holográfica (`js/poderes/foil.js`, `css/foil.css`). No salen en el reparto: se ganan **salvando el paquete de la horda** (si ya las tienes todas, te dan una legendaria). Cambian los ataques normales: cada golpe deja un trazo de tinta (cintas con un shader de pincel: centro claro, cuerpo de color, vetas de cerdas y borde negro y roto) y el remate del combo lanza la técnica. Cada una viene de una serie distinta y abre una forma de jugar:
+Una rareza por encima de las legendarias, con carta holográfica (`js/poderes/foil.js`, `css/foil.css`). No salen en el reparto: se ganan **salvando el paquete de la horda** (si ya las tienes todas, te dan una legendaria). Cambian los ataques normales: cada golpe deja un trazo y el remate del combo lanza la técnica. Cada una viene de una serie distinta, tiene su estética y abre una forma de jugar. Los trazos son cintas que miran a la cámara, con un shader distinto para cada técnica:
+- **Agua:** tinta china (centro claro, cuerpo de color, vetas de cerdas y borde negro y roto).
+- **Mil pájaros:** rayos azules que tiemblan, con ramas y una bola de chispas en la mano.
+- **Puño de fuego:** llamas que lamen, un puño de fuego al frente y un sol para la Gran llamarada.
 
 | Poder | Golpes normales | Remate del combo | Jugabilidad |
 |---|---|---|---|
 | 🌊 **Respiración del agua** (la rara de antes, reconvertida) | Tajos de agua que enfrían | Un dragón de agua de tinta blanco y azul, con la cabeza pintada a pincel, que se enrosca alrededor de Tovan y recorre el campo | **Fluir:** si ruedas con el dragón fuera, cabalgas su corriente hasta la cabeza, intocable y arrollando |
-| ⚡ **Mil pájaros** | Tajos eléctricos azules | Un relámpago que cruza hasta 6 enemigos; apareces detrás del último y la descarga llega después | **Carga:** quieto 0,8 s, el siguiente llega el doble de lejos y pega un 50 % más |
-| 🔥 **Puño de fuego** | Arcos de fuego | Un puño de llamas en línea recta | **Ardor:** sube con cada golpe que acierta mientras no te den (+5 % de daño por nivel, máx. 12); al máximo, el remate es «Gran llamarada», un sol que arrasa a 6 m. Si te dan, se apaga |
+| ⚡ **Mil pájaros** | Arcos de rayos azules que tiemblan | Un relámpago con ramas que cruza hasta 6 enemigos; apareces detrás del último, con la bola de chispas en la mano, y la descarga llega después | **Carga:** quieto 0,8 s, el siguiente llega el doble de lejos y pega un 50 % más |
+| 🔥 **Puño de fuego** | Arcos de llamas | Un puño de fuego que sale recto con su cola de llamas | **Ardor:** sube con cada golpe que acierta mientras no te den (+5 % de daño por nivel, máx. 12); al máximo, el remate es «Gran llamarada»: un anillo de llamas y un sol que crece sobre la cabeza y cae, arrasando a 6 m. Si te dan, se apaga |
 
 Para verlas desde la consola (F12): `taken.waterBreath = 1` (o `foilChidori`, `foilHiken`) y ataca; o directamente `aguaDragon(heading)`, `truenoPrimera(heading)`, `fuegoPuno(heading)`, `FOIL.danza = 12; fuegoRueda(heading)`.
 
@@ -212,12 +215,33 @@ Al final, ffmpeg junta las dos. Por eso el guion solo mueve cosas con `csTween`/
 Al dejar a Ryūjin (oleada 10) a cero, no muere: brilla, toca la bocina como Camión-kun, atropella a Tovan y crece hasta el «tamaño mudanza». La pelea sigue en el cielo, a lomos del dragón, al estilo *Shadow of the Colossus* (`js/jefes/ryujin-colosal.js`, `css/ryujin-colosal.css`). Sale siempre que el dragón cae en una partida normal; no sale en el Canal X, en el castillo ni en los marcianitos.
 - **El lomo** es una pasarela de escudos dorados entre dos filas de púas. El dragón ondula de lado y arrastra a Tovan. Abajo hay un mar de nubes, montañas y campos; alrededor, nubes, líneas de velocidad y viento (también se oye).
 - **Tres sellos de jade** (las escamas que brillan, con una columna de luz) que hay que romper a golpes.
-- **Sacudidas:** «¡AGÁRRATE!». Hay que mantener RODAR (K o Shift; en el móvil el botón pasa a «Agarra» y parpadea). Un aro de aguante se vacía mientras te agarras. Si no te agarras, te escurres hacia el lado que baja; si te caes, Lumen te recoge y te cobra un 12 % de la vida (nunca te mata).
-- **Púas** que salen del lomo en franjas rojas (se saltan o se esquivan) y **lluvia de fuego**: gira el cuello para mirarte y escupe a los círculos.
+- **Agarrarse:** cuando sale «¡AGÁRRATE!» hay que mantener RODAR (K o Shift; en el móvil el botón pasa a «Agarra» y parpadea). Un aro de aguante se vacía mientras te agarras.
+- **Maniobras del dragón:**
+  - **Sacudidas:** si no te agarras, te escurres hacia el lado que baja.
+  - **Sacudida violenta:** acaba en una coz que te tira por los aires si no estás agarrado.
+  - **Subida en vertical:** sin agarrarte resbalas y te caes.
+  - **Tirabuzón:** se pone boca abajo un rato; sin agarrarte, te caes.
+  - Lo que se inclina es el mundo, así que se ve el horizonte girar o ponerse del revés.
+- **Si te caes:** caes por el cielo. Puedes moverte en el aire y darte un impulso con RODAR (una vez por caída). Debajo vuelan tres crías: si pasas junto a una, te montas. Montado, la llevas hasta el lomo, sube sola, y SALTAR te suelta y te deja caer encima. Si no pillas ninguna, te estrellas y mueres (salvo que un poder como el Fénix te devuelva la vida, que te deja en el lomo).
+- **Fuego:**
+  - **Lluvia de fuego:** gira el cuello y escupe meteoros con estela de llamas a círculos rojos. Al caer levantan una columna de fuego y dejan quemaduras en el lomo.
+  - **Aliento de fuego:** barre una franja del lomo de lado a lado con un chorro de llamas, dejándolo ardiendo. Hay que salir de la franja roja.
+  - **Púas:** salen del lomo como brasas en franjas rojas; se saltan o se esquivan.
 - **El picado:** con los tres sellos rotos se lanza hacia abajo, el cuello se allana y aparece la perla entre los cuernos. Hay viento de cara y ráfagas (también para agarrarse).
 - **Remate:** «¡ENTREGADO!», el dragón se deshace en jade, Tovan cae al santuario y sigue lo de siempre: «¡Ryūjin derrotado!», el diálogo, el trozo de la hoja de ruta y las cartas.
 
 La barra de jefe enseña los sellos que quedan y la perla. Si mueres arriba, reintentar o volver al título deja el santuario como estaba.
+
+## Dificultad
+
+En `js/ajustes/dificultad.js` y `css/dificultad.css`. Cuesta sobre todo al principio: lo que la compensa son las mejoras del santuario.
+- **Enemigos más duros:** pegan un 30 % más y piensan un 10 % más rápido. Los jefes van un 22 % más rápido: amagos más cortos y menos tiempo para esquivar. No hay más enemigos por oleada.
+- **Escudo de jefe** (como en *The Binding of Isaac*):
+  - Cada jefe sale con un escudo azul (una burbuja hexagonal, salvo Ryūjin, Gashadokuro y el jefe final, que solo echan chispas) que se come el 75 % del daño.
+  - Al romperlo, el jefe se queda aturdido un momento y durante 5 s le dueles un 35 % más.
+  - A los 6 s se recarga. La barra va bajo la vida del jefe.
+- **Ladrones de la horda:** más vida (80 en vez de 30), para que al principio cueste salvar el paquete.
+- **Brazos de goma:** con tantas cartas nuevas casi no salía; ahora pesa como una común y suele salir en los dos primeros repartos.
 
 ## Objetivos de oleada y capitanes
 
@@ -230,7 +254,6 @@ Inspirados en las misiones de *Hyrule Warriors* y en las piezas rompibles de *Mo
 | 📦 **Protege el paquete** | Llega una **horda** de ladrones (14 + 1,2 por oleada, hasta 36) en tres asaltos, y la oleada no se cierra hasta el último. El que coge el paquete huye hacia el borde; si lo tumbas, el paquete se queda en el suelo. Siempre es el primer objetivo de la partida. | Si ninguno se lo lleva: **una carta FOIL**, +20 ✦ y un 15 % de vida | Si un ladrón sale del mapa (en los mapas grandes, del círculo dorado): reclamación, −10 ✦, y se acaban los asaltos |
 | 🏯 **Destruye los puestos** | Son anclas de la corrupción: **mientras quede uno en pie, la oleada no se acaba** y siguen saliendo bichos. Cada puesto invoca defensores atados a él con un hilo morado; mientras viva alguno, el puesto tiene escudo (recibe un 30 % del daño). Si te acercas o le pegas, llama a más. Al romperlo, sus defensores caen con él. | +4 ✦ y vida por puesto; +6 ✦ al final | — |
 | 💰 **Caza al capitán del botín** | Un capitán lleva el botín. Desde el capítulo 2. | Una carta extra y +10 ✦ | A los 50 s huye; si llega al borde (en los mapas grandes, si se aleja 10 m), se escapa |
-| ⛩️ **Purifica la zona** | Quédate dentro del círculo sin enemigos dentro. Hasta que se purifica llegan refuerzos y la oleada no se cierra. | ÍMP al máximo y +10 ✦; la luz hiere a los que quedan | A los 70 s se corrompe: sin premio |
 
 En la 3.ª oleada de cada capítulo, desde el 2, se presenta además un capitán a media oleada.
 
@@ -249,16 +272,16 @@ Cada pieza rota da +3 ✦ y una curación; tumbar al capitán, +5 ✦ y dos cura
 
 **Probarlos desde la consola (F12)**, en plena partida:
 - Un capitán ya: `spawnCaptain('caponi')` o `spawnCaptain('capgolem')`.
-- Un objetivo concreto: `OBJ.n = 1; OBJ.bolsa = ['sello']; startWave(9)` (cambia `'sello'` por `'paquete'`, `'puestos'` o `'capitan'`, y usa una oleada que sea 2.ª o 4.ª de su capítulo: 2, 4, 7, 9, 12…).
+- Un objetivo concreto: `OBJ.n = 1; OBJ.bolsa = ['puestos']; startWave(9)` (cambia `'puestos'` por `'paquete'` o `'capitan'`, y usa una oleada que sea 2.ª o 4.ª de su capítulo: 2, 4, 7, 9, 12…).
 
 ## Mapas grandes
 
 En las oleadas normales de las Ruinas, el Santuario y la Cumbre, el mapa pasa de 6,3 m de radio a 18, rodeado de colinas. Las oleadas de jefe vuelven a la plaza central de siempre, cerrada con una barrera naranja (si Tovan estaba lejos, aparece en el centro). Los demás escenarios no cambian.
 
-- **Por dónde llegan:** cada oleada elige 2 frentes (3 desde la oleada 8) y los enemigos aparecen por ellos, a 9–13 m del jugador. El **radar** de la esquina gira con la cámara: marca los frentes con flechas rojas mientras quedan enemigos por salir, y enseña obstáculos, trampolines, zonas, enemigos (capitanes en naranja, puestos en morado, ladrones en rosa), el paquete con su perímetro, el sello y las curaciones.
+- **Por dónde llegan:** cada oleada elige 2 frentes (3 desde la oleada 8) y los enemigos aparecen por ellos, a 9–13 m del jugador. El **radar** de la esquina gira con la cámara: marca los frentes con flechas rojas mientras quedan enemigos por salir, y enseña obstáculos, trampolines, zonas, enemigos (capitanes en naranja, puestos en morado, ladrones en rosa), el paquete con su perímetro y las curaciones.
 - **Obstáculos:** pilares, muros, rocas, árboles y edificios tienen colisión. Los bajos (muros derruidos, rocas pequeñas, faroles…) se pueden saltar. Los altos paran los orbes enemigos y sirven de cobertura. Lo alto que tapa a Tovan se oculta. Los enemigos que no ven a Tovan en línea recta lo rodean: siguen un mapa de distancias hasta él en una rejilla de 0,6 m, recalculado cuatro veces por segundo.
 - **Movilidad:** cada mapa tiene 3 trampolines (rodeados de piedras en las Ruinas, de bambú en el Santuario, géiseres en la Cumbre) que lanzan a Tovan muy alto con un salto mortal; desde ahí arriba se rompen las piezas «desde el aire» de los capitanes. La Cumbre tiene un lago helado donde se resbala. Desde la 2.ª oleada aparece una curación lejos, para invitar a moverse.
-- **Objetivos:** todo se coloca alrededor del jugador: el paquete a 4–8 m, con un perímetro dorado de 8,5 m (el ladrón que lo cruza se lo lleva); los puestos, a 8–12 m en tres direcciones; el sello, a 7–11 m; el capitán, a 10–13 m (si huye, se escapa al alejarse 10 m).
+- **Objetivos:** todo se coloca alrededor del jugador: el paquete a 4–8 m, con un perímetro dorado de 8,5 m (el ladrón que lo cruza se lo lleva); los puestos, a 8–12 m en tres direcciones; el capitán, a 10–13 m (si huye, se escapa al alejarse 10 m).
 
 | Mapa | Qué hay |
 |---|---|

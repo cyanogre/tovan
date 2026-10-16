@@ -4,12 +4,17 @@
    Al dejar a Ryūjin a cero no muere: atropella a Tovan (Camión-kun se
    ha hecho escuela), crece hasta el tamaño de una mudanza y sale volando
    con él encima. Sobre el lomo hay que romper tres sellos de jade
-   aguantando sacudidas (mantener RODAR para agarrarse), púas y lluvia de
-   fuego; luego se lanza en picado y hay que llegar, con viento de cara,
+   aguantando sacudidas (mantener RODAR para agarrarse), púas, lluvia de
+   fuego y maniobras: sacudidas violentas, subidas en vertical y
+   tirabuzones boca abajo. Si te tira, caes por el cielo: te impulsas
+   (RODAR), te agarras a una cría y, montado en ella, saltas de vuelta al
+   lomo. Luego se lanza en picado y hay que llegar, con viento de cara,
    hasta la perla de la cabeza. Al romperla sigue el flujo de siempre:
    «¡Ryūjin derrotado!», win_dragon, el trozo de la hoja de ruta y las cartas.
    - El lomo es una pasarela plana a y = 0 (saltos y golpes funcionan igual):
      el dragón ondula de lado y arrastra a Tovan; el que se inclina es el mundo.
+     La gravedad se calcula vista desde el dragón: de lado te escurres, en
+     vertical resbalas hacia la cola y boca abajo te suelta.
    - Los sellos y la perla son enemigos (isBoss, sin frenesí) para que les
      den todos los ataques; el envoltorio de killEnemy los rompe a su manera.
    - Todo se construye la primera vez que hace falta y con su propio PRNG:
@@ -18,7 +23,7 @@
 const COL_Z0 = -30, COL_N = 40, COL_SP = 1.8, COL_ZMAX = 21.5, COL_ZMIN = -15.5, COL_ZMIN_FIN = -26.4, COL_SELLOS = [14.5, 1, -11.5], COL_ZPERLA = -25.2;
 const COL = { on: false, montado: false, built: false, fase: null, e: null, tt: 0, giro: 0, giroObj: 0, giroS: 1, picado: 0, banco: 0, bancoObj: 0, cabeceo: 0, boca: 0.12, temblor: 0,
   atq: null, atqCd: 0, primero: null, ultimo: '', rotas: 0, sellos: [], perla: null, aguante: 1, agarra: false, sinFuerza: 0, vu: 0, uLock: 0, zLock: 0, zMin: COL_ZMIN,
-  rafaga: 0, rafagaObj: 0, cae: null, pendFinal: 0, prev: null, son: null, despS: 0, despN: 0 };
+  rafaga: 0, rafagaObj: 0, cabObj: 0, vz: 0, aire: null, pendFinal: 0, prev: null, son: null, despS: 0, despN: 0, crias: [] };
 BOSS_CARDS.ryucol = ['RYŪJIN · SEGUNDA VIDA', 'Dragón de jade · Ahora en tamaño mudanza', '#7fe8c8'];
 
 /* ---------- Forma: radio, ondulación y altura del lomo a lo largo de z ---------- */
@@ -36,7 +41,8 @@ function colTop(z){   // altura de la cara de arriba (0 en la pasarela; el cuell
   if (z > 22){ const k = clamp((z - 22) / 18.5, 0, 1); y += -4.5 * k * k + Math.sin(z * 0.3 - COL.tt * 1.7) * 1.6 * k; }
   return y;
 }
-const colPeligro = () => !!COL.atq && (COL.atq.tipo === 'sacude' || COL.atq.tipo === 'rafaga');
+const COL_AGARRE = new Set(['sacude', 'rafaga', 'violenta', 'vertical', 'tirabuzon']);   // los ataques en los que hay que agarrarse
+const colPeligro = () => !!COL.atq && COL_AGARRE.has(COL.atq.tipo);
 const colTactil = () => matchMedia('(pointer:coarse)').matches;
 const colV = [new V3(), new V3(), new V3(), new V3()], colMira = new THREE.Object3D();
 
@@ -48,9 +54,11 @@ const colBtnRodar = document.querySelector('#pad [data-act=roll]');
 let colTocaRodar = false;
 if (colBtnRodar){ colBtnRodar.addEventListener('pointerdown', () => { colTocaRodar = true; }); for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) colBtnRodar.addEventListener(ev, () => { colTocaRodar = false; }); }
 function colPadRodar(){ try { const ps = navigator.getGamepads ? navigator.getGamepads() : null; if (ps) for (const p of ps) if (p && p.connected) return [1, 5, 7].some(i => p.buttons[i] && p.buttons[i].pressed); } catch (err) {} return false; }
-function colAviso(txt){
+function colAviso(txt, sub, agarre = true){
+  if (!txt || !agarre){ if (colBtnRodar && colBtnRodar.dataset.col){ colBtnRodar.textContent = colBtnRodar.dataset.col; delete colBtnRodar.dataset.col; colBtnRodar.classList.remove('tutoOjo'); } }
+  if (txt && !agarre){ colAvisoEl.querySelector('b').textContent = txt; colAvisoEl.querySelector('small').textContent = sub || ''; colAvisoEl.hidden = false; return; }
   if (!txt){ colAvisoEl.hidden = true; if (colBtnRodar && colBtnRodar.dataset.col){ colBtnRodar.textContent = colBtnRodar.dataset.col; delete colBtnRodar.dataset.col; colBtnRodar.classList.remove('tutoOjo'); } return; }
-  colAvisoEl.querySelector('b').textContent = txt; colAvisoEl.querySelector('small').textContent = colTactil() ? 'Mantén pulsado AGARRA' : 'Mantén K o Shift'; colAvisoEl.hidden = false;
+  colAvisoEl.querySelector('b').textContent = txt; colAvisoEl.querySelector('small').textContent = sub || (colTactil() ? 'Mantén pulsado AGARRA' : 'Mantén K o Shift'); colAvisoEl.hidden = false;
   if (colBtnRodar && !colBtnRodar.dataset.col){ colBtnRodar.dataset.col = colBtnRodar.textContent; colBtnRodar.textContent = 'Agarra'; colBtnRodar.classList.add('tutoOjo'); }
 }
 
@@ -138,7 +146,7 @@ function colConstruye(){
   for (let k = 0; k < 34; k++){ const m = mesh(vGeo, vMat, 0, 0, 0, COL.vg); m.userData.v = 38 + r() * 20; COL.vetas.push(m); }
   // Púas que salen del lomo (dos bandas) y círculos de la lluvia de fuego
   const pg = new THREE.PlaneGeometry(1, 1); pg.rotateX(-Math.PI / 2);
-  const pMat = makeMat(0xffd070, { emissive: 0.5 }), pG = new THREE.ConeGeometry(0.26, 1.6, 5);
+  const pMat = makeMat(0xffa040, { emissive: 0.75 }), pG = new THREE.ConeGeometry(0.26, 1.6, 5);
   COL.puas = [0, 1].map(() => { const g = new THREE.Group(); g.visible = false; scene.add(g);
     const tele = mesh(pg, makeMat(0xff3a2a, { emissive: 1, opacity: 0.5 }), 0, 0.05, 0, g);
     const pinchos = Array.from({ length: 7 }, () => mesh(pG, pMat, 0, -1.1, 0, g)); return { g, tele, pinchos, z: 0, hit: false }; });
@@ -199,24 +207,30 @@ function colDesmonta(){
   ambMode = P_.amb; ARENA = P_.ARENA;
   U.uTop.value.setHex(P_.top); U.uMid.value.setHex(P_.mid); U.uHor.value.setHex(P_.hor); U.uMoonOn.value = P_.moon; U.uStars.value = P_.stars;
   shared.uFogCol.value.setHex(P_.fogC); shared.uFogNear.value = P_.fogN; shared.uFogFar.value = P_.fogF; shared.uLightCol.value.copy(P_.luz); shared.uAmb.value.setHex(P_.ambC);
-  COL.dr.visible = COL.env.visible = COL.vg.visible = false; sky.rotation.set(0, 0, 0); blob.visible = true; P.spine.rotation.z = 0;
+  COL.dr.visible = COL.env.visible = COL.vg.visible = false; sky.rotation.set(0, 0, 0); blob.visible = true; P.spine.rotation.z = 0; COL.aire = null; colCriasFuera(true);
   for (const c of COL.circulos) c.visible = false; for (const p of COL.puas) p.g.visible = false; for (const c of COL.chispas) c.visible = false;
   camera.zoom = 1; camera.updateProjectionMatrix(); if (COL.pitch0 != null){ camPitch = COL.pitch0; COL.pitch0 = null; }
   document.body.classList.remove('colVuela'); colVientoEl.hidden = true; colAgarreEl.hidden = true; colAviso(null); colVientoSon(false);
 }
 function colQuitaAtaques(){
-  COL.bancoObj = 0; COL.giroObj = 0; COL.rafagaObj = 0; COL.boca = 0.12; COL.agarra = false;
+  if (COL.atq && COL.atq.chorro){ COL.atq.chorro.forEach(tintaSuelta); COL.atq.chorro = null; } if (COL.alTele) COL.alTele.visible = false;
+  COL.bancoObj = 0; COL.giroObj = 0; COL.rafagaObj = 0; COL.cabObj = 0; COL.boca = 0.12; COL.agarra = false;
   if (COL.puas) for (const p of COL.puas) p.g.visible = false;
   colAviso(null);
+}
+function colFuegoFuera(){
+  for (const M of COL.meteoros){ scene.remove(M.spr); tintaSuelta(M.cola); tintaSuelta(M.nucleo); M.Ci.visible = false; } COL.meteoros.length = 0;
+  for (const Q of COL.quemas) scene.remove(Q.m); COL.quemas.length = 0;
+  if (COL.atq && COL.atq.chorro){ COL.atq.chorro.forEach(tintaSuelta); COL.atq.chorro = null; } if (COL.alTele) COL.alTele.visible = false;
 }
 function colLimpiaLomo(){
   for (const s of [...COL.sellos, COL.perla]) if (s){ s.alive = false; s.remove = true; scene.remove(s.g); }
   COL.sellos = []; COL.perla = null; COL.atq = null; colQuitaAtaques();
-  for (let i = fballs.length - 1; i >= 0; i--) if (fballs[i].col){ scene.remove(fballs[i].m); fballs[i].circle.visible = false; fballs.splice(i, 1); }
+  colFuegoFuera();
 }
 function colAborta(){   // salir a medias (morir y reintentar, volver al título…)
   if (!COL.on && !COL.montado) return;
-  colLimpiaLomo(); colDesmonta(); COL.on = false; COL.fase = null; COL.cae = null; COL.e = null;
+  colLimpiaLomo(); colDesmonta(); COL.on = false; COL.fase = null; COL.aire = null; COL.e = null;
   if (bossE && bossE.type === 'ryucol'){ bossE = null; bossBox.hidden = true; }
 }
 
@@ -258,7 +272,7 @@ function colRompe(e){
   barkT = 0; bark(['¡Uno menos! ¡Le ha dolido hasta a mí!', '¡Otro! ¡Ya casi lo tienes!', '¡Se lanza en picado! ¡Corre a la cabeza, a la perla!'][COL.rotas - 1]);
   COL.atq = null; colQuitaAtaques();
   if (COL.rotas >= 3) COL.pendFinal = 1.3;
-  else { COL.atqCd = 1.2; if (COL.rotas === 1) COL.primero = 'sacude'; }   // le duele: contesta enseguida (la primera vez, sacudiéndose)
+  else { COL.atqCd = 1.4; COL.primero = COL.rotas === 1 ? 'vertical' : 'tirabuzon'; }   // le duele: contesta enseguida con una maniobra nueva
 }
 
 /* ---------- Ataques sobre el lomo ---------- */
@@ -266,29 +280,100 @@ const colEspera = () => Math.max(1.8, 3.8 - 0.55 * COL.rotas) + rnd() * 1.4;
 function colFinAtq(){ COL.atq = null; COL.atqCd = colEspera(); colAviso(null); }
 function colElige(){
   let t = COL.primero; COL.primero = null;
-  if (!t){ const ops = (COL.fase === 'final' ? ['rafaga', 'puas', 'sacude'] : ['sacude', 'puas', 'fuego']).filter(o => o !== COL.ultimo); t = ops[Math.floor(rnd() * ops.length)]; }
+  if (!t){ const ops = (COL.fase === 'final' ? ['rafaga', 'puas', 'violenta'] : ['puas', 'fuego', 'aliento', COL.rotas ? 'violenta' : 'sacude', ...(COL.rotas >= 1 ? ['vertical'] : []), ...(COL.rotas >= 2 ? ['tirabuzon'] : [])])
+    .filter(o => o !== COL.ultimo); t = ops[Math.floor(rnd() * ops.length)]; }
   COL.ultimo = t; const A = COL.atq = { tipo: t, t: 0, n: 0, s: rnd() < 0.5 ? -1 : 1 };
   if (t === 'sacude'){ play('dragonRoar'); COL.boca = 0.7; COL.temblor = 0.15; colAviso('¡AGÁRRATE!');
     if (!COL.dijoAgarre){ COL.dijoAgarre = true; barkT = 0; bark(colTactil() ? '¡Se va a sacudir! ¡Mantén pulsado AGARRA (el botón de rodar)!' : '¡Se va a sacudir! ¡Mantén K o Shift para agarrarte!'); } }
   else if (t === 'rafaga'){ play('colRafaga'); colAviso('¡RÁFAGA!'); barkOnce('colRafaga', '¡Viento de cara! Agárrate en las ráfagas o te manda a la cola.'); }
+  else if (t === 'violenta'){ play('dragonRoar'); COL.boca = 0.9; COL.temblor = 0.3; colAviso('¡AGÁRRATE FUERTE!'); barkOnce('colViolenta', '¡Esta vez se sacude con todo! Si no te agarras, te tira por los aires.'); }
+  else if (t === 'vertical'){ play('dragonRoar'); COL.boca = 0.7; colAviso('¡SUBE EN VERTICAL!'); barkOnce('colVertical', '¡Se pone en vertical! Agárrate o resbalas hasta la cola… y fuera.'); }
+  else if (t === 'tirabuzon'){ play('dragonRoar'); COL.boca = 0.7; colAviso('¡SE DA LA VUELTA!'); barkOnce('colTirabuzon', '¡Se va a poner boca abajo! Agárrate o sales volando.'); }
   else if (t === 'puas'){
     const z0 = clamp(hero.position.z + (rnd() - 0.5) * 1.5, COL.zMin + 1.2, COL_ZMAX - 1.2), zs = [z0];
     if (rnd() < 0.55) zs.push(clamp(z0 + (rnd() < 0.5 ? -1 : 1) * 4.2, COL.zMin + 1.2, COL_ZMAX - 1.2));
     A.bandas = zs.length; zs.forEach((z, i) => { const P_ = COL.puas[i]; P_.z = z; P_.hit = false; P_.g.visible = true; P_.g.position.set(colC(z), 0, z); P_.tele.visible = false; });
     play('bruteWarn'); barkOnce('colPuas', '¡Púas! Salta o apártate de la franja roja.'); }
   else if (t === 'fuego'){ COL.giroS = hero.position.x - colC(hero.position.z) >= 0 ? 1 : -1; COL.giroObj = 1; barkOnce('colFuego', '¡Se da la vuelta para escupirte! ¡Fuera de los círculos!'); }
+  else if (t === 'aliento'){ A.lado = rnd() < 0.5 ? -1 : 1; COL.giroS = A.lado; COL.giroObj = 1; A.zb = clamp(hero.position.z + (rnd() - 0.5) * 1.2, COL.zMin + 1.8, COL_ZMAX - 1.8);
+    barkOnce('colAliento', '¡Va a barrer el lomo con fuego! ¡Sal de la franja roja!'); }
 }
 function colEscupe(primero){
   const Ci = COL.circulos.find(c => !c.visible); if (!Ci) return;
   let z = hero.position.z, u = hero.position.x - colC(z);
   if (!primero){ z += (rnd() - 0.5) * 5; u += (rnd() - 0.5) * 2.4; }
   z = clamp(z, COL.zMin + 0.5, COL_ZMAX - 0.5); const hw = colHW(z); u = clamp(u, -hw, hw);
-  const to = new V3(colC(z) + u, 0.05, z);
-  Ci.position.copy(to); Ci.scale.setScalar(1.3); Ci.visible = true; Ci.userData.z = z; Ci.userData.u = u;
+  Ci.position.set(colC(z) + u, 0.05, z); Ci.scale.setScalar(1.4); Ci.visible = true; Ci.userData.z = z; Ci.userData.u = u;
   COL.cab.updateMatrixWorld(true); const from = new V3(0, -0.1, 1.4).applyMatrix4(COL.cab.matrixWorld);
-  const m = mesh(orbGeo, fballMat, from.x, from.y, from.z); mesh(orbGeo, fballMat, 0, 0, 0, m).scale.setScalar(2.2);
-  fballs.push({ m, from, to, t: 0, dur: 0.95, circle: Ci, dm: COL.e.dm, col: true });
-  play('fireball'); lightFlash(from.x, from.y, from.z, 0xff8a30, 1.6, 8);
+  colMeteoro(from, Ci);
+  play('fireball'); lightFlash(from.x, from.y, from.z, 0xff8a30, 1.8, 9);
+}
+/* ---------- Fuego del colosal: meteoros con estela, columnas de llamas, quemaduras y el aliento ----------
+   Usa los trazos de llama y el sol de las técnicas foil (js/poderes/foil.js). */
+const colSolMat = () => COL.solM || (COL.solM = new THREE.SpriteMaterial({ map: solMat.map, transparent: true, depthWrite: false }));
+COL.meteoros = []; COL.quemas = [];
+function colMeteoro(from, Ci){
+  const spr = new THREE.Sprite(colSolMat()); spr.renderOrder = 7; scene.add(spr);
+  COL.meteoros.push({ from, to: new V3(Ci.position.x, 0.05, Ci.position.z), Ci, t: 0, dur: 1.0, spr, cola: tintaCoge(LLAMA, 1, 'fuego'), nucleo: tintaCoge(LLAMA_VIVA, 1, 'fuego') });
+}
+const colArco = (M, s, v) => { v.lerpVectors(M.from, M.to, s); v.y += Math.sin(s * Math.PI) * 2.4; return v; };
+function colMeteorosTick(dt){
+  for (let i = COL.meteoros.length - 1; i >= 0; i--){
+    const M = COL.meteoros[i]; M.t += dt;
+    M.to.x = colC(M.Ci.userData.z) + M.Ci.userData.u; M.Ci.position.x = M.to.x;   // el blanco va pegado al lomo
+    M.Ci.material.uniforms.uOpacity.value = 0.35 + 0.3 * Math.abs(Math.sin(time * 14));
+    const k = Math.min(1, M.t / M.dur);
+    colArco(M, k, M.spr.position); M.spr.scale.setScalar(1.5 + Math.sin(time * 31 + i) * 0.18); COL.solM.rotation = time * 5;
+    tintaPinta(M.cola, (q, v) => colArco(M, q, v), Math.max(0, k - 0.34), k, q => 0.15 + 1.25 * q);
+    tintaPinta(M.nucleo, (q, v) => colArco(M, q, v), Math.max(0, k - 0.18), k, q => 0.08 + 0.5 * q);
+    if (rnd() < 0.9){ const p = M.spr.position; spawnFx(p.x, p.y, p.z, (rnd() - 0.5) * 2, 1 + rnd() * 2, (rnd() - 0.5) * 2, rnd() < 0.5 ? 0xffd060 : 0xff5a14, 0.1, 0.5, -1, 0.4); }
+    if (k < 1) continue;
+    // impacto: columna de llamas, anillos, ascuas y quemadura
+    const x = M.to.x, z = M.to.z; M.Ci.visible = false; scene.remove(M.spr); tintaSuelta(M.cola); tintaSuelta(M.nucleo); COL.meteoros.splice(i, 1);
+    ringFx(x, z, 0xff7a2a, 0.3, 2.4, 0.35); ringFx(x, z, 0xffd060, 0.2, 1.4, 0.25, 0.4); lightFlash(x, 1.3, z, 0xff8a30, 2.4, 8); play('boom'); COL.temblor = Math.max(COL.temblor, 0.12);
+    for (let k2 = 0; k2 < 16; k2++){ const a = rnd() * TAU, sp = 2 + rnd() * 4; spawnFx(x, 0.4, z, Math.cos(a) * sp, 2 + rnd() * 5, Math.sin(a) * sp, rnd() < 0.4 ? 0xfff0a0 : rnd() < 0.6 ? 0xffa020 : 0xff4a14, 0.12, 0.7, 7, 0.3); }
+    colColumna(x, z, 3.2, 0.7); colQuemadura(M.Ci.userData.z, M.Ci.userData.u);
+    if (Math.hypot(hero.position.x - x, hero.position.z - z) < 1.5 && hero.position.y < 1.1 && COL.fase !== 'aire') hurtPlayer(16 * COL.e.dm, x, z, 5);
+  }
+  for (let i = COL.quemas.length - 1; i >= 0; i--){ const Q = COL.quemas[i]; Q.t -= dt; Q.m.position.x = colC(Q.z) + Q.u;
+    Q.m.material.uniforms.uOpacity.value = Math.min(0.9, Q.t / 2.5 * 0.9); Q.aro.material.uniforms.uOpacity.value = Math.min(1, Q.t / 2.5) * (0.6 + 0.4 * Math.sin(time * 9 + i));
+    if (rnd() < dt * 6) spawnFx(Q.m.position.x + (rnd() - 0.5) * 1.4, 0.15, Q.z + (rnd() - 0.5) * 1.4, 0, 1 + rnd(), 0, rnd() < 0.5 ? 0xff7a2a : 0xffd060, 0.06, 0.5, -1, 0);
+    if (Q.t <= 0){ scene.remove(Q.m); COL.quemas.splice(i, 1); } }
+}
+function colColumna(x, z, alto, dur){   // columna de llamas que sube del impacto
+  const c1 = tintaCoge(LLAMA, 1, 'fuego'), c2 = tintaCoge(LLAMA_VIVA, 1, 'fuego');
+  const P1 = (q, v) => v.set(x + Math.sin(q * 7 + time * 9) * 0.15, q * alto, z + Math.cos(q * 5 + time * 7) * 0.15);
+  foilFx.push({ t: 0, cintas: [c1, c2], upd(){ const k = Math.min(1, this.t / 0.15), fade = Math.max(0, (this.t - 0.2) / dur); if (fade >= 1) return false;
+      tintaPinta(c1, P1, fade * 0.6, k, q => 1.5 * (1 - q * 0.65)); tintaPinta(c2, P1, fade * 0.6, k * 0.9, q => 0.7 * (1 - q * 0.6));
+      c1.mat.uniforms.uAlpha.value = c2.mat.uniforms.uAlpha.value = 1 - fade; return true; } });
+}
+function colQuemadura(z, u){
+  const g = mesh(circleGeo, makeMat(0x2a0e06, { opacity: 0.9 }), colC(z) + u, 0.04, z); g.scale.setScalar(1.2);
+  const aro = mesh(new THREE.RingGeometry(0.75, 1, 20).rotateX(-Math.PI / 2), makeMat(0xff7a2a, { emissive: 1, opacity: 0.8 }), 0, 0.01, 0, g);
+  COL.quemas.push({ m: g, aro, z, u, t: 2.8 });
+}
+// Aliento de fuego: gira el cuello y barre una franja del lomo de lado a lado con un chorro de llamas
+function colAlientoTick(A, dt){
+  const AV = 1.4, SW = 1.5, zb = A.zb, hw = colHW(zb);
+  if (!COL.alTele){ COL.alTele = mesh(new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2), makeMat(0xff3a2a, { emissive: 1, opacity: 0.5 }), 0, 0.06, 0); COL.alTele.visible = false; }
+  const T = COL.alTele; T.visible = A.t < AV + SW; T.position.set(colC(zb), 0.06, zb); T.scale.set(hw * 2 + 0.6, 1, 3.4);
+  T.material.uniforms.uOpacity.value = A.t < AV ? 0.35 + 0.3 * Math.abs(Math.sin(time * 12)) : 0.15;
+  COL.boca = A.t > 0.9 ? 1 : 0.45;
+  if (A.t > 0.4 && !A.son){ A.son = true; play('dragonRoar'); }
+  if (A.t >= AV && A.t < AV + SW){
+    const k = (A.t - AV) / SW, x0 = colC(zb) + A.lado * (hw + 0.8), x1 = colC(zb) - A.lado * (hw + 0.8), ix = lerp(x0, x1, smooth(k));
+    if (!A.chorro){ A.chorro = [tintaCoge(LLAMA, 1, 'fuego'), tintaCoge(LLAMA_VIVA, 1, 'fuego'), tintaCoge(LLAMA, 1, 'fuego')]; play('breath'); }
+    COL.cab.updateMatrixWorld(true); const boca = colV[2].set(0, -0.1, 1.4).applyMatrix4(COL.cab.matrixWorld), imp = colV[3].set(ix, 0.3, zb);
+    const P1 = (q, v) => { v.lerpVectors(boca, imp, q); v.y += Math.sin(q * Math.PI) * 0.8; v.x += Math.sin(q * 11 + time * 13) * 0.12 * q; return v; };
+    tintaPinta(A.chorro[0], P1, 0, 1, q => 0.5 + 1.8 * q * q); tintaPinta(A.chorro[1], P1, 0.05, 1, q => 0.2 + 0.8 * q * q);
+    tintaPinta(A.chorro[2], (q, v) => v.set(lerp(x0, ix, q), 0.35 + Math.sin(q * 9 + time * 8) * 0.08, zb + Math.sin(q * 13 + time * 6) * 0.25), 0, 1, q => 1.1 + 0.5 * q);   // el lomo ardiendo por donde pasa
+    for (let n = 0; n < 3; n++){ const a = rnd() * TAU; spawnFx(ix, 0.4, zb + (rnd() - 0.5) * 2, Math.cos(a) * 3, 2 + rnd() * 3, Math.sin(a) * 3, rnd() < 0.5 ? 0xffd060 : 0xff5a14, 0.12, 0.6, 5, 0.3); }
+    lightFlash(ix, 1.2, zb, 0xff8a30, 2.2, 8); COL.temblor = Math.max(COL.temblor, 0.1);
+    A.cd = (A.cd || 0) - dt;
+    if (A.cd <= 0 && Math.abs(hero.position.z - zb) < 1.75 && Math.abs(hero.position.x - ix) < 1.5 && hero.position.y < 1.6){ if (hurtPlayer(17 * COL.e.dm, ix, zb, 6) === 'hit') A.cd = 0.45; }
+  }
+  if (A.t >= AV + SW){ if (A.chorro){ A.chorro.forEach(tintaSuelta); A.chorro = null; } T.visible = false; COL.giroObj = 0; }
+  if (A.t >= AV + SW + 0.6){ COL.boca = 0.12; colFinAtq(); }
 }
 function colAtaqueTick(dt){
   const A = COL.atq;
@@ -299,6 +384,23 @@ function colAtaqueTick(dt){
     if (A.t >= AV && A.t < AV + D){ const k = (A.t - AV) / D; COL.bancoObj = A.s * 0.58 * Math.sin(k * Math.PI * 2.5) * Math.min(1, (1 - k) * 4);
       if (!A.son){ A.son = true; play('colRafaga'); COL.boca = 0.2; } }
     else if (A.t >= AV + D){ COL.bancoObj = 0; colFinAtq(); }
+  } else if (A.tipo === 'aliento'){ colAlientoTick(A, dt);
+  } else if (A.tipo === 'violenta'){   // sacudida a lo bestia que acaba en una coz: sin agarrarse, por los aires
+    const AV = 1.1, D = 2.6;
+    if (A.t >= AV && A.t < AV + D){ const k = (A.t - AV) / D; COL.bancoObj = A.s * 0.85 * Math.sin(k * Math.PI * 5) * Math.min(1, (1 - k) * 6); COL.temblor = Math.max(COL.temblor, 0.3);
+      if (!A.son){ A.son = true; play('colRafaga'); }
+      if (!A.coz && k > 0.86){ A.coz = true; shake = Math.max(shake, 0.9); play('boom'); if (!COL.agarra && grounded && !player.dead){ colLanza(Math.sign(hero.position.x - colC(hero.position.z)) || A.s, 0, true); return; } } }
+    else if (A.t >= AV + D){ COL.bancoObj = 0; colFinAtq(); }
+  } else if (A.tipo === 'vertical'){   // sube en vertical: la gravedad tira hacia la cola
+    const AV = 1.3, D = 3.2;
+    if (A.t >= AV && A.t < AV + D){ const k = (A.t - AV) / D; COL.cabObj = -1.25 * Math.min(1, k * 4, (1 - k) * 4); if (!A.son){ A.son = true; play('colRafaga'); } }
+    else if (A.t >= AV + D){ COL.cabObj = 0; colFinAtq(); }
+  } else if (A.tipo === 'tirabuzon'){   // media vuelta, un rato boca abajo y la otra media
+    const AV = 1.3, G1 = 0.9, HOLD = 2.0, G2 = 0.9;
+    if (A.t >= AV){ const t = A.t - AV;
+      COL.bancoObj = A.s * (t < G1 ? Math.PI * smooth(t / G1) : t < G1 + HOLD ? Math.PI : Math.PI * (1 + smooth(Math.min(1, (t - G1 - HOLD) / G2))));
+      if (!A.son){ A.son = true; play('colRafaga'); }
+      if (t >= G1 + HOLD + G2 + 0.35){ COL.banco -= A.s * TAU; COL.bancoObj = 0; colFinAtq(); } }
   } else if (A.tipo === 'rafaga'){
     const AV = 1.1, D = 1.9;
     if (A.t >= AV && A.t < AV + D) COL.rafagaObj = 6.5;
@@ -313,7 +415,8 @@ function colAtaqueTick(dt){
       if (up > 0.6 && !P_.hit && Math.abs(hero.position.z - z) < 1.15 && hero.position.y < 0.65){ if (hurtPlayer(18 * COL.e.dm, hero.position.x, z, 6) === 'hit') P_.hit = true; }
     }
     if (A.t >= AV && !A.son){ A.son = true; play('bossSlam'); COL.temblor = 0.2;
-      for (let i = 0; i < A.bandas; i++){ const z = COL.puas[i].z; for (let k = 0; k < 10; k++) spawnFx(colC(z) + (rnd() - 0.5) * 3, 0.2, z + (rnd() - 0.5) * 1.6, 0, 3 + rnd() * 3, 0, rnd() < 0.5 ? 0xffd070 : 0xfff0c0, 0.1, 0.5, 8, 0.3); } }
+      for (let i = 0; i < A.bandas; i++){ const z = COL.puas[i].z; lightFlash(colC(z), 1, z, 0xff8a30, 1.8, 6);
+        for (let k = 0; k < 16; k++) spawnFx(colC(z) + (rnd() - 0.5) * 3, 0.2, z + (rnd() - 0.5) * 1.6, (rnd() - 0.5) * 2, 3 + rnd() * 4, (rnd() - 0.5) * 2, rnd() < 0.4 ? 0xfff0a0 : rnd() < 0.6 ? 0xffa020 : 0xff4a14, 0.1, 0.6, 7, 0.3); } }
     if (A.t > AV + 1.15){ for (const P_ of COL.puas) P_.g.visible = false; colFinAtq(); }
   } else if (A.tipo === 'fuego'){
     if (A.t > 0.35 && !A.son){ A.son = true; play('dragonRoar'); }
@@ -324,38 +427,120 @@ function colAtaqueTick(dt){
   }
 }
 
-/* ---------- Caída: si te escurres por un lado, Lumen te recoge (y cobra) ---------- */
-function colCae(u){
-  COL.cae = { t: 0, s: Math.sign(u) || 1, v: 0, y: 0, fase0: COL.fase }; COL.fase = 'caida'; COL.agarra = false; COL.vu = 0;
-  state = 'normal'; attackW = 0; staffToBack(); grounded = true; vy = 0; blob.visible = false; colAviso(null);
-  play('jump'); barkT = 0; bark('¡¡Tovaaan!!');
+/* ---------- Por los aires: te ha tirado. Crías, impulso y vuelta al lomo (o Lumen te recoge, y cobra) ---------- */
+const colCriaMats = () => COL.criaM || (COL.criaM = { rojo: makeMat(0xd8402a, { emissive: 0.15 }), oro: makeMat(0xffc040, { emissive: 0.3 }), panza: makeMat(0xff8a3a, { emissive: 0.25 }), ojo: makeMat(0xffe070, { emissive: 1 }),
+  ala: makeMat(0xff8a3a, { emissive: 0.3, side: THREE.DoubleSide }) });
+function colCriaNueva(){   // como las crías de la pelea, pero del tamaño justo para montarse
+  const M = colCriaMats(), g = new THREE.Group(); g.visible = false; scene.add(g);
+  const sk = mesh(new THREE.IcosahedronGeometry(0.5, 1), M.rojo, 0, 0, 0, g); sk.scale.set(0.95, 0.85, 1.15);
+  mesh(B(0.44, 0.28, 0.64), M.rojo, 0, -0.1, 0.52, g); mesh(B(0.38, 0.1, 0.56), M.panza, 0, -0.24, 0.46, g);
+  for (const s_ of [-1, 1]){ mesh(B(0.14, 0.1, 0.06), M.ojo, 0.2 * s_, 0.14, 0.44, g); const h = mesh(new THREE.ConeGeometry(0.09, 0.55, 4), M.oro, 0.2 * s_, 0.4, -0.2, g); h.rotation.x = -0.9; }
+  if (!COL.alaG){ COL.alaG = new THREE.BufferGeometry(); COL.alaG.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, 1.9, 0.25, -0.5, 0.5, 0, -1.4], 3)); COL.alaG.computeVertexNormals(); }
+  const alas = [-1, 1].map(s_ => { const w = new THREE.Group(); w.position.set(0.32 * s_, 0.1, -0.7); g.add(w); mesh(COL.alaG, M.ala, 0, 0, 0, w).scale.x = s_; return w; });
+  const segs = Array.from({ length: 8 }, (_, i) => { const m = mesh(new THREE.IcosahedronGeometry(0.42 - i * 0.032, 1), i % 2 ? M.panza : M.rojo, 0, -50, 0); m.visible = false; return m; });
+  return { g, alas, segs, rastro: [], pos: new V3(), prev: new V3(), centro: new V3(), oy: 0, fa: 0, on: false, libreT: 0, cansa: 0, fuera: 0 };
 }
-function colCaeTick(dt){
-  const K = COL.cae; K.t += dt; K.v += 18 * dt; K.y -= K.v * dt;
-  hero.position.x += K.s * 2.4 * dt; hero.position.y = K.y; grounded = true; vy = 0; P.body.rotation.x += dt * 5;
-  if (K.t < 1.25) return;
+function colCriasSuelta(lado){   // tres crías escalonadas por debajo de donde te tira, hacia tu lado: al caer, guíate hasta una
+  if (!COL.crias.length) COL.crias = [colCriaNueva(), colCriaNueva(), colCriaNueva()];
+  const p = hero.position, of = [[3.6, -3, -1.5], [6, -6.5, 2], [3.2, -10, 3.5]];
+  COL.crias.forEach((c, k) => { const [ox, oy, oz] = of[k]; c.centro.set(p.x + lado * ox, p.y + oy, p.z + oz); c.oy = oy; c.fa = k * 2.1; c.on = true; c.libreT = 0; c.cansa = 12; c.fuera = 0;
+    c.pos.set(c.centro.x + lado * 6, c.centro.y - 3, c.centro.z); c.prev.copy(c.pos); c.rastro.length = 0; c.g.visible = true; for (const m of c.segs) m.visible = true; });
+}
+function colCriasFuera(ya){ for (const c of COL.crias){ if (ya){ c.on = false; c.g.visible = false; for (const m of c.segs) m.visible = false; } else if (c.on && !c.fuera) c.fuera = 2.5; } }
+function colCriasTick(dt){
+  const A = COL.aire;
+  for (const c of COL.crias){ if (!c.on) continue;
+    if (!(A && A.cria === c)) c.prev.copy(c.pos);   // (la que lleva Tovan la mueve colAireTick)
+    if (A && A.cria === c){ /* la lleva Tovan: la mueve colAireTick */ }
+    else if (c.fuera > 0){ c.fuera -= dt; c.pos.x += Math.sign(c.pos.x - colC(c.pos.z) || 1) * 9 * dt; c.pos.y += 4 * dt; if (c.fuera <= 0){ c.on = false; c.g.visible = false; for (const m of c.segs) m.visible = false; continue; } }
+    else { c.fa += dt * 1.5;
+      const tx = c.centro.x + Math.cos(c.fa) * 1.6, ty = c.centro.y + Math.sin(c.fa * 1.7) * 0.6, tz = c.centro.z + Math.sin(c.fa) * 1.6;
+      c.pos.x += (tx - c.pos.x) * (1 - Math.exp(-dt * 2.5)); c.pos.y += (ty - c.pos.y) * (1 - Math.exp(-dt * 2.5)); c.pos.z += (tz - c.pos.z) * (1 - Math.exp(-dt * 2.5)); }
+    c.libreT = Math.max(0, c.libreT - dt);
+    // modelo: la cabeza mira hacia donde vuela; las alas aletean; el cuerpo sigue el rastro
+    c.g.position.copy(c.pos); colV[3].subVectors(c.pos, c.prev); if (colV[3].lengthSq() > 1e-6){ colMira.position.copy(c.pos); colMira.lookAt(colV[3].add(c.pos)); c.g.quaternion.slerp(colMira.quaternion, 1 - Math.exp(-dt * 8)); }
+    const fl = Math.sin(time * 13 + c.fa); c.alas.forEach((w, i) => { w.rotation.z = (i ? 1 : -1) * (0.15 + fl * 0.6); });
+    c.rastro.unshift(c.pos.clone()); if (c.rastro.length > 40) c.rastro.pop();
+    c.segs.forEach((m, i) => { const q = c.rastro[Math.min(c.rastro.length - 1, (i + 1) * 3)]; m.position.copy(q); m.position.y += Math.sin(time * 8 - i * 0.7) * 0.06; });
+  }
+}
+const colAsiento = (c, v) => v.set(0, 0.55, -0.75).applyQuaternion(c.g.quaternion).add(c.pos);
+function colLanza(sx, sz, arriba){   // te ha tirado: por los aires
+  const fase0 = COL.fase === 'aire' && COL.aire ? COL.aire.fase0 : COL.fase;
+  COL.aire = { pos: hero.position.clone(), vel: new V3(sx * 5.5, arriba ? 7.5 : 4, sz * 6), t: 0, cria: null, dash: 1, fase0 };
+  COL.fase = 'aire'; COL.agarra = false; COL.vu = COL.vz = 0; COL.atq = null; colQuitaAtaques(); for (const p of COL.puas) p.g.visible = false;
+  state = 'normal'; attackW = 0; staffToBack(); grounded = true; vy = 0; blob.visible = false;
+  colCriasSuelta(sx || (hero.position.x - colC(hero.position.z) >= 0 ? 1 : -1));
+  play('jump'); play('colRafaga'); shake = Math.max(shake, 0.5); slowT = Math.max(slowT, 0.5);
+  barkT = 0; bark('¡Te ha tirado! ¡Agárrate a una cría o te estrellas!');
+}
+function colAireTick(dt){
+  const A = COL.aire; A.t += dt;
+  const ix = inputMag > 0.12 ? Math.sin(inputHeading) * inputMag : 0, iz = inputMag > 0.12 ? Math.cos(inputHeading) * inputMag : 0;
+  if (A.cria){   // montado: la cría va hacia donde le digas y sube sola hasta la altura del lomo
+    const c = A.cria; c.cansa -= dt;
+    A.vel.x += (ix * 9 - A.vel.x) * (1 - Math.exp(-dt * 3)); A.vel.z += (iz * 9 - A.vel.z) * (1 - Math.exp(-dt * 3)); A.vel.y += ((2.3 - c.pos.y) * 1.3 - A.vel.y) * (1 - Math.exp(-dt * 2));
+    c.prev.copy(c.pos); c.pos.addScaledVector(A.vel, dt); colAsiento(c, A.pos);
+    const sobre = Math.abs(c.pos.x - colC(c.pos.z)) < colHW(c.pos.z) + 0.6 && c.pos.z > COL.zMin && c.pos.z < COL_ZMAX && c.pos.y > -0.5;
+    colAviso(sobre ? '¡SALTA!' : 'Vuela hasta el lomo', sobre ? 'Salta y caes encima' : c.cansa < 4 ? '¡La cría se cansa!' : 'SALTAR para soltarte', false);
+    if (c.cansa <= 0){ A.cria = null; c.libreT = 3; c.fuera = 2.5; A.vel.y = 1.5; barkT = 0; bark('¡La cría se ha cansado! ¡Busca otra!'); }
+  } else {
+    A.vel.y = Math.max(-5, A.vel.y - 7 * dt); const dr = Math.exp(-dt * 0.9);   // caída frenada por el viento, y el aire te frena de lado
+    A.vel.x = A.vel.x * dr + ix * 10 * dt; A.vel.z = A.vel.z * dr + iz * 10 * dt; const h = Math.hypot(A.vel.x, A.vel.z); if (h > 7){ A.vel.x *= 7 / h; A.vel.z *= 7 / h; }
+    A.pos.addScaledVector(A.vel, dt);
+    if (!A.muerto) colAviso('¡Agárrate a una cría!', A.pos.y < -11 ? '¡O caerás al vacío!' : 'Muévete hacia ella · RODAR para impulsarte', false);
+    for (const c of COL.crias) if (c.on && !c.fuera && c.libreT <= 0 && Math.hypot(A.pos.x - c.pos.x, A.pos.z - c.pos.z) < 2.1 && Math.abs(A.pos.y - c.pos.y - 0.4) < 1.6){
+      A.cria = c; c.cansa = 12; play('colAgarre'); play('land'); foilGritoCol('¡Montado!'); barkOnce('colCria', '¡Eso es! Llévala hasta el lomo y salta.'); break; }
+    // vuelta al lomo: cayendo por encima de la pasarela
+    const cz = colC(A.pos.z), hw = colHW(A.pos.z);
+    if (A.vel.y < 0 && A.pos.y <= 0 && A.pos.y > -1.4 && Math.abs(A.pos.x - cz) < hw + 0.5 && A.pos.z > COL.zMin - 0.5 && A.pos.z < COL_ZMAX + 0.5){ colAterriza(); return; }
+    if (A.pos.y < -18 && !A.muerto){ colCaidaMortal(); if (!A.muerto) return; }   // (revivido: ya está en el lomo)
+    if (A.muerto){ A.vel.y = -9; A.vel.x *= 0.9; A.vel.z *= 0.9; }
+  }
+  hero.position.copy(A.pos); grounded = true; vy = 0;
+  if (Math.hypot(A.vel.x, A.vel.z) > 0.5){ heading = Math.atan2(A.vel.x, A.vel.z); hero.rotation.y = lerpAngle(hero.rotation.y, heading, 1 - Math.exp(-dt * 8)); }
+}
+function foilGritoCol(txt){ colV[3].set(hero.position.x, hero.position.y + 2.6, hero.position.z); spawnNumber(colV[3], txt, 'react', '#bfffe6'); }
+function colAireImpulso(){   // RODAR en el aire: un impulso hacia donde mires (una vez por caída)
+  const A = COL.aire; if (!A || A.cria || A.dash <= 0) return;
+  A.dash = 0; const a = inputMag > 0.12 ? inputHeading : hero.rotation.y; A.vel.x = Math.sin(a) * 9; A.vel.z = Math.cos(a) * 9; A.vel.y = Math.max(A.vel.y, 2.5);
+  play('whoosh'); for (let i = 0; i < 10; i++) spawnFx(A.pos.x, A.pos.y + 1, A.pos.z, -Math.sin(a) * 4 + (rnd() - 0.5) * 2, (rnd() - 0.5) * 2, -Math.cos(a) * 4 + (rnd() - 0.5) * 2, 0xffffff, 0.08, 0.35, 0, 0);
+}
+function colAireSalta(){   // SALTAR montado: te sueltas de la cría con impulso hacia arriba
+  const A = COL.aire; if (!A || !A.cria) return;
+  const c = A.cria; A.cria = null; c.libreT = 2.5; A.vel.set(A.vel.x * 0.6, 8, A.vel.z * 0.6); A.dash = 1; play('jump');
+}
+function colAterriza(){
+  const A = COL.aire, z = clamp(A.pos.z, COL.zMin, COL_ZMAX); hero.position.set(A.pos.x, 0, z); grounded = true; vy = 0; landT = 0.18; P.body.rotation.x = 0; blob.visible = true;
+  COL.fase = A.fase0; COL.aire = null; COL.aguante = 1; COL.atqCd = 3; colAviso(null); colCriasFuera(false);
+  puff(8); play('land'); shake = Math.max(shake, 0.35); foilGritoCol('¡De vuelta!'); player.inv = Math.max(player.inv, 1);
+}
+function colCaidaMortal(){   // te has caído sin pillar una cría: al vacío (si un poder te revive, vuelves al lomo)
+  const A = COL.aire; colAviso(null); barkT = 0; bark('¡¡TOVAAAN!!');
+  player.inv = 0; if (state === 'roll') state = 'normal';
+  hurtPlayer(player.hp + player.maxHp * 10, A.pos.x, A.pos.z, 0);
+  if (player.dead || player.hp <= 0){ A.muerto = true; colCriasFuera(false); return; }
+  // revivido (Fénix, Segundo aliento…): de vuelta al lomo
   flash('#ffffff', 0.9); P.body.rotation.x = 0; blob.visible = true;
-  const z = clamp(hero.position.z, COL.zMin + 1, COL_ZMAX - 1); hero.position.set(colC(z), 0, z); grounded = true;
-  const v = Math.max(0, Math.min(player.hp - 1, Math.round(player.maxHp * 0.12))); player.hp -= v; dmgWave = true;
-  if (v){ colV[0].set(hero.position.x, 2.4, hero.position.z); spawnNumber(colV[0], v, 'hurt'); }
-  player.inv = 1.6; play('revive'); barkT = 0; bark('¡Te tengo! …Pesas más de lo que parece. Eso te lo cobro en vida.');
-  COL.fase = K.fase0; COL.cae = null; COL.aguante = 1; COL.atq = null; colQuitaAtaques(); COL.atqCd = 3; for (const p of COL.puas) p.g.visible = false;
+  const z = clamp(A.pos.z, COL.zMin + 1, COL_ZMAX - 1); hero.position.set(colC(z), 0, z); grounded = true; player.inv = Math.max(player.inv, 1.6);
+  COL.fase = A.fase0; COL.aire = null; COL.aguante = 1; COL.atq = null; colQuitaAtaques(); COL.atqCd = 3; colCriasFuera(false);
 }
 
 /* ---------- Cada fotograma ---------- */
 function colTick(dt, pdt, playing){
   if (!COL.montado) return;
-  const run = gameState === 'paused' ? 0 : dt, jugando = playing && COL.on && (COL.fase === 'lomo' || COL.fase === 'final' || COL.fase === 'caida');
+  const run = gameState === 'paused' ? 0 : dt, jugando = playing && COL.on && (COL.fase === 'lomo' || COL.fase === 'final' || COL.fase === 'aire');
   const z0 = hero.position.z, c0 = colC(z0);
   // estado del dragón: ondulación, cuello, picado, alabeo
   COL.tt += run;
   COL.giro += (COL.giroObj - COL.giro) * (1 - Math.exp(-run * 2.2));
   if (COL.fase === 'final' || COL.fase === 'remate') COL.picado = Math.min(1, COL.picado + run / 2.5);
   COL.banco += (COL.bancoObj - COL.banco) * (1 - Math.exp(-run * 5));
-  COL.cabeceo += (0.3 * COL.picado + 0.04 * Math.sin(COL.tt * 0.4) - COL.cabeceo) * (1 - Math.exp(-run * 2));
+  COL.cabeceo += (0.3 * COL.picado + 0.04 * Math.sin(COL.tt * 0.4) + COL.cabObj - COL.cabeceo) * (1 - Math.exp(-run * (COL.cabObj ? 3.5 : 2)));
   COL.temblor = Math.max(0, COL.temblor - run * 0.5);
   COL.rafaga += ((COL.fase === 'final' ? 0.9 : 0) + COL.rafagaObj - COL.rafaga) * (1 - Math.exp(-run * 4));
-  if (jugando) hero.position.x += colC(z0) - c0;   // el lomo arrastra a Tovan
+  if (jugando && COL.fase !== 'aire') hero.position.x += colC(z0) - c0;   // el lomo arrastra a Tovan
+  if (COL.crias.length) colCriasTick(run);
   // cuerpo
   const S = COL.segs;
   for (const sg of S){ const z = sg.userData.z; sg.position.set(colC(z), colTop(z) - sg.userData.R * 0.62, z); }
@@ -387,7 +572,7 @@ function colTick(dt, pdt, playing){
     s.mats[0].em = 0.45 + 0.4 * Math.abs(Math.sin(COL.tt * 3 + s.colZ)); s.pilar.visible = Math.hypot(hero.position.x - s.g.position.x, hero.position.z - s.colZ) > 5.5;
     s.llamas.forEach((c, k) => { c.scale.y = 1 + 0.4 * Math.sin(COL.tt * 9 + k * 2); c.position.y = 1.25 + 0.15 * Math.sin(COL.tt * 5 + k); });
     s.body.position.y = 0.05 * Math.sin(COL.tt * 2.5 + s.colZ); }
-  for (const f of fballs) if (f.col){ f.to.x = colC(f.circle.userData.z) + f.circle.userData.u; f.circle.position.x = f.to.x; }
+  if (playing && (COL.meteoros.length || COL.quemas.length)) colMeteorosTick(pdt);
   // viento: líneas de velocidad y sonido
   const vk = Math.min(1, 0.2 + 0.25 * COL.picado + (COL.rafaga > 2 ? 0.4 : 0) + Math.abs(COL.banco) * 0.5);
   colVientoEl.style.setProperty('--k', vk.toFixed(2)); colVientoEl.style.setProperty('--r', ((COL.tt * 97) % 6).toFixed(1) + 'deg');
@@ -395,12 +580,13 @@ function colTick(dt, pdt, playing){
   if (!jugando){ colAgarreEl.hidden = true; return; }
   // --- jugando sobre el lomo ---
   clearT = 0; colBarra();
-  if (COL.fase === 'caida'){ colCaeTick(pdt); return; }
+  if (COL.fase === 'aire'){ colAireTick(pdt); colAgarreEl.hidden = true; return; }
   if (COL.fase === 'final' && !COL.perla && COL.picado > 0.6){ COL.perla = colSello(COL_ZPERLA, true); barkT = 0; bark('¡Ahí, entre los cuernos! ¡La perla!'); }
   COL.zMin = lerp(COL_ZMIN, COL_ZMIN_FIN, COL.picado);
   if (COL.pendFinal > 0 && (COL.pendFinal -= pdt) <= 0){ COL.fase = 'final'; COL.atq = null; COL.atqCd = 3.5; COL.primero = 'rafaga'; play('dragonRoar'); play('colRafaga'); shake = Math.max(shake, 0.8);
     banner('¡En picado!<small>Llega hasta la perla de la cabeza</small>', 2.2); }
   colAtaqueTick(pdt);
+  if (COL.fase === 'aire') return;   // (una coz te acaba de tirar)
   // agarre
   const peligro = colPeligro(), held = keys.KeyK || keys.ShiftLeft || keys.ShiftRight || colTocaRodar || colPadRodar();
   if (COL.sinFuerza > 0) COL.sinFuerza -= pdt;
@@ -414,14 +600,18 @@ function colTick(dt, pdt, playing){
   colAvisoEl.classList.toggle('ok', COL.agarra);
   // posición sobre el lomo: deslizarse con el alabeo, viento de cara, bordes
   let z = hero.position.z, u = hero.position.x - c1;
-  if (COL.agarra){ u = COL.uLock; z = COL.zLock; COL.vu = 0; }
+  const g = colV[1].set(0, -1, 0).applyEuler(COL.env.rotation);   // la gravedad, vista desde el dragón (x: de lado · z: hacia la cola · y: contra el lomo)
+  if (COL.agarra){ u = COL.uLock; z = COL.zLock; COL.vu = COL.vz = 0; }
   else {
-    if (grounded && Math.abs(COL.banco) > 0.04) COL.vu += Math.sin(COL.banco) * 14 * pdt;
-    COL.vu *= Math.exp(-pdt * 1.2); u += COL.vu * pdt; z += COL.rafaga * pdt;
+    if (grounded && Math.abs(g.x) > 0.04) COL.vu += g.x * 14 * pdt;
+    if (grounded && Math.abs(g.z) > 0.35) COL.vz += g.z * 14 * pdt;
+    COL.vu *= Math.exp(-pdt * 1.2); COL.vz *= Math.exp(-pdt * 1.2); u += COL.vu * pdt; z += (COL.rafaga + COL.vz) * pdt;
+    if (grounded && g.y > -0.45 && !player.dead){ hero.position.x = colC(z) + u; hero.position.z = clamp(z, COL.zMin, COL_ZMAX); colLanza(Math.sign(g.x) || 1, 0, true); return; }   // en vertical o boca abajo sin agarrarse: te caes
   }
-  z = clamp(z, COL.zMin, COL_ZMAX); const hw = colHW(z);
+  if (z >= COL_ZMAX && COL.vz > 2.2 && !player.dead){ hero.position.x = colC(COL_ZMAX) + u; hero.position.z = COL_ZMAX; colLanza(0, 1, false); return; }   // resbaló hasta la cola
+  z = clamp(z, COL.zMin, COL_ZMAX); if (z === COL.zMin || z === COL_ZMAX) COL.vz = 0; const hw = colHW(z);
   if (Math.abs(u) > hw){
-    if (!COL.agarra && Math.abs(COL.vu) > 1.6 && Math.sign(COL.vu) === Math.sign(u)){ hero.position.x = colC(z) + u; hero.position.z = z; colCae(u); return; }
+    if (!COL.agarra && Math.abs(COL.vu) > 1.6 && Math.sign(COL.vu) === Math.sign(u)){ hero.position.x = colC(z) + u; hero.position.z = z; colLanza(Math.sign(u), 0, false); return; }
     u = Math.sign(u) * hw; if (Math.sign(COL.vu) === Math.sign(u)) COL.vu = 0;
   }
   hero.position.x = colC(z) + u; hero.position.z = z;
@@ -441,7 +631,9 @@ function colCamara(cam){
   cam.position.sub(camTarget).multiplyScalar(1.28).add(camTarget); cam.lookAt(camTarget);
   const j = 0.025 + 0.05 * COL.picado + (COL.rafaga > 2 ? 0.05 : 0) + COL.temblor * 0.5;
   cam.position.x += Math.sin(time * 37.1) * j; cam.position.y += Math.sin(time * 41.7 + 1) * j;
-  cam.rotateZ(-COL.banco * 0.3);
+  cam.rotateZ(-clamp(Math.atan2(Math.sin(COL.banco), Math.cos(COL.banco)), -0.7, 0.7) * 0.3);
+  for (const sg of COL.segs) sg.visible = sg.position.distanceTo(cam.position) > sg.userData.R * 1.1 + 0.8;   // por debajo del dragón, la cámara no se mete dentro del cuerpo
+  COL.cab.visible = COL.cab.position.distanceTo(cam.position) > 5.5;
 }
 function colPose(){
   if (!COL.montado) return;
@@ -449,20 +641,25 @@ function colPose(){
   P.scarf.forEach((g, i) => { g.rotation.x += 0.7 * w + Math.sin(time * 18 - i) * 0.12; g.rotation.z += Math.sin(time * 11 + i) * 0.15; });
   P.tailHair.forEach((g, i) => { g.rotation.x += 0.5 * w + Math.sin(time * 16 - i) * 0.1; });
   P.ahoge.rotation.x += 0.3 * w;
-  bl(P.spine.rotation, 'z', COL.fase === 'caida' ? 0 : -COL.banco * 0.6, 1);   // se echa contra el alabeo
+  bl(P.spine.rotation, 'z', COL.fase === 'aire' ? 0 : -clamp(Math.atan2(Math.sin(COL.banco), Math.cos(COL.banco)), -0.9, 0.9) * 0.6, 1);   // se echa contra el alabeo
   if (COL.agarra){   // agachado y agarrado a la crin
     bl(P.spine.rotation, 'x', 0.75, 1); bl(P.neck.rotation, 'x', -0.4, 1);
     for (const [A, s] of [[P.armL, -1], [P.armR, 1]]){ bl(A.sh.rotation, 'x', -1.1, 1); bl(A.sh.rotation, 'z', -0.25 * s, 1); bl(A.el.rotation, 'x', -0.5, 1); }
     for (const L of [P.legL, P.legR]){ bl(L.hip.rotation, 'x', -1.0, 1); bl(L.knee.rotation, 'x', 1.6, 1); }
   }
-  if (COL.fase === 'caida') for (const [A, s] of [[P.armL, -1], [P.armR, 1]]){ bl(A.sh.rotation, 'z', 2.4 * s, 1); bl(A.el.rotation, 'x', -0.2 + Math.sin(time * 20) * 0.4, 1); }
+  if (COL.fase === 'aire' && COL.aire){
+    if (COL.aire.cria){   // montado en la cría: sentado y agarrado a los cuernos
+      bl(P.spine.rotation, 'x', 0.35, 1); for (const L of [P.legL, P.legR]){ bl(L.hip.rotation, 'x', -1.45, 1); bl(L.knee.rotation, 'x', 1.3, 1); }
+      for (const [A, s] of [[P.armL, -1], [P.armR, 1]]){ bl(A.sh.rotation, 'x', -1.25, 1); bl(A.sh.rotation, 'z', -0.15 * s, 1); bl(A.el.rotation, 'x', -0.35, 1); }
+    } else for (const [A, s] of [[P.armL, -1], [P.armR, 1]]){ bl(A.sh.rotation, 'z', 2.4 * s, 1); bl(A.el.rotation, 'x', -0.2 + Math.sin(time * 20) * 0.4, 1); bl(P.legL.knee.rotation, 'x', 0.9, 1); bl(P.legR.knee.rotation, 'x', 0.4, 1); }
+  }
 }
 
 /* ---------- La segunda vida empieza: atropello y crecimiento ---------- */
 function colPuede(e){ return e.type === 'dragon' && e.alive && !e.colHecho && !e.colFase && !special && !chActive && !invActive && !cs.active && gameState === 'play' && !player.dead; }
 function colEmpieza(e){
   Object.assign(COL, { on: true, fase: 'cine', e, tt: 0, giro: 0, giroObj: 0, picado: 0, banco: 0, bancoObj: 0, cabeceo: 0, boca: 0.12, temblor: 0, atq: null, rotas: 0, sellos: [], perla: null,
-    aguante: 1, agarra: false, sinFuerza: 0, vu: 0, zMin: COL_ZMIN, rafaga: 0, rafagaObj: 0, cae: null, pendFinal: 0, dijoAgarre: false });
+    aguante: 1, agarra: false, sinFuerza: 0, vu: 0, vz: 0, cabObj: 0, zMin: COL_ZMIN, rafaga: 0, rafagaObj: 0, aire: null, pendFinal: 0, dijoAgarre: false });
   e.colFase = true; e.alive = false; e.hp = 0; e.flash = 0; e.burnT = e.chillT = e.frozenT = e.shockT = 0; e.chill = 0;
   hideTeles(e); if (e.x5 && e.x5.end) e.x5.end(); e.x5 = null; sweepHazards();
   for (const p of projectiles) scene.remove(p.m); projectiles.length = 0;
@@ -536,7 +733,7 @@ function colEmpiezaLomo(){
 /* ---------- Remate: la perla, el dragón se deshace en jade y Tovan cae al santuario ---------- */
 function colRemate(){
   COL.fase = 'remate'; COL.atq = null; colQuitaAtaques(); bossE = null; bossBox.hidden = true;
-  for (let i = fballs.length - 1; i >= 0; i--) if (fballs[i].col){ scene.remove(fballs[i].m); fballs[i].circle.visible = false; fballs.splice(i, 1); }
+  colFuegoFuera();
   colCineRemate();
 }
 function colDeshace(i){   // 0 = la cabeza; luego el cuerpo, de delante atrás
@@ -578,7 +775,7 @@ function colCineRemate(){
 }
 function colTermina(){
   const e = COL.e;
-  colLimpiaLomo(); colDesmonta(); COL.on = false; COL.fase = null; COL.cae = null; COL.e = null;
+  colLimpiaLomo(); colDesmonta(); COL.on = false; COL.fase = null; COL.aire = null; COL.e = null;
   if (Math.hypot(hero.position.x, hero.position.z) > ARENA - 0.5 || hero.position.y !== 0) hero.position.set(0, 0, 0.5);
   grounded = true; vy = 0; P.body.rotation.x = 0; blob.visible = true; cineEls.white.style.opacity = '0';
   if (e){ e.alive = true; e.colHecho = true; e.hp = 0; e.g.position.set(hero.position.x + 1.2, 0, hero.position.z - 1.4); killEnemy(e); }
@@ -593,10 +790,10 @@ killEnemy = function(e){
   if (e.type === 'dragon' && colPuede(e)){ colEmpieza(e); return; }
   _killEnemyCol(e);
 };
-const _doRollCol = doRoll; doRoll = function(){ if (COL.on && gameState === 'play' && (colPeligro() || COL.fase === 'caida')) return; _doRollCol(); };
-const _doAttackCol = doAttack; doAttack = function(){ if (COL.on && (COL.agarra || COL.fase === 'caida')) return; _doAttackCol(); };
-const _doJumpCol = doJump; doJump = function(){ if (COL.on && (COL.agarra || COL.fase === 'caida')) return; _doJumpCol(); };
-const _doSpecialCol = doSpecial; doSpecial = function(){ if (COL.on && (COL.agarra || COL.fase === 'caida')) return; _doSpecialCol(); };
+const _doRollCol = doRoll; doRoll = function(){ if (COL.on && gameState === 'play' && COL.fase === 'aire'){ colAireImpulso(); return; } if (COL.on && gameState === 'play' && colPeligro()) return; _doRollCol(); };
+const _doAttackCol = doAttack; doAttack = function(){ if (COL.on && (COL.agarra || COL.fase === 'aire')) return; _doAttackCol(); };
+const _doJumpCol = doJump; doJump = function(){ if (COL.on && gameState === 'play' && COL.fase === 'aire'){ colAireSalta(); return; } if (COL.on && COL.agarra) return; _doJumpCol(); };
+const _doSpecialCol = doSpecial; doSpecial = function(){ if (COL.on && (COL.agarra || COL.fase === 'aire')) return; _doSpecialCol(); };
 const _v3UpdateCol = v3Update;
 v3Update = function(dt, pdt, playing){ _v3UpdateCol(dt, pdt, playing); try { colTick(dt, pdt, playing); } catch (err) { console.error(err); } };
 const _csCameraCol = csCamera; csCamera = function(cam){ _csCameraCol(cam); try { colCamara(cam); } catch (err) { console.error(err); } };

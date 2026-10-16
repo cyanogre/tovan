@@ -16,10 +16,14 @@
      · Puño de fuego (de una de piratas): cada golpe deja un arco de fuego;
        el Ardor sube mientras no te den; el remate es un puño de llamas y,
        con el Ardor al máximo, «Gran llamarada», un sol que lo arrasa todo.
-   Cada una viene de una serie distinta, como el resto de poderes otaku.
-   Los trazos son cintas que miran a la cámara con un shader de pincel:
-   centro claro, cuerpo de color, vetas de cerdas y borde de tinta negro
-   y roto (como la tinta china de la referencia).
+   Cada una viene de una serie distinta, como el resto de poderes otaku, y
+   cada una tiene su estética:
+     · Agua: cintas con shader de pincel (centro claro, cuerpo de color,
+       vetas de cerdas y borde de tinta negro y roto, como la tinta china).
+     · Mil pájaros: rayos azules que tiemblan (el camino se rehace 24 veces
+       por segundo), con ramas, y la bola de chispas en la mano.
+     · Puño de fuego: llamas que lamen (ruido que corre por la cinta), el
+       puño de fuego al frente y, para la Gran llamarada, un sol.
    ====================================================================== */
 RAR.foil = ['Foil', '#eaf6ff', 0];
 const FOIL_IDS = ['waterBreath', 'foilChidori', 'foilHiken'];
@@ -56,19 +60,49 @@ void main(){
   col = mix(col, uE, smoothstep(fuera - 0.2, fuera - 0.12, a));                                                    // borde de tinta
   gl_FragColor = vec4(col, uAlpha * smoothstep(0.0, 0.08, u));
 }`;
+// Rayo (aditivo): núcleo blanco y halo de color que parpadea a saltos, con cortes que bailan
+const RAYO_FS = `
+uniform vec3 uA; uniform vec3 uB; uniform vec3 uC; uniform vec3 uE; uniform float uAlpha; uniform float uSeed; uniform float uLen; uniform float uTime; uniform float uSeco;
+varying vec2 vUV;
+float h1(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+void main(){
+  float a = abs(vUV.y), tic = floor(uTime * 24.0);
+  float core = 1.0 - smoothstep(0.03, 0.15, a), glow = pow(1.0 - a, 1.8);
+  float flick = 0.65 + 0.35 * h1(vec2(tic, uSeed));
+  float corte = step(0.14, h1(vec2(floor(vUV.x * uLen * 2.5) + tic * 7.0, uSeed)));
+  vec3 col = uB * glow * 1.7 + uA * core;
+  gl_FragColor = vec4(col, uAlpha * flick * mix(1.0, corte, 0.4) * smoothstep(0.0, 0.03, vUV.x) * clamp(core + glow, 0.0, 1.0));
+}`;
+// Llama: borde que lame (ruido que corre por la cinta), del blanco amarillo del centro al rojo del borde
+const FUEGO_FS = `
+uniform vec3 uA; uniform vec3 uB; uniform vec3 uC; uniform vec3 uE; uniform float uAlpha; uniform float uSeed; uniform float uLen; uniform float uTime; uniform float uSeco;
+varying vec2 vUV;
+float h1(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(h1(i), h1(i + vec2(1.0, 0.0)), f.x), mix(h1(i + vec2(0.0, 1.0)), h1(i + vec2(1.0, 1.0)), f.x), f.y); }
+void main(){
+  float u = vUV.x, a = abs(vUV.y), m = u * uLen;
+  float n = n2(vec2(m * 1.3 - uTime * 7.0 + uSeed, vUV.y * 2.2 - uTime * 1.6)) * 0.6 + n2(vec2(m * 3.7 - uTime * 13.0, vUV.y * 6.0 + uSeed)) * 0.4;
+  float borde = 0.42 + 0.58 * n * (0.6 + 0.4 * u);
+  if (a > borde) discard;
+  float t = a / borde;
+  vec3 col = mix(uA, uB, smoothstep(0.05, 0.5, t)); col = mix(col, uC, smoothstep(0.55, 0.95, t));
+  gl_FragColor = vec4(col * (1.0 + 0.35 * (1.0 - t)), uAlpha * smoothstep(0.0, 0.1, u));
+}`;
+const TRAZO_FS = { tinta: TINTA_FS, rayo: RAYO_FS, fuego: FUEGO_FS };
 const tintaPool = [];
-function tintaCoge(cols, seco){
-  let c = tintaPool.find(q => !q.usada);
+function tintaCoge(cols, seco, tipo = 'tinta'){
+  let c = tintaPool.find(q => !q.usada && q.tipo === tipo);
   if (!c){
     const geo = new THREE.BufferGeometry(), pos = new Float32Array((TINTA_N + 1) * 6), uv = new Float32Array((TINTA_N + 1) * 4), idx = [];
     for (let i = 0; i <= TINTA_N; i++){ uv.set([i / TINTA_N, -1, i / TINTA_N, 1], i * 4); if (i < TINTA_N){ const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); } }
     const at = new THREE.BufferAttribute(pos, 3); at.setUsage(THREE.DynamicDrawUsage);
     geo.setAttribute('position', at); geo.setAttribute('aUV', new THREE.BufferAttribute(uv, 2)); geo.setIndex(idx);
-    const mat = new THREE.ShaderMaterial({ vertexShader: TINTA_VS, fragmentShader: TINTA_FS, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+    const mat = new THREE.ShaderMaterial({ vertexShader: TINTA_VS, fragmentShader: TRAZO_FS[tipo], transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: tipo === 'rayo' ? THREE.AdditiveBlending : THREE.NormalBlending,
       uniforms: { uA: { value: new THREE.Color() }, uB: { value: new THREE.Color() }, uC: { value: new THREE.Color() }, uE: { value: new THREE.Color() },
         uAlpha: { value: 1 }, uSeed: { value: 0 }, uLen: { value: 1 }, uTime: { value: 0 }, uSeco: { value: 1 } } });
     const m = new THREE.Mesh(geo, mat); m.frustumCulled = false; m.renderOrder = 5; scene.add(m);
-    c = { m, geo, pos, mat }; tintaPool.push(c);
+    c = { m, geo, pos, mat, tipo }; tintaPool.push(c);
   }
   const U = c.mat.uniforms; U.uA.value.setHex(cols[0]); U.uB.value.setHex(cols[1]); U.uC.value.setHex(cols[2]); U.uE.value.setHex(cols[3]);
   U.uAlpha.value = 1; U.uSeed.value = rnd() * 50; U.uSeco.value = seco == null ? 1 : seco;
@@ -87,9 +121,56 @@ function tintaPinta(c, P, s0, s1, ancho){
   }
   c.geo.attributes.position.needsUpdate = true; c.mat.uniforms.uLen.value = Math.max(0.5, L); c.mat.uniforms.uTime.value = time;
 }
-// Colores: [centro, cuerpo, vetas, borde]
+// Colores: [centro, cuerpo, vetas o borde, borde de tinta] (en el rayo y la llama solo cuentan los tres primeros)
 const TINTA_AGUA = [0xf4fbff, 0x2f7fe8, 0xffffff, 0x05070c], TINTA_AGUA2 = [0xffffff, 0x8fd0ff, 0xffffff, 0x0a1220];
-const TINTA_TRUENO = [0xffffff, 0x4ab8ff, 0xe8fbff, 0x04070c], TINTA_FUEGO = [0xfff3c0, 0xff5a14, 0xffd060, 0x140604], TINTA_FUEGO2 = [0xffffff, 0xffb02a, 0xfff0a0, 0x1a0a04];
+const RAYO_AZUL = [0xffffff, 0x3a9cff, 0xffffff, 0], RAYO_CIAN = [0xf4fdff, 0x8fe6ff, 0xffffff, 0];
+const LLAMA = [0xfff7d0, 0xffa020, 0xd8300a, 0], LLAMA_VIVA = [0xffffff, 0xffd060, 0xff6a14, 0];
+// Rayo que tiembla: el camino P(s) más un desvío aleatorio que se rehace 24 veces por segundo (los extremos no se mueven)
+function rayoTiembla(P, n, amp){
+  const tab = Array.from({ length: n + 1 }, () => new V3()); let tic = -1;
+  const sacude = () => { for (const v of tab) v.set(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5).multiplyScalar(2 * amp); };
+  return (s, v) => { const t = Math.floor(time * 24); if (t !== tic){ tic = t; sacude(); }
+    P(s, v); const x = Math.min(1, Math.max(0, s)) * n, i = Math.min(n - 1, Math.floor(x)), q = x - i, env = Math.sin(Math.PI * Math.min(1, Math.max(0, s)));
+    return v.addScaledVector(_rjV.lerpVectors(tab[i], tab[i + 1], q), env); };
+}
+const _rjV = new V3();
+// Ramas: rayitos que salen del camino principal hacia fuera
+function rayoRamas(P, n, largo){
+  return Array.from({ length: n }, () => { const s0 = 0.15 + rnd() * 0.75, dir = new V3(rnd() - 0.5, rnd() * 0.6, rnd() - 0.5).normalize(), L = largo * (0.6 + rnd() * 0.6), o = new V3();
+    return { c: tintaCoge(RAYO_CIAN, 0, 'rayo'), P: rayoTiembla((s, v) => { P(s0, o); return v.copy(o).addScaledVector(dir, L * s); }, 4, 0.18) }; });
+}
+/* ---------- Sprites pintados al cargar (con su propio PRNG: nada de rnd() al cargar) ---------- */
+const foilLienzo = (w, h, pinta) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext && c.getContext('2d'); if (g && g.beginPath && g.createRadialGradient) pinta(g); return c; };
+const foilSprite = (lienzo, aditivo) => { const t = new THREE.CanvasTexture(lienzo); t.minFilter = THREE.LinearFilter;
+  return new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, blending: aditivo ? THREE.AdditiveBlending : THREE.NormalBlending }); };
+// La bola del Chidori: núcleo blanco, halo azul y chispas en zigzag
+const chidoriMat = foilSprite(foilLienzo(128, 128, g => { const R = mulberry32(733);
+  const gr = g.createRadialGradient(64, 64, 0, 64, 64, 60); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.18, 'rgba(200,240,255,0.95)'); gr.addColorStop(0.45, 'rgba(60,150,255,0.45)'); gr.addColorStop(1, 'rgba(20,60,255,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128); g.lineCap = 'round'; g.lineJoin = 'round';
+  for (let k = 0; k < 14; k++){ let a = R() * Math.PI * 2, r = 8, x = 64 + Math.cos(a) * r, y = 64 + Math.sin(a) * r; g.beginPath(); g.moveTo(x, y);
+    for (let j = 0; j < 6; j++){ r += 7 + R() * 6; a += (R() - 0.5) * 0.9; x = 64 + Math.cos(a) * r; y = 64 + Math.sin(a) * r; g.lineTo(x, y); }
+    g.strokeStyle = 'rgba(120,200,255,0.9)'; g.lineWidth = 3; g.stroke(); g.strokeStyle = '#ffffff'; g.lineWidth = 1.2; g.stroke(); } }), true);
+// El puño de fuego: un puño de llamas (nudillos, pulgar) con lenguas de fuego hacia atrás
+const punoMat = foilSprite(foilLienzo(256, 192, g => { const R = mulberry32(737);
+  const llama = (y0, y1) => { const gr = g.createLinearGradient(0, y0, 0, y1); gr.addColorStop(0, '#fff7d0'); gr.addColorStop(0.45, '#ffb030'); gr.addColorStop(1, '#d8300a'); return gr; };
+  for (let k = 0; k < 16; k++){ const y = 30 + R() * 132, len = 70 + R() * 90, w = 10 + R() * 16;   // lenguas hacia atrás (a la izquierda)
+    g.beginPath(); g.moveTo(150, y - w); g.quadraticCurveTo(120 - len * 0.4, y - w * 1.6 + (R() - 0.5) * 30, 140 - len, y + (R() - 0.5) * 24); g.quadraticCurveTo(120 - len * 0.3, y + w * 1.4, 150, y + w); g.closePath();
+    g.fillStyle = llama(y - 30, y + 30); g.globalAlpha = 0.75; g.fill(); }
+  g.globalAlpha = 1; const cuerpo = llama(40, 160);
+  g.beginPath(); g.moveTo(120, 52); g.lineTo(196, 46); for (let i = 0; i < 4; i++){ const y = 50 + i * 24; g.quadraticCurveTo(236, y + 2, 230, y + 14); g.quadraticCurveTo(236, y + 24, 214, y + 26); }
+  g.lineTo(196, 150); g.quadraticCurveTo(150, 160, 120, 140); g.closePath(); g.fillStyle = cuerpo; g.fill(); g.lineWidth = 4; g.strokeStyle = '#7a1606'; g.stroke();   // puño
+  g.beginPath(); g.moveTo(150, 128); g.quadraticCurveTo(196, 118, 214, 140); g.quadraticCurveTo(190, 158, 150, 150); g.closePath(); g.fillStyle = '#ffd060'; g.fill(); g.stroke();   // pulgar
+  for (let i = 1; i < 4; i++){ g.beginPath(); g.moveTo(198, 50 + i * 24); g.lineTo(224, 50 + i * 24); g.lineWidth = 3; g.stroke(); }
+  const gr = g.createRadialGradient(190, 96, 4, 190, 96, 60); gr.addColorStop(0, 'rgba(255,255,255,0.9)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(120, 30, 136, 140); }), false);
+// El sol de la Gran llamarada: bola de fuego con corona de llamas
+const solMat = foilSprite(foilLienzo(256, 256, g => { const R = mulberry32(739);
+  for (let k = 0; k < 40; k++){ const a = R() * Math.PI * 2, len = 60 + R() * 60, w = 0.12 + R() * 0.12;
+    g.beginPath(); g.moveTo(128 + Math.cos(a - w) * 70, 128 + Math.sin(a - w) * 70); g.quadraticCurveTo(128 + Math.cos(a) * (70 + len * 0.6), 128 + Math.sin(a) * (70 + len * 0.6), 128 + Math.cos(a + w * 0.4) * (70 + len), 128 + Math.sin(a + w * 0.4) * (70 + len));
+    g.lineTo(128 + Math.cos(a + w) * 70, 128 + Math.sin(a + w) * 70); g.closePath(); g.fillStyle = R() < 0.5 ? 'rgba(255,120,20,0.8)' : 'rgba(255,200,60,0.8)'; g.fill(); }
+  const gr = g.createRadialGradient(128, 128, 0, 128, 128, 84); gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.35, '#fff3b0'); gr.addColorStop(0.75, '#ffa020'); gr.addColorStop(1, 'rgba(216,48,10,0)');
+  g.fillStyle = gr; g.beginPath(); g.arc(128, 128, 84, 0, Math.PI * 2); g.fill(); }), false);
+const _manoV = new V3();
+const manoDe = v => { P.armR.hand.getWorldPosition(v); return v; };
 
 /* ---------- Técnicas en marcha ---------- */
 const foilFx = [];
@@ -105,8 +186,8 @@ function foilGolpea(e, dmg, nx, nz, knock, el, power, yaHit){
 }
 const foilGrito = (txt, col) => { tA.set(hero.position.x, hero.position.y + 2.7, hero.position.z); spawnNumber(tA, txt, 'react', col); };
 // Arco de tinta alrededor de Tovan (el tajo de cada golpe normal)
-function tintaArco(cols, r, f, sg, ancho, dur, y0, dmgF){
-  const O = hero.position.clone(), c = tintaCoge(cols, 0.7), a0 = f + sg * 1.45, a1 = f - sg * 1.45;
+function tintaArco(cols, r, f, sg, ancho, dur, y0, dmgF, tipo){
+  const O = hero.position.clone(), c = tintaCoge(cols, 0.7, tipo), a0 = f + sg * 1.45, a1 = f - sg * 1.45;
   const P = (s, v) => { const a = lerp(a0, a1, s); return v.set(O.x + Math.sin(a) * r, O.y + y0 + Math.sin(s * Math.PI) * 0.25, O.z + Math.cos(a) * r); };
   let pegado = false;
   foilFx.push({ t: 0, cintas: [c], upd(){ const k = Math.min(1, this.t / 0.12), tail = Math.max(0, (this.t - 0.1) / dur);
@@ -231,33 +312,50 @@ function truenoPrimera(f){
     for (let k = 1; k <= 3; k++){ const q = k / 4, j = (rnd() - 0.5) * 0.9; zz.push(new V3(lerp(a.x, b.x, q) + (b.z - a.z) * j * 0.2, 1 + (rnd() - 0.5) * 0.6, lerp(a.z, b.z, q) - (b.x - a.x) * j * 0.2)); } zz.push(b); }
   const segL = []; let tot = 0; for (let i = 1; i < zz.length; i++){ tot += zz[i].distanceTo(zz[i - 1]); segL.push(tot); }
   const P = (s, v) => { const d = s * tot; let i = 0; while (i < segL.length - 1 && segL[i] < d) i++; const d0 = i ? segL[i - 1] : 0, q = (d - d0) / Math.max(0.001, segL[i] - d0); return v.lerpVectors(zz[i], zz[i + 1], Math.min(1, Math.max(0, q))); };
-  const c1 = tintaCoge(TINTA_TRUENO, 0.6), c2 = tintaCoge([0xffffff, 0xcff2ff, 0xffffff, 0x04070c], 0.4);
+  const P1 = rayoTiembla(P, 30, 0.2), P2 = rayoTiembla(P, 30, 0.38), c1 = tintaCoge(RAYO_AZUL, 0, 'rayo'), c2 = tintaCoge(RAYO_CIAN, 0, 'rayo'), ramas = rayoRamas(P, 6, 1.3);
+  const bola = new THREE.Sprite(chidoriMat); bola.renderOrder = 7; scene.add(bola);
   hero.position.x = fin.x; hero.position.z = fin.z; heading = Math.atan2(fin.x - prev.x, fin.z - prev.z) || f; hero.rotation.y = heading;
   player.inv = Math.max(player.inv, 0.7); hitStop = Math.max(hitStop, 0.12); flash('#dff4ff', 0.4); shake = Math.max(shake, 0.35); play('zap'); play('swingBig');
   foilGrito(iai ? '¡Mil pájaros! (cargado)' : '¡Mil pájaros!', '#9fe4ff'); play('chidori');
   const dmg = rdmg(iai ? 66 : 44); let golpeado = false;
-  foilFx.push({ t: 0, cintas: [c1, c2], upd(){
+  foilFx.push({ t: 0, cintas: [c1, c2, ...ramas.map(r => r.c)], upd(){
       const k = Math.min(1, this.t / 0.1), fade = Math.max(0, (this.t - 0.55) / 0.35);
       if (fade >= 1) return false;
-      tintaPinta(c1, P, 0, k, q => 0.8 * (0.35 + 0.65 * Math.sin(Math.min(1, q * 1.1) * Math.PI * 0.5 + 0.2)));
-      tintaPinta(c2, P, 0, k, q => 0.2);
+      tintaPinta(c1, P1, 0, k, q => 0.7 * (0.45 + 0.55 * Math.sin(Math.min(1, q * 1.1) * Math.PI * 0.5 + 0.2)));
+      tintaPinta(c2, P2, 0, k, q => 0.28);
+      for (const r of ramas){ tintaPinta(r.c, r.P, 0, Math.min(1, k * 1.4), q => 0.22 * (1 - q * 0.7)); r.c.mat.uniforms.uAlpha.value = (1 - fade) * (0.6 + 0.4 * Math.sin(time * 50 + r.c.mat.uniforms.uSeed.value)); }
       c1.mat.uniforms.uAlpha.value = c2.mat.uniforms.uAlpha.value = 1 - fade;
+      bola.visible = this.t < 0.45; if (bola.visible){ manoDe(bola.position); bola.scale.setScalar(1.1 + Math.sin(time * 60) * 0.25); chidoriMat.rotation = time * 9; }
       if (!golpeado && this.t > 0.28){ golpeado = true; play('thunder');
         for (const e of objetivos){ if (!e.alive) continue; const x = e.g.position.x, z = e.g.position.z; bolt(x, 8, z, x, 0.1, z, 0x9fe4ff, 0.12); lightFlash(x, 1.5, z, 0x6ac8ff, 2, 6);
           const nx = x - O.x, nz = z - O.z, nl = Math.max(0.01, Math.hypot(nx, nz)); foilGolpea(e, dmg, nx / nl, nz / nl, 3, 'shock', 1.6); sparks(x, 1, z, 12, 0xcff2ff, 5); } }
+      return true; },
+    fin(){ scene.remove(bola); } });
+}
+// Arco eléctrico de cada golpe: dos rayos que tiemblan alrededor de Tovan
+function rayoArco(r, f, sg, y0, dur, dmgF){
+  const O = hero.position.clone(), a0 = f + sg * 1.4, a1 = f - sg * 1.4;
+  const base = (s, v) => { const a = lerp(a0, a1, s); return v.set(O.x + Math.sin(a) * r, O.y + y0 + Math.sin(s * Math.PI) * 0.2, O.z + Math.cos(a) * r); };
+  const cs_ = [tintaCoge(RAYO_AZUL, 0, 'rayo'), tintaCoge(RAYO_CIAN, 0, 'rayo')], Ps = [rayoTiembla(base, 14, 0.14), rayoTiembla(base, 14, 0.26)];
+  let pegado = false;
+  foilFx.push({ t: 0, cintas: cs_, upd(){ const k = Math.min(1, this.t / 0.08), fade = Math.max(0, (this.t - 0.1) / dur); if (fade >= 1) return false;
+      tintaPinta(cs_[0], Ps[0], 0, k, () => 0.34); tintaPinta(cs_[1], Ps[1], 0, k, () => 0.16);
+      for (const c of cs_) c.mat.uniforms.uAlpha.value = 1 - fade;
+      if (!pegado && k >= 1){ pegado = true; if (dmgF) dmgF(O); }
       return true; } });
 }
 function truenoTajo(f, idx){
-  tintaArco(TINTA_TRUENO, 1.6, f, idx % 2 ? -1 : 1, 0.28, 0.2, 1.05, O => { const d = rdmg(7);
+  rayoArco(1.6, f, idx % 2 ? -1 : 1, 1.05, 0.18, O => { const d = rdmg(7);
     for (const e of enemies){ const n = enCono(O, e, f, 2.4, 1.3); if (n && foilGolpea(e, d, n[0], n[1], 1, rnd() < 0.3 ? 'shock' : null, 0.6)) sparks(e.g.position.x, 1, e.g.position.z, 4, 0xcff2ff, 3); } });
+  play('zap');
 }
 
 /* ---------- Fuego: puño de fuego y ardor ---------- */
 function fuegoArco(f, idx){
   const D = FOIL.danza;
-  tintaArco(TINTA_FUEGO, 1.8 + D * 0.04, f, idx % 2 ? -1 : 1, 0.7 + D * 0.03, 0.32, 0.9, O => { const d = rdmg(11 + D * 1.2); let pega = false;
+  tintaArco(LLAMA, 1.8 + D * 0.04, f, idx % 2 ? -1 : 1, 0.95 + D * 0.04, 0.34, 0.9, O => { const d = rdmg(11 + D * 1.2); let pega = false;
     for (const e of enemies){ const n = enCono(O, e, f, 2.6 + D * 0.05, 1.4); if (n && foilGolpea(e, d, n[0], n[1], 2, 'fire', 0.7)) pega = true; }
-    if (pega) fuegoPaso(); });
+    if (pega) fuegoPaso(); }, 'fuego');
   for (let i = 0; i < 5; i++){ const a = f + (rnd() - 0.5) * 2; spawnFx(hero.position.x + Math.sin(a) * 1.6, 0.9 + rnd() * 0.6, hero.position.z + Math.cos(a) * 1.6, 0, 1.6, 0, rnd() < 0.5 ? 0xffd060 : 0xff5a14, 0.07, 0.45, -2, 0); }
 }
 function fuegoPaso(){
@@ -268,44 +366,52 @@ function fuegoPaso(){
 function fuegoPuno(f){   // el remate: un puño de llamas que sale recto y atraviesa
   const O = hero.position.clone(), fx = Math.sin(f), fz = Math.cos(f), L = 7 + FOIL.danza * 0.2, ya = new Set(), dmg = rdmg(34 + FOIL.danza * 2.5);
   const P = (s, v, ph) => v.set(O.x + fx * (0.6 + L * s) + fz * 0.25 * Math.sin(s * 9 + (ph || 0)), O.y + 1.1 + 0.15 * Math.sin(s * 7 + (ph || 0)), O.z + fz * (0.6 + L * s) - fx * 0.25 * Math.sin(s * 9 + (ph || 0)));
-  const c1 = tintaCoge(TINTA_FUEGO, 1), c2 = tintaCoge(TINTA_FUEGO2, 1.2), c3 = tintaCoge(TINTA_FUEGO2, 1.2);
+  const c1 = tintaCoge(LLAMA, 1, 'fuego'), c2 = tintaCoge(LLAMA_VIVA, 1, 'fuego'), c3 = tintaCoge(LLAMA_VIVA, 1, 'fuego');
+  const puno = new THREE.Sprite(punoMat); puno.renderOrder = 7; scene.add(puno);
   foilGrito('¡Puño de fuego!', '#ffb02a'); play('whoosh'); play('specialBoom'); shake = Math.max(shake, 0.3); lightFlash(O.x, 1.5, O.z, 0xff8a2a, 2.4, 9);
   foilFx.push({ t: 0, cintas: [c1, c2, c3], upd(){
       const k = Math.min(1, this.t / 0.62), head = 1 - Math.pow(1 - k, 2), fade = Math.max(0, (this.t - 0.72) / 0.4);
       if (fade >= 1) return false;
       const tail = Math.max(0, head - 0.55 - fade * 0.45);
-      tintaPinta(c1, P, tail, head, q => 2.1 * Math.pow(q, 1.4) + 0.2);                                  // cometa: ancha en el puño, fina en la cola
-      tintaPinta(c2, (s, v) => P(s, v, 2).addScaledVector(_fW.set(0, 1, 0), 0.35), tail, head * 0.97, q => 0.55 * Math.pow(q, 2));
-      tintaPinta(c3, (s, v) => P(s, v, 4).addScaledVector(_fW.set(0, 1, 0), -0.3), tail, head * 0.95, q => 0.45 * Math.pow(q, 2));
+      tintaPinta(c1, P, tail, head, q => 2.3 * Math.pow(q, 1.3) + 0.25);                                 // cometa de llamas: ancha en el puño, fina en la cola
+      tintaPinta(c2, (s, v) => P(s, v, 2).addScaledVector(_fW.set(0, 1, 0), 0.35), tail, head * 0.97, q => 0.8 * Math.pow(q, 1.6));
+      tintaPinta(c3, (s, v) => P(s, v, 4).addScaledVector(_fW.set(0, 1, 0), -0.3), tail, head * 0.95, q => 0.7 * Math.pow(q, 1.6));
       c1.mat.uniforms.uAlpha.value = c2.mat.uniforms.uAlpha.value = c3.mat.uniforms.uAlpha.value = 1 - fade;
+      // el puño, al frente y girado según por dónde va en pantalla
+      P(head, _pr1); P(Math.min(1, head + 0.02), _pr2); puno.position.copy(_pr1); puno.visible = fade < 0.6;
+      if (puno.visible){ const a1 = _pr1.clone().project(camera), a2 = _pr2.clone().project(camera), ang = Math.atan2((a2.y - a1.y) * innerHeight, (a2.x - a1.x) * innerWidth);
+        punoMat.rotation = ang; punoMat.opacity = 1 - fade / 0.6; puno.scale.set(2.6, Math.cos(ang) < 0 ? -1.95 : 1.95, 1); }
       P(head, _fV); for (let i = 0; i < 3; i++) spawnFx(_fV.x, _fV.y, _fV.z, (rnd() - 0.5) * 3, 1 + rnd() * 2, (rnd() - 0.5) * 3, rnd() < 0.5 ? 0xffd060 : 0xff5a14, 0.1, 0.45, -1, 0);
       for (const e of enemies){ if (ya.has(e) || !e.alive || e.spawnT > 0) continue; const dx = e.g.position.x - O.x, dz = e.g.position.z - O.z, along = dx * fx + dz * fz, perp = Math.abs(dx * fz - dz * fx);
         if (along > 0 && along < 0.6 + L * head + 0.5 && perp < 1.1 + e.r) foilGolpea(e, dmg, fx, fz, 5, 'fire', 1.2, ya); }
-      return true; } });
+      return true; },
+    fin(){ scene.remove(puno); } });
 }
 function fuegoRueda(f){
   const sol = FOIL.danza >= 12, O = hero.position.clone(), r = sol ? 4.2 : 2.5, ya = new Set();
-  const c1 = tintaCoge(TINTA_FUEGO, 0.8), c2 = tintaCoge(TINTA_FUEGO2, 1), sg = rnd() < 0.5 ? -1 : 1;
+  const c1 = tintaCoge(LLAMA, 0.8, 'fuego'), c2 = tintaCoge(LLAMA_VIVA, 1, 'fuego'), sg = rnd() < 0.5 ? -1 : 1;
   const P = (s, v, k) => { const a = f + sg * s * TAU * 1.08; return v.set(O.x + Math.sin(a) * r * (k || 1), O.y + 0.5 + s * (sol ? 2.2 : 1.1), O.z + Math.cos(a) * r * (k || 1)); };
   const dmg = rdmg(sol ? 90 : 30 + FOIL.danza * 2);
   foilGrito('¡Gran llamarada!', '#ffd060');
   let halo = null;
-  if (sol){ FOIL.danza = 0; halo = tintaCoge(TINTA_FUEGO2, 0.3);
+  if (sol){ FOIL.danza = 0; halo = new THREE.Sprite(solMat); halo.renderOrder = 7; halo.scale.setScalar(0.01); scene.add(halo);
     flash('#fff0b0', 0.6); shake = Math.max(shake, 0.6); hitStop = Math.max(hitStop, 0.18); play('specialBoom'); lightFlash(O.x, 3, O.z, 0xffb02a, 4, 16); }
   else { shake = Math.max(shake, 0.25); lightFlash(O.x, 1.5, O.z, 0xff8a2a, 2.2, 8); }
   play('whoosh');
-  const HP = (s, v) => { const a = s * TAU; return v.set(O.x + Math.sin(a) * 1.5, O.y + 3.4 + Math.cos(a) * 1.5, O.z); };   // el sol, sobre la cabeza
-  foilFx.push({ t: 0, cintas: halo ? [c1, c2, halo] : [c1, c2], upd(){
+  foilFx.push({ t: 0, cintas: [c1, c2], upd(){
       const k = Math.min(1, this.t / (sol ? 0.4 : 0.26)), head = 1 - Math.pow(1 - k, 2), fade = Math.max(0, (this.t - (sol ? 0.75 : 0.45)) / 0.35);
       if (fade >= 1) return false;
-      tintaPinta(c1, P, Math.max(0, head - 0.75), head, q => (sol ? 1.3 : 0.85) * (0.15 + 0.85 * q));
+      tintaPinta(c1, P, Math.max(0, head - 0.75), head, q => (sol ? 1.05 : 0.85) * (0.15 + 0.85 * q));
       tintaPinta(c2, (s, v) => P(s, v, 0.82), Math.max(0, head - 0.6), head * 0.98, q => (sol ? 0.6 : 0.35) * Math.sin(q * Math.PI));
       c1.mat.uniforms.uAlpha.value = c2.mat.uniforms.uAlpha.value = 1 - fade;
-      if (halo){ const s = Math.min(1, this.t / 0.35); tintaPinta(halo, (q, v) => HP(q, v).lerp(O, 0), 0, s, () => 0.55); halo.mat.uniforms.uAlpha.value = 1 - fade; }
+      if (halo){ const crece = Math.min(1, this.t / 0.35), cae = Math.max(0, Math.min(1, (this.t - 0.35) / 0.15));   // el sol crece sobre la cabeza y cae sobre el sitio
+        halo.position.set(O.x, O.y + lerp(3.6, 0.4, cae), O.z); halo.scale.setScalar(lerp(0.2, 3.2, smooth(crece)) * (1 - cae * 0.55)); solMat.opacity = cae >= 1 ? Math.max(0, 1 - fade * 3) : 1; solMat.rotation = this.t * 1.5;
+        if (cae >= 1 && !this.boom){ this.boom = true; ringFx(O.x, O.z, 0xff8a2a, 0.6, r + 1.2, 0.5); ringFx(O.x, O.z, 0xffd060, 0.4, r * 0.7, 0.35); play('boom'); shake = Math.max(shake, 0.7); } }
       P(head, _fV); for (let i = 0; i < 2; i++) spawnFx(_fV.x, _fV.y, _fV.z, (rnd() - 0.5) * 2, 1 + rnd() * 2, (rnd() - 0.5) * 2, rnd() < 0.5 ? 0xffd060 : 0xff5a14, 0.09, 0.5, -1, 0);
       for (const e of enemies){ if (ya.has(e) || !e.alive || e.spawnT > 0) continue; const dx = e.g.position.x - O.x, dz = e.g.position.z - O.z, d = Math.hypot(dx, dz);
         if (d - e.r < r + 0.6 && d - e.r < r * head + 0.8) foilGolpea(e, dmg, dx / Math.max(d, 0.01), dz / Math.max(d, 0.01), sol ? 7 : 4, 'fire', sol ? 2 : 1.2, ya); }
-      return true; } });
+      return true; },
+    fin(){ if (halo) scene.remove(halo); } });
   if (sol) for (let i = 0; i < 40; i++){ const a = rnd() * TAU; spawnFx(O.x, 1, O.z, Math.cos(a) * 7, 2 + rnd() * 4, Math.sin(a) * 7, rnd() < 0.5 ? 0xffd060 : 0xff5a14, 0.12, 0.9, 4, 0); }
 }
 
@@ -339,10 +445,13 @@ hitEnemy = function(e, val, crit, nx, nz, knock, meterGain, melee, o){
   return _hitEnemyFoil(e, val, crit, nx, nz, knock, meterGain, melee, o);
 };
 function foilIai(dt, playing){
+  if (FOIL.bolaS) FOIL.bolaS.visible = false;
   if (!lvl('foilChidori') || !playing) return;
   const quieto = inputMag < 0.12 && state === 'normal' && grounded; FOIL.quieto = quieto ? FOIL.quieto + dt : 0;
   if (!FOIL.iai && FOIL.quieto > 0.8){ FOIL.iai = true; play('chidori'); foilGrito('Cargando…', '#9fe4ff'); }
   if (FOIL.iai && !quieto && state !== 'attack') FOIL.iai = false;
+  if (FOIL.iai){ if (!FOIL.bolaS){ FOIL.bolaS = new THREE.Sprite(chidoriMat); FOIL.bolaS.renderOrder = 7; scene.add(FOIL.bolaS); }   // la bola de chispas en la mano
+    FOIL.bolaS.visible = true; manoDe(FOIL.bolaS.position); FOIL.bolaS.scale.setScalar(0.75 + Math.sin(time * 55) * 0.18); chidoriMat.rotation = time * 9; }
   if (FOIL.iai && rnd() < dt * 18){ const a = rnd() * TAU; spawnFx(hero.position.x + Math.cos(a) * 0.5, 0.2 + rnd() * 1.6, hero.position.z + Math.sin(a) * 0.5, 0, 0.6, 0, rnd() < 0.5 ? 0x6ac8ff : 0xffffff, 0.05, 0.3, 0, 0); }
 }
 const _v3UpdateFoil = v3Update;

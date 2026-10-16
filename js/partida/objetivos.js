@@ -5,8 +5,6 @@
      · Paquete: vienen ladrones a por él; si uno lo saca del mapa, se pierde.
      · Puestos: tres puestos corruptos sueltan enemigos hasta que los rompes.
      · Botín: un capitán lleva el botín y huye si no lo tumbas a tiempo.
-     · Sello: purifica la zona quedándote dentro; hasta entonces llegan refuerzos
-       y la oleada no se cierra.
    En la 3.ª oleada, desde el capítulo 2, se presenta un capitán (js/enemigos/capitanes.js).
    En los mapas grandes (js/mundo/mapas-grandes.js) todo se coloca alrededor del jugador
    y el paquete tiene su propio perímetro dorado: el ladrón que lo cruza, se lo lleva.
@@ -15,10 +13,9 @@ const OBJ = { cur: null, bolsa: [], n: 0, last: null, bonus: 0, bonusMax: 0, cap
 const OBJ_INFO = {
   paquete: { ic: '📦', tit: 'Protege el paquete', fallo: 'Paquete perdido: sin propina' },
   puestos: { ic: '🏯', tit: 'Destruye los puestos', fallo: '' },
-  capitan: { ic: '💰', tit: 'Caza al capitán del botín', fallo: 'El capitán escapó con el botín' },
-  sello:   { ic: '⛩️', tit: 'Purifica la zona', fallo: 'La zona se corrompió: sin premio' }
+  capitan: { ic: '💰', tit: 'Caza al capitán del botín', fallo: 'El capitán escapó con el botín' }
 };
-const OBJ_SR = 1.4, OBJ_CAP_T = 50, OBJ_SELLO_T = 70, OBJ_PUESTO_MAX = 6;   // radio y tiempo del sello · segundos antes de que huya el capitán · enemigos por puesto
+const OBJ_CAP_T = 50, OBJ_PUESTO_MAX = 6;   // segundos antes de que huya el capitán · enemigos por puesto
 const OBJ_PK_R = 8.5;   // radio del perímetro del paquete en los mapas grandes
 const objPerimGeo = new THREE.RingGeometry(0.975, 1, 72); objPerimGeo.rotateX(-Math.PI / 2);
 const objPaqMat = makeMat(0xffffff, { map: texAsset('cinematica/paquete') }), objCintaMat = makeMat(0xe8c040), objMarcaMat = makeMat(0x7dff8a, { emissive: 1 });
@@ -29,7 +26,7 @@ function objPuede(n){ return n > 1 && n < FINAL_WAVE && n % 5 !== 0 && !special 
 function objSiguiente(n){   // el primero siempre es el paquete; luego, una bolsa barajada sin repetir seguido
   if (!OBJ.n++) return OBJ.last = 'paquete';
   for (let k = 0; k < 8; k++){
-    if (!OBJ.bolsa.length){ OBJ.bolsa = ['paquete', 'puestos', 'capitan', 'sello']; for (let i = 3; i > 0; i--){ const j = rnd() * (i + 1) | 0; [OBJ.bolsa[i], OBJ.bolsa[j]] = [OBJ.bolsa[j], OBJ.bolsa[i]]; } }
+    if (!OBJ.bolsa.length){ OBJ.bolsa = ['paquete', 'puestos', 'capitan']; for (let i = 2; i > 0; i--){ const j = rnd() * (i + 1) | 0; [OBJ.bolsa[i], OBJ.bolsa[j]] = [OBJ.bolsa[j], OBJ.bolsa[i]]; } }
     const t = OBJ.bolsa.shift();
     if (t === OBJ.last || (t === 'capitan' && n < 7)){ OBJ.bolsa.push(t); continue; }   // el capitán del botín, desde el capítulo 2
     return OBJ.last = t;
@@ -208,58 +205,8 @@ const OBJ_DEF = {
     linea: o => !o.e ? 'Se acerca un capitán con el botín…' : o.ok === true ? 'Botín conseguido' : o.ok === false ? 'Se escapó con el botín'
       : o.e.cap.flee ? (MP.on ? '¡Huye! Alcánzalo antes de que se escape' : '¡Huye! Alcánzalo antes del borde') : `Túmbalo antes de ${Math.max(0, Math.ceil(o.time))} s`,
     premio(o){ if (!o.ok) return null; OBJ.bonus = OBJ.bonusMax = 1; castleBonus += 10; return 'Botín del capitán · carta extra y +10 ✦'; }
-  },
-  sello: {
-    empieza(o){
-      const v = objSitio(2.0, 3.2, 2.2, [7, 11, OBJ_SR + 0.5]), g = new THREE.Group(); g.position.copy(v); scene.add(g); o.objs.push(g);
-      o.x = v.x; o.z = v.z; o.p = 0; o.rfT = 6; o.ok = false; o.lim = OBJ_SELLO_T; o.roto = false;
-      o.aro = mesh(capRingGeo, makeMat(0xb04aff, { emissive: 1 }), 0, 0.05, 0, g); o.aro.scale.setScalar(OBJ_SR);
-      o.disco = mesh(circleGeo, makeMat(0xb04aff, { emissive: 1, opacity: 0.16 }), 0, 0.03, 0, g); o.disco.scale.setScalar(OBJ_SR);
-      const pg = new THREE.CylinderGeometry(1, 1, 1, 16, 1, true); pg.translate(0, 0.5, 0);
-      o.pilar = mesh(pg, makeMat(0xffe08a, { emissive: 1, opacity: 0.22, side: THREE.DoubleSide }), 0, 0, 0, g); o.pilar.scale.set(0.55, 0.05, 0.55);
-      mesh(new THREE.IcosahedronGeometry(0.32, 0), makeMat(0x5a5466), 0, 0.22, 0, g).scale.y = 0.75;   // la piedra del sello, con su shimenawa
-      mesh(new THREE.TorusGeometry(0.3, 0.04, 4, 12), makeMat(0xe8dcc0), 0, 0.3, 0, g).rotation.x = Math.PI / 2;
-      for (const s of [-1, 1]) mesh(B(0.07, 0.2, 0.01), makeMat(0xffffff), 0.2 * s, 0.18, 0.2, g);
-      clearT = 0;   // con clearT a 0 la oleada no se da por superada hasta purificar la zona
-      later(1.2, () => barkOnce('obj_sello', 'Esa zona está corrupta. Quédate dentro del círculo para purificarla; si hay enemigos dentro, no avanza. Hasta entonces seguirán llegando.'));
-    },
-    tick(o, edt){
-      const dentro = Math.hypot(hero.position.x - o.x, hero.position.z - o.z) < OBJ_SR && hero.position.y < 1.5,
-        disputa = enemies.some(e => e.alive && e.spawnT <= 0 && Math.hypot(e.g.position.x - o.x, e.g.position.z - o.z) < OBJ_SR + e.r * 0.5);
-      o.dentro = dentro; o.disputa = disputa;
-      if (!o.ok && !o.roto){
-        o.lim -= edt;
-        if (o.lim <= 0){ o.roto = true; clearT = -1; queue.length = 0; play('objFail'); banner('¡La zona se ha corrompido!<small>Ya no se puede purificar · acaba con los que quedan</small>', 1.8); return; }
-        if (o.lim <= 15) barkOnce('obj_sellofin', '¡La zona se va a corromper del todo! Métete en el círculo y despéjalo, ¡ya!');
-        if (clearT < 0) clearT = 0;
-        if (dentro && !disputa && !player.dead) o.p = Math.min(1, o.p + edt / 9); else if (!dentro) o.p = Math.max(0, o.p - edt * 0.02);
-        o.rfT -= edt;
-        if (!queue.length && o.rfT <= 0 && enemies.filter(e => e.alive).length < 3){
-          const k = Math.min(5, 2 + Math.floor(wave / 8)); for (let i = 0; i < k; i++) queue.push(objMinion());
-          waveTotal += k; spawnTimer = Math.min(spawnTimer, 0.5); o.rfT = 5; play('glitch');
-          banner('¡Refuerzos!<small>Purifica la zona para que dejen de llegar</small>', 1.1); }
-        if (o.p >= 1) objPurifica(o);
-      }
-      const col = o.ok ? objOro : o.roto ? objRojo : disputa && Math.sin(time * 14) > 0 ? objRojo : _objC.copy(objMorado).lerp(objOro, o.p);
-      o.aro.material.uniforms.uColor.value.copy(col); o.disco.material.uniforms.uColor.value.copy(col);
-      o.disco.material.uniforms.uOpacity.value = (o.ok ? 0.1 : 0.12 + (dentro ? 0.1 : 0)) + 0.05 * Math.sin(time * 4);
-      o.pilar.scale.y = lerp(o.pilar.scale.y, o.ok || o.roto ? 0.01 : 0.05 + o.p * 4.5, 1 - Math.exp(-edt * 6));
-      if (!o.ok && !o.roto && dentro && !disputa && rnd() < edt * 14) spawnFx(o.x + (rnd() - 0.5) * 2, 0.1, o.z + (rnd() - 0.5) * 2, 0, 2.5, 0, 0xffe08a, 0.07, 0.8, -1, 0);
-    },
-    alerta: o => !o.ok && !o.roto && (o.disputa || o.lim <= 15),
-    prog: o => o.p,
-    linea: o => o.ok ? 'Zona purificada' : o.roto ? 'La zona se ha corrompido' : `${Math.floor(o.p * 100)} % · quedan ${Math.max(0, Math.ceil(o.lim))} s`
-      + (o.disputa ? ' · ¡hay enemigos dentro!' : o.dentro ? '' : ' · entra en el círculo'),
-    premio: o => o.ok ? 'Zona purificada · ÍMP al máximo y +10 ✦' : null
   }
 };
-function objPurifica(o){   // la luz del sello: corta los refuerzos, castiga a los que quedan y cierra la oleada al acabar con ellos
-  o.ok = true; clearT = -1; queue.length = 0; player.meter = 100; castleBonus += 10;
-  for (const e of enemies) if (e.alive && !e.cap && !e.isBoss && e.spawnT <= 0) hitEnemy(e, Math.max(1, Math.round(e.maxHp * 0.3)), false, 0, 0, 0, 0, false, { src: 'aoe' });
-  shake = Math.max(shake, 0.4); flash('#fff3c0', 0.45); ringFx(o.x, o.z, 0xffd23a, 0.5, 9, 0.7); lightFlash(o.x, 2, o.z, 0xffe08a, 3, 12); play('objOk'); play('specialBoom');
-  for (let i = 0; i < 30; i++){ const a = rnd() * TAU; spawnFx(o.x, 0.3, o.z, Math.cos(a) * 5, 2 + rnd() * 4, Math.sin(a) * 5, 0xffe08a, 0.1, 0.9, 6, 0); }
-  banner('¡Zona purificada!<small>Dejan de llegar refuerzos · ÍMP al máximo</small>', 1.8);
-}
 function objCofre(e){   // el botín flota sobre la cabeza del capitán
   const o = OBJ.cur, g = new THREE.Group(), s = 1 / e.scale, wood = makeMat(0x7a4a22), gold = makeMat(0xffd23a, { emissive: 0.4 });
   mesh(B(0.5, 0.3, 0.34), wood, 0, 0, 0, g); mesh(B(0.52, 0.12, 0.36), wood, 0, 0.2, 0, g);

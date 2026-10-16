@@ -1,0 +1,9 @@
+/* ---------- Escudo de jefe: barra fina bajo la vida ---------- */
+#bossEsc{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:10px;line-height:1;letter-spacing:.06em;text-transform:uppercase;color:#bff6ff;text-shadow:0 1px 0 #000}
+#bossEsc[hidden]{display:none}
+#bossEsc .et{white-space:nowrap}
+#bossEsc .eb{flex:1;height:6px;background:rgba(7,10,30,.75);border:1px solid rgba(159,244,255,.65);overflow:hidden}
+#bossEsc .eb i{display:block;height:100%;width:100%;background:repeating-linear-gradient(90deg,#9ff4ff 0 6px,#4ac8ff 6px 8px);transition:width .12s}
+#bossEsc[data-est=roto] .et{color:#ffd970;animation:escParpadeo .4s steps(2) infinite}
+#bossEsc[data-est=recarga] .eb i{background:repeating-linear-gradient(90deg,#ffffff 0 6px,#9ff4ff 6px 8px)}
+@keyframes escParpadeo{50%{opacity:.35}}
