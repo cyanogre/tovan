@@ -7,8 +7,8 @@ const STK10 = { spin: [3, 'el giro pega +50 %'], perfect: [3, 'recarga 1,5 s ant
   super: [3, 'te transformas con 12 de combo menos y +15 % de daño'], stonks: [3, 'más % por baja y +30 % de tope'], truck: [4, 'el camión pasa más a menudo'], note: [3, 'apuntas 4 s antes; a los jefes, +5 %'],
   fine: [3, 'se activa antes y +25 % de daño'], chain: [3, '+14 % de probabilidad de rebote'], boom: [3, '+10 % de probabilidad de explosión'], poison: [3, 'el veneno hace +60 % de daño'],
   venomBlade: [3, '+1 dosis de veneno por golpe'], plague: [3, 'contagia más lejos y más dosis'], mirror: [3, 'más proyectiles en abanico'], echo: [3, '+1 eco más'], returns: [4, '+22 de daño al devolver'],
-  tracking: [3, '+20 % de daño al marcado'], deliveryGod: [3, 'más furgonetas y +30 % de daño'], magnet: [3, 'los orbes curan +3 PV'], cafe: [5, '+10 % de velocidad de ataque'], meterKill: [4, 'más ÍMP por baja'],
-  springs: [3, '+1 salto en el aire'], lucky: [4, '+6 % de crítico y más ÍMP'], siesta: [4, '+0,8 % de PV por segundo'], berserk: [3, '+25 % de velocidad extra'], thorns: [4, 'devuelves aún más daño'],
+  tracking: [3, '+20 % de daño al marcado'], deliveryGod: [3, 'más furgonetas y +30 % de daño'], magnet: [3, 'los orbes curan +3 PV'], cafe: [5, '+15 % de velocidad de ataque'], meterKill: [4, 'más ÍMP por baja'],
+  springs: [3, '+1 salto en el aire'], lucky: [4, '+6 % de crítico y más ÍMP'], siesta: [4, '+1 % de PV por segundo'], berserk: [3, '+25 % de velocidad extra'], thorns: [4, 'devuelves aún más daño'],
   frostArmor: [3, 'congela más y recarga antes'], overcharge: [4, 'rayos más largos y fuertes'], dashTrail: [4, 'el rastro pega más'], pogo: [4, 'el picado pega más'], bigSpecial: [4, '+40 % de daño y +30 % de alcance'],
   comboShield: [3, 'pide menos combo, para más y recarga antes'], bananas: [4, 'sueltas pieles más a menudo'], lumen: [5, 'Lumen dispara más rápido (y se queja más)'], domino: [4, 'los despedidos pegan más'],
   midas: [3, '+25 % de fragmentos y más billetes'], pinata: [3, '+1 caramelo por crítico'], secondWind: [3, '+6 % de cura y +1 s intocable'], blizzard: [3, 'más a menudo, más larga y más daño'], meteor: [3, '+5 meteoritos'],
@@ -16,10 +16,10 @@ const STK10 = { spin: [3, 'el giro pega +50 %'], perfect: [3, 'recarga 1,5 s ant
   avatar: [3, 'estados un 50 % más fuertes'], capture: [3, 'lanzas la bola más a menudo'], culito: [3, 'recarga 1 s antes'], kamen: [4, 'disparas más a menudo'], cards: [3, 'cartas más a menudo'],
   toya: [3, '+8 % de probabilidad y +50 % de daño'], strawberry: [3, '+15 % de daño'], bigdog: [3, 'el perro sale más a menudo'], frogs: [4, '+1 rana y llegan antes'], gunpla: [4, '+1 robot'], gomu: [3, '+15 % de alcance'],
   bankai: [3, '+3 s y +25 % de daño'], atfield: [3, 'recarga 2,5 s antes'], waterBreath: [3, 'la ola sale un golpe antes'], tiara: [4, 'tiaras más a menudo'], soot: [4, 'más hollín y más daño'], pocket: [3, 'el guante pega +20 %'],
-  jan: [3, 'cargas el puño con 3 golpes menos'], diamond: [3, 'más radio y más congelación'], alchemy: [3, 'pinchos más largos'], titan: [3, 'ruedas aún más lejos'], parcel: [5, 'paquetes más a menudo y +1 en el suelo'],
+  jan: [3, 'cargas el puño con 3 golpes menos'], diamond: [3, 'más radio y más congelación'], alchemy: [3, 'pinchos más largos'], titan: [3, 'recarga 1 s antes y corta un 25 % más'], parcel: [5, 'paquetes más a menudo y +1 en el suelo'],
   orbit: [3, '+2 orbitales'], giant: [3, 'todo un 30 % más grande'], life: [5, '+3,5 PV por golpe'], fireEdge: [3, 'quema más fuerte'], frost: [3, 'enfría más'], storm: [3, 'rayos más largos'],
   slam: [3, 'remate más grande'], fire: [3, 'rastro más fuerte'], quake: [3, 'aterrizaje más fuerte'], orb: [3, '+1 cristal'], express: [3, 'más velocidad y daño tras rodar'],
-  dmg: [5, '+20 % de daño'], crit: [4, '+10 % de crítico'], hp: [5, '+25 PV'], speed: [3, '+15 % de velocidad'], armor: [3, '−12 % de daño recibido'], meter: [3, 'barra más rápida'] };
+  dmg: [5, '+20 % de daño'], crit: [4, '+10 % de crítico'], hp: [5, '+25 PV'], speed: [3, '+25 % de velocidad (con tres, el doble)'], armor: [3, '−18 % de daño recibido'], meter: [3, 'barra más rápida'] };
 for (const [id, [mx, txt]] of Object.entries(STK10)){ const u = UPGRADES.find(x => x.id === id); if (u){ u.max = Math.max(u.max, mx); u.stk = txt; } }
 const _cosDmgMul10 = cosDmgMul;
 cosDmgMul = function(e, src){

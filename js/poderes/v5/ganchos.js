@@ -14,7 +14,7 @@ const _cosRange5 = cosRange;
 cosRange = function(mv){ let r = _cosRange5(mv); if (mv && mv.special && lvl('bigSpecial')) r *= 1 + 0.3 * lvl('bigSpecial'); return r; };
 const _atkSpd5 = atkSpd;
 atkSpd = function(){
-  let s = _atkSpd5() * (1 + 0.1 * lvl('cafe')) * (1 + 0.01 * (P5.minor.mAtk || 0));
+  let s = _atkSpd5() * (1 + 0.15 * lvl('cafe')) * (1 + 0.01 * (P5.minor.mAtk || 0));
   if (lvl('berserk')) s *= 1 + (0.45 + 0.25 * S10('berserk')) * clamp((0.75 - player.hp / player.maxHp) / 0.45, 0, 1);
   return s;
 };

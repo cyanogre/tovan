@@ -76,8 +76,8 @@ function p5Update(dt, pdt, playing){
   // modo fantasma
   if (P5.ghostT > 0){ P5.ghostT -= pdt; if (!invActive) hero.visible = P5.ghostT <= 0 || Math.sin(time * 32) > -0.2; if (P5.ghostT <= 0 && !invActive) hero.visible = true; }
   // siesta
-  if (lvl('siesta') && live && time - P5.lastAct > 2 && state === 'normal' && player.hp < player.maxHp){
-    P5.siestaAcc += player.maxHp * (0.01 + 0.008 * S10('siesta')) * pdt; if (P5.siestaAcc >= 1){ const n = Math.floor(P5.siestaAcc); P5.siestaAcc -= n; heal(n, true); }
+  if (lvl('siesta') && live && time - P5.lastAct > 1.5 && state === 'normal' && player.hp < player.maxHp){
+    P5.siestaAcc += player.maxHp * (0.02 + 0.01 * S10('siesta')) * pdt; if (P5.siestaAcc >= 1){ const n = Math.floor(P5.siestaAcc); P5.siestaAcc -= n; heal(n, true); }
     if (rnd() < pdt * 1.5){ tA.set(hx + 0.3, hero.position.y + 2.3, hz); spawnNumber(tA, 'z', 'react', '#c8d8ff'); } }
   if (invActive || player.dead) return;
   // paquetes

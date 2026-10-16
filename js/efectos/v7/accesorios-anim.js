@@ -105,7 +105,7 @@ function e7Acc(dt, live){
     if (g){ const a = T * 4; g.position.set(Math.cos(a) * 0.95, 1.4 + Math.sin(T * 7) * 0.15, Math.sin(a) * 0.95); g.lookAt(camera.position); g.scale.setScalar(1.3 * popK7(g, dt));
       if (rnd() < 0.6){ g.getWorldPosition(t7a); pa(t7a.x, t7a.y - 0.2, t7a.z, 0, -0.3, 0, 0xc8d8ff, 0.14, 0.5, 0, 0, 0.2, SH7.dot, 0.7); } } }
   // Siesta: pompa de moco
-  { const sleeping = live && lvl('siesta') && time - P5.lastAct > 2 && state === 'normal' && player.hp < player.maxHp && !player.dead;
+  { const sleeping = live && lvl('siesta') && time - P5.lastAct > 1.5 && state === 'normal' && player.hp < player.maxHp && !player.dead;
     const g = acc7('bubble', sleeping, P.neck, q => mesh(new THREE.IcosahedronGeometry(0.06, 1), MA7.bubble, 0.03, 0.21, 0.25, q));
     if (g){ g.children[0].scale.setScalar(0.6 + 1.1 * (0.5 + 0.5 * Math.sin(T * 2.2))); g.userData.k = 1;
       if (rnd() < dt * 5){ const a = rnd() * TAU; pa(hero.position.x + Math.cos(a) * 0.5, hero.position.y + 0.3 + rnd(), hero.position.z + Math.sin(a) * 0.5, 0, 0.8, 0, 0x7dff8a, 0.13, 0.7, 0, 0, 0.5, SH7.plus); } } }

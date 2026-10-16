@@ -43,8 +43,8 @@ function tick13(dt, pdt){
   if (P13.buttT > 0) P13.buttT -= pdt;
   // regeneración
   if (!player.dead){
-    if (lvl('tiritas13')){ P13.regT += pdt; const per = [4, 3.2, 2.5][Math.min(2, lvl('tiritas13') - 1)] / (syn13('botiquin') ? 2 : 1);
-      if (P13.regT >= per){ P13.regT = 0; heal(1, true); if (syn13('botiquin')) discover('s13_botiquin', 'Botiquín', SYNM13.botiquin[4]); } }
+    if (lvl('tiritas13')){ P13.regT += pdt; const per = [3, 2.2, 1.6][Math.min(2, lvl('tiritas13') - 1)] / (syn13('botiquin') ? 2 : 1);
+      if (P13.regT >= per){ P13.regT = 0; heal(2, player.hp >= player.maxHp - 0.5); if (syn13('botiquin')) discover('s13_botiquin', 'Botiquín', SYNM13.botiquin[4]); } }
     if (setOn('coraza') && time - P13.lastHurt > 3){ P13.setRegT += pdt; if (P13.setRegT >= 1){ P13.setRegT = 0; heal(1, true); } }
   }
   // impulsos aéreos: se recargan al tocar el suelo

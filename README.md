@@ -235,13 +235,31 @@ La barra de jefe enseña los sellos que quedan y la perla. Si mueres arriba, rei
 ## Dificultad
 
 En `js/ajustes/dificultad.js` y `css/dificultad.css`. Cuesta sobre todo al principio: lo que la compensa son las mejoras del santuario.
-- **Enemigos más duros:** pegan un 30 % más y piensan un 10 % más rápido. Los jefes van un 22 % más rápido: amagos más cortos y menos tiempo para esquivar. No hay más enemigos por oleada.
+- **Enemigos más duros:** pegan un 30 % más y piensan un 10 % más rápido. Los jefes van un 22 % más rápido (amagos más cortos y menos tiempo para esquivar) y tienen un 60 % más de vida (`DIF.vidaJefe`). No hay más enemigos por oleada.
 - **Escudo de jefe** (como en *The Binding of Isaac*):
   - Cada jefe sale con un escudo azul (una burbuja hexagonal, salvo Ryūjin, Gashadokuro y el jefe final, que solo echan chispas) que se come el 75 % del daño.
   - Al romperlo, el jefe se queda aturdido un momento y durante 5 s le dueles un 35 % más.
   - A los 6 s se recarga. La barra va bajo la vida del jefe.
 - **Ladrones de la horda:** más vida (80 en vez de 30), para que al principio cueste salvar el paquete.
-- **Brazos de goma:** con tantas cartas nuevas casi no salía; ahora pesa como una común y suele salir en los dos primeros repartos.
+- **Brazos de goma:** con tantas cartas nuevas casi no salía; ahora pesa como una común y suele salir en los dos primeros repartos. La «¡Pistola de goma!» del remate la lanza el propio brazo izquierdo de Tovan, que se estira hasta el enemigo (antes salía un tercer brazo).
+- **Poderes que se notan:** los que no son de daño subieron para que se sientan:
+  - Pies ligeros: +50 % de velocidad y +25 % cada copia; con tres, el doble de rápido.
+  - Piel de hierro: −18 % de daño por copia.
+  - Envío exprés y Parkour: +15 % de velocidad.
+  - Café: +15 % de velocidad de ataque.
+  - Siesta: 2 % de vida por segundo a los 1,5 s.
+  - Tiritas: 2 PV cada 3 s, con el número a la vista.
+  - Adrenalina: −40 % de daño y +40 % de velocidad.
+  - Chaleco: −12 % de daño y aturde 1 s.
+  - Turbo: +50 %.
+  - Vértigo: +20 % de salto.
+  - Sed de sangre: 2 PV por baja.
+- **Corte de nuca** (`js/poderes/corte-nuca.js`): ya no es una voltereta más larga. Es el equipo de maniobras de *Ataque a los Titanes*:
+  - Al rodar con un enemigo a tiro (hacia donde apuntas, si apuntas), le clavas los dos ganchos y sales propulsado girando por el aire con dos hojas.
+  - Al pasarle por la nuca le haces un tajo en X, con sangre, vapor y parón.
+  - Recarga en 5 s; mientras tanto, y si no hay nadie a tiro, ruedas normal.
+- **Invasión rana:** las ranitas son ahora del pelotón Keroro: gorro amarillo con orejeras y estrella roja, cara blanca, estrella en la barriga y «¡Gero gero!».
+- **Cartas:** en el tema Relámpago el rótulo de rareza («✦ Especial de rama», el nombre de un arma…) ya no se corta: si no cabe, la letra se encoge (`rarAjusta` en `temas.js`).
 
 ## Objetivos de oleada y capitanes
 

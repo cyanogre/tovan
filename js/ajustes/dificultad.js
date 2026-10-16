@@ -3,7 +3,7 @@
    DIFICULTAD (ajustes de 2026-10): el juego se había quedado blando
    · Los enemigos pegan un 30 % más y piensan un 10 % más rápido; los
      jefes, un 22 % más rápido (amagos más cortos, menos tiempo para
-     esquivar). No hay más enemigos por oleada.
+     esquivar) y con un 60 % más de vida. No hay más enemigos por oleada.
    · ESCUDO DE JEFE (como los de The Binding of Isaac): cada jefe sale con
      un escudo azul que se come casi todo el daño (pasa un 25 %). Al
      romperlo, el jefe se queda aturdido un momento y durante 5 s le dueles
@@ -13,13 +13,17 @@
    Las mejoras del santuario (vida, fuerza…) son las que lo compensan:
    cuesta sobre todo al principio.
    ====================================================================== */
-const DIF = { danoEnemigo: 1.3, velNormal: 1.1, velJefe: 1.22, escudo: 0.13, escPasa: 0.25, vulnT: 5, vulnMul: 1.35, esperaT: 6, recargaT: 1.6, aturde: 1.1, repartos: 0 };
+const DIF = { vidaJefe: 1.6, danoEnemigo: 1.3, velNormal: 1.1, velJefe: 1.22, escudo: 0.13, escPasa: 0.25, vulnT: 5, vulnMul: 1.35, esperaT: 6, recargaT: 1.6, aturde: 1.1, repartos: 0 };
 const ESC_TIPOS = new Set(['boss', 'dragon', 'skeleton', 'star', 'teapot', 'error', 'sixeyes', 'finalcat']);
 const ESC_SIN_BURBUJA = new Set(['dragon', 'skeleton', 'finalcat']);   // los alargados o enormes: solo chispas y barra
 
 /* ---------- Enemigos: más daño y más rápidos ---------- */
 const _bossFrenzyDif = bossFrenzy;
 bossFrenzy = function(e, dt){ return _bossFrenzyDif(e, dt) * (e.colEscama ? 1 : e.isBoss ? DIF.velJefe : DIF.velNormal); };
+
+// Jefes con más vida (todos salen por spawnEnemy; los sellos del colosal salen de la vida del dragón, que ya va subida)
+const _spawnEnemyDif = spawnEnemy;
+spawnEnemy = function(type, at){ const e = _spawnEnemyDif(type, at); if (e && e.isBoss && !e.colEscama) e.hp = e.maxHp = Math.round(e.maxHp * DIF.vidaJefe); return e; };
 
 /* ---------- Escudo de jefe ---------- */
 const escBurbujaGeo = new THREE.IcosahedronGeometry(1, 1);

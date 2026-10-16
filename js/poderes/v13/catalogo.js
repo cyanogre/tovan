@@ -45,16 +45,16 @@ const NEW13 = [
     desc: 'Al aterrizar de un picado clavas una rodilla en el suelo: los de alrededor quedan aturdidos 1 s y tú, intocable un instante. Malo para las rodillas; buenísimo para la foto.' },
   { id: 'rebufo13', r: 'rara', tags: ['acrobacia'], ic: '💨', name: 'Rebufo', max: 3, stk: '+50 % de daño',
     desc: 'El impulso aéreo (rodar en el aire) corta a todo lo que atraviesas y termina con una onda.' },
-  { id: 'parkour13', r: 'comun', tags: ['acrobacia'], ic: '🧗', name: 'Parkour', max: 2, stk: 'otro impulso aéreo y +8 % de velocidad',
-    desc: '+1 impulso aéreo por salto y +8 % de velocidad. Las escaleras son una sugerencia.' },
+  { id: 'parkour13', r: 'comun', tags: ['acrobacia'], ic: '🧗', name: 'Parkour', max: 2, stk: 'otro impulso aéreo y +15 % de velocidad',
+    desc: '+1 impulso aéreo por salto y +15 % de velocidad. Las escaleras son una sugerencia.' },
   { id: 'mortal13', r: 'rara', tags: ['acrobacia', 'fortuna'], ic: '🤸', name: 'Mortal y crítico', max: 2, stk: '+1 s de críticos',
     desc: 'Durante 1,5 s después de un mortal, un triple salto, un salto largo o un impulso aéreo, todos tus golpes son críticos.' },
   { id: 'meteoro13', r: 'epica', tags: ['acrobacia', 'fuego'], ic: '☄️', name: 'Caída meteórica', max: 2, stk: 'cráter más grande y más largo',
     desc: 'Tus picados llegan un 40 % más lejos y dejan un cráter en llamas durante 3 s.' },
   { id: 'saltoElec13', r: 'rara', tags: ['acrobacia', 'rayo'], ic: '🌩️', name: 'Pararrayos', max: 3, stk: 'el rayo salta a un enemigo más',
     desc: 'Cada picado atrae un rayo al enemigo más cercano, que salta en cadena a otros dos. Tú eres el punto más alto del mapa.' },
-  { id: 'altura13', r: 'comun', tags: ['acrobacia'], ic: '🪂', name: 'Vértigo', max: 3, stk: '+12 % de altura y +20 % de picado',
-    desc: 'Saltas un 12 % más alto y tus picados pegan un 20 % más. Cuanto más alto, más duele: es física, no opinión.' },
+  { id: 'altura13', r: 'comun', tags: ['acrobacia'], ic: '🪂', name: 'Vértigo', max: 3, stk: '+20 % de altura y +20 % de picado',
+    desc: 'Saltas un 20 % más alto y tus picados pegan un 20 % más. Cuanto más alto, más duele: es física, no opinión.' },
   // Fortuna
   { id: 'monedas13', r: 'comun', tags: ['fortuna'], ic: '🪙', name: 'Calderilla', max: 3, stk: '+5 % de probabilidad',
     desc: 'Los críticos tienen un 8 % de probabilidad de soltar un cristal verde que cura.' },
@@ -72,16 +72,16 @@ const NEW13 = [
   { id: 'muralla13', r: 'rara', tags: ['coraza', 'impacto'], ic: '🧱', name: 'Muralla', max: 2, stk: 'recibes un 70 % menos',
     desc: 'Mientras cargas un golpe o lanzas tu especial recibes la mitad de daño.' },
   { id: 'tiritas13', r: 'comun', tags: ['coraza', 'sangre'], ic: '🩹', name: 'Tiritas', max: 3, stk: 'regeneras más rápido',
-    desc: 'Regeneras 1 PV cada 4 s. No arreglan nada, pero ayudan.' },
+    desc: 'Regeneras 2 PV cada 3 s (y cada vez más rápido si la repites). No arreglan nada, pero ayudan.' },
   { id: 'adrenalina13', r: 'rara', tags: ['coraza'], ic: '💉', name: 'Adrenalina', max: 1,
-    desc: 'Con menos del 35 % de vida recibes un 30 % menos de daño y te mueves un 20 % más rápido.' },
-  { id: 'chaleco13', r: 'comun', tags: ['coraza', 'reparto'], ic: '🦺', name: 'Chaleco reflectante', max: 2, stk: '+8 % de defensa',
-    desc: 'Recibes un 8 % menos de daño y, cuando te golpean, un destello aturde 0,6 s a los de alrededor. Seguridad laboral bien entendida.' },
+    desc: 'Con menos del 35 % de vida recibes un 40 % menos de daño y te mueves un 40 % más rápido.' },
+  { id: 'chaleco13', r: 'comun', tags: ['coraza', 'reparto'], ic: '🦺', name: 'Chaleco reflectante', max: 2, stk: '+12 % de defensa',
+    desc: 'Recibes un 12 % menos de daño y, cuando te golpean, un destello aturde 1 s a los de alrededor. Seguridad laboral bien entendida.' },
   { id: 'escudoCristal13', r: 'rara', tags: ['cristal', 'coraza'], ic: '🔰', name: 'Escudo de cristal', max: 1,
     desc: 'Tus cristales guardianes y orbitales destruyen los proyectiles enemigos que tocan.' },
   // Ímpetu
   { id: 'turbo13', r: 'rara', tags: ['impetu'], ic: '🏎️', name: 'Turbo', max: 2, stk: '+2 s de turbo',
-    desc: 'Al usar tu especial, durante 5 s atacas y te mueves un 30 % más rápido.' },
+    desc: 'Al usar tu especial, durante 5 s atacas y te mueves un 50 % más rápido.' },
   { id: 'reembolso13', r: 'comun', tags: ['impetu'], ic: '🧾', name: 'Reembolso', max: 2, stk: '+4 % por enemigo',
     desc: 'Tu especial te devuelve un 6 % de barra por cada enemigo que derrota (hasta un 40 %). Guarda el tique.' },
   { id: 'racha13', r: 'comun', tags: ['impetu', 'otaku'], ic: '📈', name: 'Racha', max: 3, stk: '+3 de barra',
@@ -95,8 +95,8 @@ const NEW13 = [
     desc: 'Cada 4 s cae un bloque de hielo sobre un enemigo al azar: daño y escarcha. Microclima personal.' },
   { id: 'tsundere13', r: 'rara', tags: ['otaku', 'sangre'], ic: '💢', name: 'Tsundere', max: 1,
     desc: 'El último enemigo que te ha golpeado recibe un 50 % más de daño de ti. No es que te importe. Es que lo tienes apuntado.' },
-  { id: 'sed13', r: 'comun', tags: ['sangre'], ic: '🍷', name: 'Sed de sangre', max: 3, stk: '+1 PV por derrota',
-    desc: 'Cada enemigo derrotado te cura 1 PV.' },
+  { id: 'sed13', r: 'comun', tags: ['sangre'], ic: '🍷', name: 'Sed de sangre', max: 3, stk: '+2 PV por derrota',
+    desc: 'Cada enemigo derrotado te cura 2 PV.' },
   { id: 'ruedaToxica13', r: 'comun', tags: ['veneno', 'acrobacia'], ic: '🛞', name: 'Rueda tóxica', max: 2, stk: 'veneno más fuerte',
     desc: 'Al rodar envenenas a todo lo que tocas.' },
   { id: 'toxicologia13', r: 'comun', tags: ['veneno'], ic: '🔬', name: 'Toxicología', max: 2, stk: '+15 % más',
@@ -105,7 +105,7 @@ const NEW13 = [
     desc: 'Cada 6 s, el enemigo más cercano empieza a arder sin explicación razonable.' }
 ];
 for (const u of NEW13) UPGRADES.push(Object.assign({ apply: () => {} }, u));
-UPGRADES.find(u => u.id === 'chaleco13').apply = () => { up.armor += 0.08; };
+UPGRADES.find(u => u.id === 'chaleco13').apply = () => { up.armor += 0.12; };
 try { if (!meta.v13){ meta.v13 = 1; meta.pwNew = meta.pwNew || {}; for (const u of NEW13) meta.pwNew[u.id] = 1; saveMeta(); } } catch (err) {}
 
 /* ---------- Sinergias ---------- */

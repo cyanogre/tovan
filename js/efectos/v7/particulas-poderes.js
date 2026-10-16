@@ -63,11 +63,7 @@ function e7Emit(dt){
   if (lvl('jan')){ const k = P6.janReady ? 1 : P6.janN / 12; if (rnd() < 0.15 + k * 0.85){ rightHand7(t7a); const r = 0.12 + 0.18 * k;
       pa(t7a.x + (rnd() - 0.5) * r, t7a.y + (rnd() - 0.5) * r, t7a.z + (rnd() - 0.5) * r, 0, 0.6, 0, P6.janReady ? (rnd() < 0.5 ? 0xff9a2a : 0xffe070) : 0xffc070, 0.1 + 0.12 * k, 0.3, 0, 0, 0.3, SH7.sq);
       if (P6.janReady && rnd() < 0.3) pa(t7a.x, t7a.y, t7a.z, 0, 0, 0, 0xffb040, 0.7 + 0.2 * Math.sin(T * 20), 0.1, 0, 0, 1, SH7.dot, 0.5); } }
-  // Corte de nuca: cables y gas durante la voltereta
-  if (lvl('titan') && state === 'roll' && ACC7.titan){ if (!E7.anchors){ const f = rollDir; E7.anchors = [-1, 1].map(s => [hx + Math.sin(f + 0.5 * s) * 5.5, 3.2, hz + Math.cos(f + 0.5 * s) * 5.5]); }
-    ACC7.titan.userData.noz.forEach((n, i) => { n.getWorldPosition(t7a); const A = E7.anchors[i]; wires7[i].visible = true; line7(wires7[i], t7a.x, t7a.y, t7a.z, A[0], A[1], A[2], 0.025);
-      pn(t7a.x, t7a.y, t7a.z, (rnd() - 0.5), 0.3, (rnd() - 0.5), 0xffffff, 0.16, 0.5, 0, 1, 2.6, SH7.dot, 0.65); }); }
-  else if (E7.anchors){ E7.anchors = null; wires7.forEach(w => { w.visible = false; }); }
+  // (Corte de nuca: los cables y el gas los pinta js/poderes/corte-nuca.js)
   // Respiro: viento verde que te envuelve
   if (E7.swT > 0) for (let k = 0; k < 3; k++){ const a = T * 9 + k * 2.1, r = 0.9; pa(hx + Math.cos(a) * r, hy + 0.2 + ((T * 2 + k * 0.33) % 1) * 1.8, hz + Math.sin(a) * r, -Math.sin(a) * 3, 0.5, Math.cos(a) * 3, k ? 0x7affc8 : 0xffffff, 0.13, 0.4, 0, 1, 0.3, SH7.sq); }
   // Tiempo bala: los proyectiles dejan estela mientras el tiempo va lento
