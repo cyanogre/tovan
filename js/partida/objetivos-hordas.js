@@ -10,13 +10,13 @@
        invoca defensores atados a él (se ven los hilos): mientras viva
        alguno, el puesto tiene escudo. Si te acercas o le pegas, llama a
        más. Al romperlo, sus defensores caen con él.
-   Las dos retienen el final de la oleada con clearT = 0 (como el sello).
+   Las dos retienen el final de la oleada con clearT = 0 (así no se dan por superadas antes de tiempo).
    ====================================================================== */
 const HORDA_ASALTOS = [0.25, 0.35, 0.4], HORDA_MAX_VIVOS = 18;
 
 /* ---------- Paquete: la horda ---------- */
 const _mkLadronH = MAKERS.ladron;
-MAKERS.ladron = function(){ const e = _mkLadronH(); const o = OBJ.cur; if (o && o.horda){ e.hp = 30; e.speed = 3.3; } return e; };
+MAKERS.ladron = function(){ const e = _mkLadronH(); const o = OBJ.cur; if (o && o.horda){ e.hp = 80; e.speed = 3.4; } return e; };   // duros de pelar: al principio cuesta salvar el paquete
 const _pkEmpieza = OBJ_DEF.paquete.empieza;
 OBJ_DEF.paquete.empieza = function(o){
   _pkEmpieza(o);

@@ -19,7 +19,7 @@ try { const t = localStorage.getItem('tovan-ui'); if (UI_TEMAS.some(x => x[0] ==
 /* ---------- Colores del radar por tema (los demás heredan los de la clásica) ---------- */
 const UI_RADAR = {
   albaran:   { fondo: 'rgba(244,239,227,.94)', borde: '#1b1915', bordeW: 2, bajo: 'rgba(27,25,21,.28)', alto: 'rgba(27,25,21,.55)', agua: 'rgba(36,72,160,.35)', hielo: 'rgba(36,72,160,.18)',
-    pad: '#2448a0', enemigo: '#d43b2a', frente: '#d43b2a', heroe: '#1b1915', cura: '#2d8a3e', cap1: '#d43b2a', cap2: '#1b1915', paquete: '#b8860b', perim: 'rgba(184,134,11,.9)', sello: '#7a3fb0', ladron: '#c2459a', elite: '#b8860b' },
+    pad: '#2448a0', enemigo: '#d43b2a', frente: '#d43b2a', heroe: '#1b1915', cura: '#2d8a3e', cap1: '#d43b2a', cap2: '#1b1915', paquete: '#b8860b', perim: 'rgba(184,134,11,.9)', ladron: '#c2459a', elite: '#b8860b' },
   emaki:     { fondo: 'rgba(16,13,10,.8)', borde: 'rgba(239,230,210,.0)', bordeW: 0, bajo: 'rgba(239,230,210,.22)', alto: 'rgba(239,230,210,.4)', agua: 'rgba(110,160,220,.4)', hielo: 'rgba(200,225,245,.3)',
     pad: '#c4a066', enemigo: '#e0503b', frente: '#e0503b', heroe: '#efe6d2', cura: '#9fd38a', cap1: '#e0503b', cap2: '#c4a066', paquete: '#c4a066', perim: 'rgba(196,160,102,.85)' },
   relampago: { fondo: '#0c0c10', borde: '#ffd21f', bordeW: 4, bajo: 'rgba(255,255,255,.22)', alto: 'rgba(255,255,255,.4)', agua: 'rgba(51,225,244,.35)', hielo: 'rgba(51,225,244,.2)',

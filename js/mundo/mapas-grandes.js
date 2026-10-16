@@ -203,7 +203,7 @@ const mpRadar = document.createElement('canvas'); mpRadar.id = 'mpRadar'; mpRada
 const mpRx = mpRadar.getContext('2d');
 // Colores del radar (los cambia cada tema de la interfaz: js/interfaz/temas.js)
 const MP_RCOL_CLASICA = { fondo: 'rgba(8,10,40,.78)', borde: 'rgba(238,240,255,.85)', bordeW: 2, agua: 'rgba(70,140,220,.6)', hielo: 'rgba(190,232,255,.45)', bajo: 'rgba(150,150,190,.55)', alto: 'rgba(170,175,215,.85)',
-  pad: '#7ff5ff', sello: '#d07aff', selloOk: '#ffd23a', paquete: '#ffd23a', robo: '#ff6a3a', perim: 'rgba(255,210,58,.8)', cura: '#7dff8a', puesto: '#d04aff', cap1: '#ff8a3a', cap2: '#ffd23a',
+  pad: '#7ff5ff', paquete: '#ffd23a', robo: '#ff6a3a', perim: 'rgba(255,210,58,.8)', cura: '#7dff8a', puesto: '#d04aff', cap1: '#ff8a3a', cap2: '#ffd23a',
   enemigo: '#ff4a4a', elite: '#ffd970', ladron: '#ffb0ff', frente: '#ff4a4a', heroe: '#ffffff', heroeBorde: null };
 const MP_RCOL = Object.assign({}, MP_RCOL_CLASICA);
 function mpDibujaRadar(){
@@ -221,7 +221,6 @@ function mpDibujaRadar(){
     g.strokeStyle = P.pad; g.lineWidth = 1.5; for (const p of M.pads){ g.beginPath(); g.arc(X(p.x, p.z), Y(p.x, p.z), 3, 0, TAU); g.stroke(); } }
   if (P.bordeW){ g.strokeStyle = P.borde; g.lineWidth = P.bordeW; g.beginPath(); g.arc(C, C, R, 0, TAU); g.stroke(); }
   const o = typeof OBJ !== 'undefined' ? OBJ.cur : null;
-  if (o && o.tipo === 'sello'){ g.strokeStyle = o.ok ? P.selloOk : P.sello; g.lineWidth = 2; g.beginPath(); g.arc(X(o.x, o.z), Y(o.x, o.z), Math.max(3, OBJ_SR * k), 0, TAU); g.stroke(); }
   if (o && o.tipo === 'paquete' && !o.pk.lost){ const p = o.pk.g.position;
     if (o.pk.hx != null){ g.setLineDash([3, 3]); g.strokeStyle = P.perim; g.lineWidth = 1.5; g.beginPath(); g.arc(X(o.pk.hx, o.pk.hz), Y(o.pk.hx, o.pk.hz), OBJ_PK_R * k, 0, TAU); g.stroke(); g.setLineDash([]); }
     g.fillStyle = Math.sin(time * 10) > 0 || !o.pk.carrier ? P.paquete : P.robo; g.fillRect(X(p.x, p.z) - 3, Y(p.x, p.z) - 3, 6, 6); }
