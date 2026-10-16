@@ -96,6 +96,8 @@ Crea tus ficheros nuevos y añádelos a `index.html` en el hueco **`<!-- Tus añ
 
 Los iconos con emoji se cambian solos por pixel art si el emoji está en la hoja (`js/interfaz/iconos-pixel.js`).
 
+**Pantalla completa en móvil:** en pantallas táctiles el juego pasa a pantalla completa al primer toque (`js/interfaz/pantalla-completa.js`; se desactiva en Opciones). En iPhone, Safari no lo permite: usa Compartir → «Añadir a pantalla de inicio» (`manifest.webmanifest`) y se abrirá sin barras.
+
 **Temas de la interfaz** (Opciones → Interfaz). HUD y menús tienen cuatro aspectos; la elección se guarda en el navegador. Por defecto sale Albarán.
 
 | Tema | Idea | Fichero |
@@ -228,6 +230,7 @@ Se guardan en el `localStorage` del navegador:
 - `tovan-audio`: música y efectos activados.
 - `tovan-det13`: detalles de las cartas.
 - `tovan-ui`: tema de la interfaz.
+- `tovan-fs`: pantalla completa en móvil (Opciones → Pantalla completa).
 
 Van ligadas a la dirección desde la que se abre el juego. Si un día lo sirves desde un servidor web (`http://…`), las partidas de `file://` no se verán allí.
 

@@ -3,7 +3,7 @@
 Juego 3D roguelike por oleadas (three.js r128 por CDN, fuente Pixelify Sans de Google Fonts). HTML/CSS/JS sin compilación: se abre con doble clic en `index.html` (`file://`). El usuario no tiene Node; sí Python 3.13 (`py -3`) y Chrome/Edge. Visión general para humanos en `README.md`.
 
 ## Arquitectura (léelo antes de tocar nada)
-- **Scripts clásicos, ámbito global compartido.** 147 ficheros en `js/` cargados con `<script src>` en `index.html`, cada uno con `'use strict'`. No hay ES modules ni IIFE: cualquier `function`/`const`/`let` de nivel superior es visible desde los demás ficheros. No introducir `import`/`export` sin decidirlo con el usuario: 92 funciones se reasignan desde capas posteriores (`const _old = fn; fn = function(){ _old(); … }`) y los imports no se pueden reasignar. Además, servir por http cambiaría el origen del `localStorage` y "perdería" las partidas.
+- **Scripts clásicos, ámbito global compartido.** 148 ficheros en `js/` cargados con `<script src>` en `index.html`, cada uno con `'use strict'`. No hay ES modules ni IIFE: cualquier `function`/`const`/`let` de nivel superior es visible desde los demás ficheros. No introducir `import`/`export` sin decidirlo con el usuario: 92 funciones se reasignan desde capas posteriores (`const _old = fn; fn = function(){ _old(); … }`) y los imports no se pueden reasignar. Además, servir por http cambiaría el origen del `localStorage` y "perdería" las partidas.
 - **El orden de los `<script>` en `index.html` es el orden de las capas originales (v1…v13) y no se debe cambiar.** Cada capa amplía las anteriores envolviendo funciones o con `push`/`Object.assign` sobre registros (`UPGRADES`, `TAGS`/`TAG_KEYS`, `BIOMES`, `BIOME_EX`, `MAKERS`, `SFX`, `SONGS`, `STORY`, `ACH`, `COS`, `COS_POW`, `SHRINE`, `BOSS_FILES`). El grupo «Arranque» (`interfaz/santuario.js` … `main.js`) va siempre al final. El contenido nuevo va en ficheros nuevos, en el hueco `<!-- Tus añadidos -->` justo antes de «Arranque».
 - **Regla de carga:** dentro de un fichero, las `function` se elevan (hoisting). Entre ficheros, el código que se ejecuta al cargar solo puede usar lo declarado en ficheros anteriores. El código dentro de funciones que se llaman después (bucle, eventos) puede usar cualquier cosa. Por eso `partida/ciclo.js` (startRun, clearWorld, showOver, togglePause, toTitle, updateBest) y `nucleo/dom.js` (hud, titleScr, overScr…) se cargan pronto aunque en el original estaban al final.
 - **Las funciones más envueltas:** `v3Update` (gancho por fotograma, 14 capas), `killEnemy`, `clearWorld`, `hitEnemy`, `startRun`, `spawnEnemy`, `startMove`, `hurtPlayer`, `startWave`. Para ver quién toca qué, busca `const _<nombre>`.
@@ -45,7 +45,7 @@ Juego 3D roguelike por oleadas (three.js r128 por CDN, fuente Pixelify Sans de G
 - Secciones con `/* ---------- … ---------- */` y capas con banners `/* ===== … ===== */`.
 - Código denso, muchas sentencias por línea. Imitar ese estilo al editar.
 - Los nombres de los ficheros y carpetas van en español y sin tildes.
-- Partidas guardadas en `localStorage`: `tovan-meta`, `tovan-best`, `tovan-audio`, `tovan-det13`, `tovan-ui`.
+- Partidas guardadas en `localStorage`: `tovan-meta`, `tovan-best`, `tovan-audio`, `tovan-det13`, `tovan-ui`, `tovan-fs`.
 
 ## Verificación (cómo probar cambios sin abrir el navegador)
 Las herramientas están en `backup/herramientas-migracion/`; sus rutas son relativas a ella. Copia el proyecto a una carpeta temporal y trabaja allí:
