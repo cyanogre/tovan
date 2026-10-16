@@ -58,6 +58,7 @@ body[data-ui=albaran]{
   #waveBox .wprog i{background:repeating-linear-gradient(90deg,var(--tinta) 0 7px,transparent 7px 9px)}
   #waveBox:focus-visible{outline:0}
   @media (min-width:721px) and (min-height:521px){ #waveBox{top:0} }
+  @media (max-width:720px){ #waveBox{top:calc(96px + env(safe-area-inset-top,0px))} }
 
   /* ---------- Jefe: etiqueta del destinatario ---------- */
   #bossBox{padding:28px 14px 10px;width:min(520px,calc(100% - 24px));transform:translateX(-50%) rotate(-.6deg)}
@@ -275,7 +276,6 @@ body[data-ui=albaran]{
     .tbtn.main,.win.tbtn.main{font-size:17px;padding:8px 8px}
     .uptitle{font-size:20px !important;padding:8px 12px !important}
     #cards .card{padding-top:38px !important} .card::before{font-size:14px;padding:6px 10px} .card .key{display:none}
-    #waveBox{top:calc(96px + env(safe-area-inset-top,0px))}
     .card .cmini span{color:color-mix(in srgb,var(--c,#6f685b) 45%,#1b1915);border-color:color-mix(in srgb,var(--c,#6f685b) 60%,#1b1915);background:#fffdf7}
     .card .cic{width:auto;height:auto;border:0;background:none}
   }
