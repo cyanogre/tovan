@@ -29,17 +29,31 @@ BOSS_CARDS.ryucol = ['RYŪJIN · SEGUNDA VIDA', 'Dragón de jade · Ahora en tam
 /* ---------- Forma: radio, ondulación y altura del lomo a lo largo de z ---------- */
 const colR = z => z < -16 ? lerp(2.15, 2.8, smooth(clamp((z + 30) / 14, 0, 1))) : z <= 22 ? 2.8 + 0.3 * Math.sin((z + 16) / 38 * Math.PI) : lerp(2.7, 0.32, Math.pow(clamp((z - 22) / 18.5, 0, 1), 0.85));
 const colHW = z => Math.max(0.6, colR(z) * 0.55);   // media anchura de la pasarela
-function colC(z){   // desplazamiento lateral del espinazo: ondula como una serpiente; la cola latiguea y el cuello se gira para mirar atrás
+function colC(z){   // desplazamiento lateral del espinazo: ondula como una serpiente y la cola latiguea (el giro del cuello va en colCuello)
   let x = Math.sin(z * 0.15 - COL.tt * 0.85) * (0.6 + 0.025 * Math.max(0, z - 6));
   if (z > 22) x += Math.sin(z * 0.33 - COL.tt * 2.4) * (z - 22) * 0.13;
-  if (z < -15) x += COL.giro * COL.giroS * 10 * smooth(clamp((-15 - z) / 15, 0, 1));
   return x;
 }
 function colTop(z){   // altura de la cara de arriba (0 en la pasarela; el cuello sube hasta la cabeza y la cola cae)
   let y = 0;
-  if (z < -15) y += (6 * (1 - COL.picado) + 3 * COL.giro) * smooth(clamp((-15 - z) / 15, 0, 1));
+  if (z < -15){ const t = clamp((-15 - z) / 15, 0, 1); y += 6 * (1 - COL.picado) * smooth(t) + COL.giro * 1.5 * (Math.sin(Math.PI * t) + t * t); }   // girado: el cuello hace arco y la cabeza se alza un poco
   if (z > 22){ const k = clamp((z - 22) / 18.5, 0, 1); y += -4.5 * k * k + Math.sin(z * 0.3 - COL.tt * 1.7) * 1.6 * k; }
   return y;
+}
+// Cuello al girarse para atacar: se estira (×1,5), avanza recto y al final hace un gancho hacia un lado, así la
+// cabeza vuelve mirando a Tovan (por delante de él, donde se ve también en el móvil) en vez de darse la vuelta encima
+// de su propio cuello. Primero se dobla la punta (la cabeza manda) y luego el resto.
+const COL_CUELLO = 9, COL_ESTIRA = 0.5, COL_CURVA = 0.92 * Math.PI, COL_RECTO = 0.38;
+function colCuello(){
+  const S = COL.segs, g = smooth(Math.min(1, COL.giro)), L = 1 + COL_ESTIRA * g, p = 1.6 - 0.6 * g;
+  let X = 0, Z = 0, d0 = 0;
+  for (let i = COL_CUELLO - 1; i >= 0; i--){
+    const sg = S[i], d = -15 - sg.userData.z; sg.scale.z = L * (1 + 0.15 * g);   // (algo más largos: en el gancho no se abren huecos)
+    if (g < 0.001) continue;
+    const h = (d - d0) / 4;   // rumbo integrado a lo largo del cuello (de la base a la cabeza)
+    for (let k = 0; k < 4; k++){ const a = COL_CURVA * g * Math.pow(smooth(clamp(((d0 + (k + 0.5) * h) / 15 - COL_RECTO) / (1 - COL_RECTO), 0, 1)), p); X += Math.sin(a) * h * L; Z += Math.cos(a) * h * L; }
+    d0 = d; sg.position.x += COL.giroS * X; sg.position.z += d - Z;
+  }
 }
 const COL_AGARRE = new Set(['sacude', 'rafaga', 'violenta', 'vertical', 'tirabuzon']);   // los ataques en los que hay que agarrarse
 const colPeligro = () => !!COL.atq && COL_AGARRE.has(COL.atq.tipo);
@@ -544,12 +558,13 @@ function colTick(dt, pdt, playing){
   // cuerpo
   const S = COL.segs;
   for (const sg of S){ const z = sg.userData.z; sg.position.set(colC(z), colTop(z) - sg.userData.R * 0.62, z); }
+  colCuello();
   for (let i = 0; i < S.length; i++){ const sg = S[i];
-    if (i) sg.lookAt(S[i - 1].position); else { colV[0].set(2 * sg.position.x - S[1].position.x, 2 * sg.position.y - S[1].position.y, sg.position.z - COL_SP); sg.lookAt(colV[0]); }
+    if (i) sg.lookAt(S[i - 1].position); else { colV[0].copy(sg.position).multiplyScalar(2).sub(S[1].position); sg.lookAt(colV[0]); }
     if (sg.userData.legs) sg.userData.legs.forEach((L, j) => { L.rotation.x = Math.sin(COL.tt * 2.2 + i + j * 2.5) * 0.7; }); }
   // cabeza: al frente (y algo arriba), a Tovan cuando se gira, hacia abajo en el picado
   { const H = COL.cab, s0 = S[0].position, d = colV[1].copy(s0).sub(S[1].position).normalize();
-    H.position.copy(s0).addScaledVector(d, 1.6); H.position.y += 0.4;
+    H.position.copy(s0).addScaledVector(d, 1.6 + 1.35 * (S[0].scale.z - 1)); H.position.y += 0.4;
     const tg = colV[2].copy(H.position).addScaledVector(d, 10); tg.y += 1.5 - 7 * COL.picado;
     if (COL.giro > 0.02) tg.lerp(colV[3].set(hero.position.x, 1, hero.position.z), smooth(Math.min(1, COL.giro)));
     colMira.position.copy(H.position); colMira.lookAt(tg); H.quaternion.slerp(colMira.quaternion, 1 - Math.exp(-run * 4));

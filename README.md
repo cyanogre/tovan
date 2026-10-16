@@ -223,7 +223,7 @@ Al dejar a Ryūjin (oleada 10) a cero, no muere: brilla, toca la bocina como Cam
   - **Tirabuzón:** se pone boca abajo un rato; sin agarrarte, te caes.
   - Lo que se inclina es el mundo, así que se ve el horizonte girar o ponerse del revés.
 - **Si te caes:** caes por el cielo. Puedes moverte en el aire y darte un impulso con RODAR (una vez por caída). Debajo vuelan tres crías: si pasas junto a una, te montas. Montado, la llevas hasta el lomo, sube sola, y SALTAR te suelta y te deja caer encima. Si no pillas ninguna, te estrellas y mueres (salvo que un poder como el Fénix te devuelva la vida, que te deja en el lomo).
-- **Fuego:**
+- **Fuego:** para escupirte se da la vuelta: estira el cuello, lo curva en gancho hacia un lado y la cabeza vuelve mirando a Tovan, por delante de él (se ve también en el móvil).
   - **Lluvia de fuego:** gira el cuello y escupe meteoros con estela de llamas a círculos rojos. Al caer levantan una columna de fuego y dejan quemaduras en el lomo.
   - **Aliento de fuego:** barre una franja del lomo de lado a lado con un chorro de llamas, dejándolo ardiendo. Hay que salir de la franja roja.
   - **Púas:** salen del lomo como brasas en franjas rojas; se saltan o se esquivan.
