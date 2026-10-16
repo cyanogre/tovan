@@ -107,7 +107,20 @@ function mpRocaGeo(r, det, sem, tipo){
 }
 function mpRoca(parent, x, z, r, mat = MPM.roca, tipo = '', det = 1){
   const m = new THREE.Mesh(mpRocaGeo(r, det, Math.floor(mpHash(x, z) * 4), tipo), mat); m.position.set(x, r * 0.18, z); m.rotation.y = mpHash(z, x) * 6;
-  m.scale.set(1 + mpHash(x, 1) * 0.35, 0.85 + mpHash(2, z) * 0.3, 1 + mpHash(z, 3) * 0.25); parent.add(m); return m;
+  m.scale.set(1 + mpHash(x, 1) * 0.35, 0.85 + mpHash(2, z) * 0.3, 1 + mpHash(z, 3) * 0.25); parent.add(m); mpRocasPend.push([m, r]); return m;
+}
+// Todas las rocas chocan: mpColisionRocas(id) les pone su obstáculo (en su sitio real, ya dentro de grupos)
+// con el radio y la altura de la roca; las bajas se saltan. Se llama al final del decorado de cada mapa.
+const mpRocasPend = [], _mpV = new V3();
+function mpColisionRocas(id){
+  const M = mpMapa(id);
+  for (const [m, r] of mpRocasPend){ let t = m; while (t.parent) t = t.parent; t.updateMatrixWorld(true); m.getWorldPosition(_mpV);
+    const ws = m.getWorldScale(new V3()), rr = r * Math.max(ws.x, ws.z) * 0.9, h = _mpV.y + r * 0.78 * ws.y;
+    if (rr < 0.12 || Math.hypot(_mpV.x, _mpV.z) > ARENA_GRANDE + rr) continue;
+    if (M.pads.some(p => Math.hypot(p.x - _mpV.x, p.z - _mpV.z) < 1.6)) continue;   // las piedras de adorno de los trampolines no tapan la entrada
+    if (M.obst.some(o => Math.hypot(o.x - _mpV.x, o.z - _mpV.z) + rr * 0.6 < o.r)) continue;   // ya la cubre otro obstáculo
+    M.obst.push({ x: _mpV.x, z: _mpV.z, r: rr, h: Math.max(0.25, h), o: null }); }
+  mpRocasPend.length = 0;
 }
 
 /* ---------- Cerezo ---------- */

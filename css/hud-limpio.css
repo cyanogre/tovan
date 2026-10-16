@@ -1,0 +1,64 @@
+/* ======================================================================
+   HUD LIMPIO (js/interfaz/hud-limpio.js pone body.hudmin; Opciones → HUD)
+   Va después de los temas: solo quita y encoge, cada tema conserva su aspecto.
+   ====================================================================== */
+/* ---------- Estado: retrato, vida e ímpetu ---------- */
+body.hudmin #hud .nm,body.hudmin #hud .fragrow{display:none !important}
+body.hudmin #hud{scale:.86;transform-origin:0 0}
+body.hudmin[data-ui=albaran] #hud{padding-top:10px}
+body.hudmin[data-ui=albaran] #hud::before,body.hudmin[data-ui=albaran] #hud::after{display:none}
+body.hudmin[data-ui=relampago] #hud .hudr{padding-top:8px}
+
+/* ---------- Oleada, radar, rótulos y combo, más pequeños ---------- */
+body.hudmin #waveBox{scale:.78;transform-origin:50% 0}
+body.hudmin[data-ui=albaran] .uiOla::before{display:none}
+body.hudmin #banner{scale:.8;transform-origin:50% 0}
+body.hudmin #comboBox{scale:.78}
+body.hudmin #mpRadar{scale:.8;transform-origin:100% 0}
+body.hudmin.playing #mpRadar{top:calc(12px + env(safe-area-inset-top,0px))}
+/* Las opciones, desde el título, la pausa o el final; en la partida (y en los viajes y las cartas) no ocupan esquina */
+body.hudmin:not(.menuVer) #menu{display:none}
+/* Las familias de la build están en la pausa y en las cartas */
+body.hudmin #tags{display:none !important}
+/* El capitán va en su etiqueta flotante (#capTag) */
+body.hudmin #capBox{display:none !important}
+
+/* ---------- Misión en una línea (como en el móvil, también en pantallas anchas) ---------- */
+body.hudmin #objBox{padding:5px 10px 6px !important;transform:none !important;clip-path:none !important;
+  display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:10px}
+body.hudmin #objBox::before,body.hudmin #objBox::after{display:none !important}
+body.hudmin .objtit{font-size:14px !important;line-height:1.15 !important;white-space:nowrap;min-width:0}
+body.hudmin .objtit::before{display:none !important}
+body.hudmin #objIc{display:inline !important;font-size:13px}
+body.hudmin #objLin{margin:0 !important;font-size:12px !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;min-width:0}
+body.hudmin #objBox .wprog{grid-column:1/-1;margin:4px 0 0 !important;height:3px !important}
+body.hudmin #objCol.uiLado{width:300px}
+
+/* ---------- Etiqueta del capitán ---------- */
+#capTag{position:fixed;left:0;top:0;z-index:7;pointer-events:none;width:max-content;min-width:170px;max-width:240px;padding:5px 8px 6px;
+  font:600 12px/1.15 Archivo,'Pixelify Sans',sans-serif;color:#fff;background:rgba(12,10,18,.78);border:1px solid rgba(255,255,255,.18);border-radius:6px;
+  box-shadow:0 6px 18px rgba(0,0,0,.35);text-shadow:0 1px 0 rgba(0,0,0,.6)}
+#capTag::after{content:'';position:absolute;left:50%;bottom:-6px;width:10px;height:10px;transform:translateX(-50%) rotate(45deg);background:inherit;border:inherit;border-width:0 1px 1px 0}
+#capTag.fuera{opacity:.8;min-width:0}
+#capTag.fuera .ctp{display:none}
+#capTag.fuera::after{display:none}
+#capTag.izq .ctn::before{content:'◀';color:#ffb43a;margin-right:-2px} #capTag.der .ctn::after{content:'▶';color:#ffb43a;margin-left:2px}
+#capTag.pop{animation:ctPop .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes ctPop{0%{opacity:0;margin-top:-18px}100%{opacity:1;margin-top:0}}
+#capTag .ctn{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
+#capTag .ctn em{font:800 9px/1 Archivo,sans-serif;font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:#1b1915;background:#ffb43a;padding:2px 4px 1px;border-radius:2px}
+#capTag .ctn b{font-size:13px;font-weight:800}
+#capTag .ctn span{margin-left:auto;font-size:11px;color:#ffd23a}
+#capTag .ctb{height:5px;margin:4px 0 5px;background:rgba(255,255,255,.14);border-radius:3px;overflow:hidden}
+#capTag .ctb i{display:block;height:100%;background:linear-gradient(90deg,#ff7a3a,#ffb43a);transition:width .15s}
+#capTag .ctp{display:flex;gap:4px}
+#capTag .ctp span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+#capTag .ctp b{font-size:10.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#capTag .ctp i{display:block;height:3px;background:rgba(255,255,255,.18);border-radius:2px;overflow:hidden}
+#capTag .ctp u{display:block;height:100%;background:#ffd23a}
+#capTag .ctp em{font:500 9.5px/1 'IBM Plex Mono',ui-monospace,monospace;font-style:normal;color:#c9c3d8;white-space:nowrap}
+#capTag .ctp .z-frente em::before{content:'▲ '} #capTag .ctp .z-espalda em::before{content:'▼ '} #capTag .ctp .z-aire em::before{content:'⤒ '}
+#capTag .ctp .roto b{text-decoration:line-through;color:#a49fb0} #capTag .ctp .roto em{color:#7dff8a} #capTag .ctp .roto em::before{content:'✔ '}
+@media (max-width:720px){ #capTag{min-width:150px;padding:4px 6px 5px} #capTag .ctp b{font-size:9.5px} #capTag .ctp em{font-size:8.5px} }
+/* Con una pantalla encima (pausa, cartas, menús), las etiquetas y tarjetas nuevas tampoco asoman */
+body:has(.overlay:not([hidden])) :is(#capTag,#rutaCard,#trozoFx,#cxTrust){visibility:hidden}

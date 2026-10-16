@@ -108,6 +108,9 @@ async function introScript(){
     ['tovan', '¿Y entonces quién me firma a mí?'],
     ['lumen', '¡OLVIDA EL ALBARÁN! Agarra el bastón y pega a todo lo que tenga dientes.'],
     ['tovan', 'Que conste que esto no entra en mi horario.', 'happy'],
+    ['lumen', 'Escucha: el sello se ha partido en seis trozos y cada uno se lo ha quedado un monstruo gordo. Uno por parada.'],
+    ['lumen', 'Recupera los seis y abriré el camino hasta el destinatario. Él podrá volver a sellarlo… y firmarte el albarán.'],
+    ['tovan', '¿O sea que la entrega sigue en pie? ¡Haberlo dicho antes!', 'happy'],
     ['lumen', 'Si caes, te traeré de vuelta con fragmentos de monstruo. Cobro en fragmentos, claro.']]);
 }
 function runIntro(){

@@ -70,7 +70,7 @@ const mpLibreEn = (id, x, z, rad) => !mpMapa(id).obst.some(o => Math.hypot(x - o
     const m = mesh(new THREE.OctahedronGeometry(0.3, 0), floatMat, x, y, z, G); m.scale.y = 1.8; m.userData = { y, i: i + 3 }; floaters.push(m); }
   for (let i = 0; i < 60; i++){ const [x, z] = mpA(mpR() * TAU, 8.5 + mpR() * 10); if (mpMapa(id).obst.some(o => Math.hypot(o.x - x, o.z - z) < o.r + 0.4)) continue; mpRoca(F, x, z, 0.1 + mpR() * 0.22, MPM.rocaR, 'musgo'); }
   for (let i = 0; i < 26; i++){ const [x, z] = mpA(mpR() * TAU, 21 + mpR() * 12); sube(mpRoca(F, x, z, 0.6 + mpR() * 1.2, MPM.rocaR, 'musgo', 2), x, z); }   // rocas en las colinas
-  mpFusiona(F, G);
+  mpColisionRocas(id); mpFusiona(F, G);
   // terreno: losas en la plaza y en los caminos a las puertas, hierba y tierra alrededor
   const camino = (x, z) => [90, 210, 330].some(d => { const a = mpDeg(d), u = [Math.cos(a), Math.sin(a)], along = x * u[0] + z * u[1], perp = Math.abs(-x * u[1] + z * u[0]); return along > 6 && along < 19 && perp < 1.2 + mpRuido(along, d) * 0.5; });
   mpTerreno(G, { tex: [MPT['ruinas-losas'], MPT['ruinas-hierba'], MPT['ruinas-tierra']], alt, luces, sombras: mpSombras(id),
@@ -122,7 +122,7 @@ const mpLibreEn = (id, x, z, rad) => !mpMapa(id).obst.some(o => Math.hypot(x - o
   for (let i = 0; i < 44; i++){ const a0 = i / 44 * TAU, [x, z] = mpA(a0, 18.7), [x1, z1] = mpA(a0 + TAU / 44, 18.7), L = Math.hypot(x1 - x, z1 - z);   // valla lacada
     mesh(mpGeo('posteValla', () => mpColores(new THREE.BoxGeometry(0.1, 0.85, 0.1), (c, xx, y) => mpAO(c, y + 0.42, 0.8, 0.6))), MPM.laca, x, 0.42, z, F);
     for (const y of [0.4, 0.74]){ const r = mesh(mpGeo('larguero', () => mpColores(new THREE.BoxGeometry(1, 0.07, 0.05), () => {})), MPM.laca, (x + x1) / 2, y, (z + z1) / 2, F); r.scale.x = L; r.rotation.y = Math.atan2(-(z1 - z), x1 - x); } }
-  mpFusiona(F, G);
+  mpColisionRocas(id); mpFusiona(F, G);
   const camino = (x, z) => caminos.some(d => { const a = mpDeg(d), u = [Math.cos(a), Math.sin(a)], along = x * u[0] + z * u[1], perp = Math.abs(-x * u[1] + z * u[0]); return along > 6 && along < 15 && perp < 0.95; });
   mpTerreno(G, { tex: [MPT['sakura-losas'], MPT['sakura-hierba'], MPT['sakura-tierra']], alt, luces, sombras: mpSombras(id),
     mezcla: (x, z) => { const r = Math.hypot(x, z), n = mpFbm(x * 0.16 + 5, z * 0.16, 3);
@@ -170,7 +170,7 @@ const mpLibreEn = (id, x, z, rad) => !mpMapa(id).obst.some(o => Math.hypot(x - o
     pinos.push([x, z]); pino(x, z, 1 + mpR() * 0.6); n++; }
   for (let i = 0; i < 24; i++){ const a = i / 24 * TAU + mpR() * 0.12, [x, z] = mpA(a, 19.6 + mpR() * 3); sube(pino(x, z, 1.3 + mpR() * 0.6, false), x, z); }
   for (let i = 0; i < 30; i++){ const [x, z] = mpA(mpR() * TAU, 21 + mpR() * 12); sube(mpRoca(F, x, z, 0.8 + mpR() * 1.6, MPM.roca, 'nieve', 2), x, z); }
-  mpFusiona(F, G);
+  mpColisionRocas(id); mpFusiona(F, G);
   mpTerreno(G, { tex: [MPT['nieve'], MPT['roca'], MPT['cumbre-grava']], esc: [0.7, 1], alt, luces, sombras: mpSombras(id),
     mezcla: (x, z) => { const r = Math.hypot(x, z), n = mpFbm(x * 0.14 + 9, z * 0.14, 3), cuesta = mpSmooth(23, 32, r) * (n > 0.45 ? 1 : 0.2);
       return [1, cuesta, n > 0.62 && r < 19 ? 0.7 : 0]; } });

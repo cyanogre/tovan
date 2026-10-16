@@ -1,0 +1,75 @@
+/* ======================================================================
+   CANAL X · EMISIÓN (js/canal-x/emision.js): cortinilla de cambio de estilo,
+   índice de confianza y franjas de emisión
+   ====================================================================== */
+/* ---------- Cortinilla ---------- */
+#corteX{position:fixed;inset:0;z-index:46;overflow:hidden;pointer-events:none;--c1:#2350ff;--c2:#ff4fb8;--c3:#fff}
+#corteX .cb{position:absolute;left:-25%;width:150%;height:40%;background:var(--c1);transform:skewY(-9deg) translateX(-120%);box-shadow:0 0 0 3px var(--c3)}
+#corteX .b1{top:-8%} #corteX .b2{top:29%;background:var(--c2)} #corteX .b3{top:66%}
+#corteX.on .b1{animation:cxIzq 2.1s cubic-bezier(.7,0,.2,1) both}
+#corteX.on .b2{animation:cxDer 2.1s cubic-bezier(.7,0,.2,1) .04s both}
+#corteX.on .b3{animation:cxIzq 2.1s cubic-bezier(.7,0,.2,1) .08s both}
+@keyframes cxIzq{0%{transform:skewY(-9deg) translateX(-120%)}18%,80%{transform:skewY(-9deg) translateX(0)}100%{transform:skewY(-9deg) translateX(120%)}}
+@keyframes cxDer{0%{transform:skewY(-9deg) translateX(120%)}18%,80%{transform:skewY(-9deg) translateX(0)}100%{transform:skewY(-9deg) translateX(-120%)}}
+#corteX .ck{position:absolute;right:-2vw;top:50%;transform:translateY(-50%) rotate(-9deg);font:900 min(42vh,30vw)/.9 'Zen Kaku Gothic New','Noto Sans SC',sans-serif;letter-spacing:-.06em;
+  color:var(--c2);-webkit-text-stroke:3px var(--c3);opacity:0;white-space:nowrap}
+#corteX.on .ck{animation:cxKanji 2.1s ease both}
+@keyframes cxKanji{0%,14%{opacity:0;transform:translateY(-50%) rotate(-9deg) scale(1.4)}24%{opacity:.95;transform:translateY(-50%) rotate(-9deg) scale(1)}76%{opacity:.95;transform:translateY(-50%) rotate(-9deg) scale(.97)}84%,100%{opacity:0;transform:translateY(-50%) rotate(-9deg) scale(.9)}}
+#corteX .ct{position:absolute;left:6vw;top:50%;max-width:min(720px,80vw);transform:translateY(-50%) skewX(-8deg);opacity:0}
+#corteX.on .ct{animation:cxTit 2.1s cubic-bezier(.2,.9,.2,1) both}
+@keyframes cxTit{0%,15%{opacity:0;transform:translateY(-50%) translateX(-60px) skewX(-8deg)}25%,78%{opacity:1;transform:translateY(-50%) skewX(-8deg)}86%,100%{opacity:0;transform:translateY(-50%) translateX(60px) skewX(-8deg)}}
+#corteX .ce{display:inline-block;padding:4px 12px;background:var(--c3);color:var(--c1);font:800 13px/1.2 Archivo,sans-serif;letter-spacing:.18em;text-transform:uppercase}
+#corteX .ce b{font-weight:900}
+#corteX .cn{margin-top:8px;font:400 clamp(44px,8.5vw,112px)/.92 Anton,Impact,sans-serif;color:var(--c3);text-transform:uppercase;letter-spacing:.01em;
+  text-shadow:6px 6px 0 rgba(0,0,0,.35)}
+#corteX.on .cn{animation:cxGlitch 2.1s steps(1) both}
+@keyframes cxGlitch{0%,22%{text-shadow:-6px 0 0 #ff2a6a,6px 0 0 #2af0ff}26%{text-shadow:4px 2px 0 #ff2a6a,-4px -2px 0 #2af0ff}30%,74%{text-shadow:6px 6px 0 rgba(0,0,0,.35)}76%{text-shadow:-8px 0 0 #ff2a6a,8px 0 0 #2af0ff}}
+#corteX .cs{margin-top:10px;display:inline-block;padding:5px 12px;background:rgba(0,0,0,.55);color:#fff;font:600 clamp(13px,1.6vw,18px)/1.3 Archivo,sans-serif}
+#corteX .cl{position:absolute;left:18px;top:calc(14px + env(safe-area-inset-top,0px));font:800 12px/1 Archivo,sans-serif;letter-spacing:.24em;color:var(--c3);opacity:0}
+#corteX .cl b{color:#ff2a4a;animation:blink .8s steps(2) infinite}
+#corteX.on .cl{animation:cxTit 2.1s ease both}
+/* cada estilo, su textura */
+#corteX.cx-anime .b1,#corteX.cx-anime .b3{background:linear-gradient(100deg,var(--c1),#5a8cff)}
+#corteX.cx-anime .b2{background:linear-gradient(100deg,#ff7ad0,var(--c2))}
+#corteX.cx-manga .cb{box-shadow:0 0 0 5px #111}
+#corteX.cx-manga .b1,#corteX.cx-manga .b3{background:radial-gradient(#111 1.2px,transparent 1.6px) 0 0/7px 7px,#f4f4f0}
+#corteX.cx-manga .b2{background:repeating-linear-gradient(-80deg,#111 0 2px,transparent 2px 22px),#f4f4f0}
+#corteX.cx-manga .ck{color:#111;-webkit-text-stroke:4px #f4f4f0}
+#corteX.cx-manga .cn{color:#111;text-shadow:5px 5px 0 #f4f4f0,-2px -2px 0 #f4f4f0} #corteX.cx-manga .ce{background:#111;color:#f4f4f0} #corteX.cx-manga .cs{background:#111}
+#corteX.cx-vector .cb{box-shadow:none;border-radius:40px} #corteX.cx-vector .cn{color:#2a1046;text-shadow:5px 5px 0 #fff}
+#corteX.cx-vector .ck{color:#fff;-webkit-text-stroke:0;text-shadow:8px 8px 0 #2a1046}
+#corteX.cx-arcade .b1,#corteX.cx-arcade .b3{background:repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 2px,transparent 2px 4px),var(--c1)}
+#corteX.cx-arcade .cn,#corteX.cx-arcade .ce,#corteX.cx-arcade .cs{font-family:'Pixelify Sans',monospace} #corteX.cx-arcade .cn{color:var(--c1);text-shadow:6px 6px 0 var(--c3)}
+#corteX.cx-invaders .cb{box-shadow:0 0 0 2px var(--c2),0 0 24px var(--c2)} #corteX.cx-invaders .b2{background:var(--c1)}
+#corteX.cx-invaders .cn{color:var(--c2);text-shadow:0 0 18px var(--c2)} #corteX.cx-invaders .ck{color:transparent;-webkit-text-stroke:3px var(--c3)}
+#corteX.cx-paper .cb{box-shadow:0 8px 0 rgba(0,0,0,.25);background-image:radial-gradient(rgba(60,36,18,.12) 1px,transparent 1.4px);background-size:4px 4px}
+#corteX.cx-paper .b2{background-color:var(--c2)} #corteX.cx-paper .b1,#corteX.cx-paper .b3{background-color:var(--c1)}
+#corteX.cx-paper .cn{color:var(--c3);text-shadow:4px 4px 0 var(--c2)} #corteX.cx-paper .ck{color:var(--c2);-webkit-text-stroke:3px var(--c3)}
+#corteX.cx-paper.on .ct{animation-timing-function:steps(6)}
+#corteX.cx-show .b2{background:repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0 18px,transparent 18px 36px),var(--c2)} #corteX.cx-show .cn{text-shadow:6px 6px 0 #000}
+#corteX.cx-show .ck{color:var(--c3);-webkit-text-stroke:3px #000}
+#corteX.cx-show.ep-invaders .cn{color:var(--c2)} #corteX.cx-show.ep-run .cs,#corteX.cx-show.ep-rpg .cs{background:rgba(0,0,0,.6)}
+
+/* ---------- Índice de confianza ---------- */
+#trust{display:none !important}
+#cxTrust{position:fixed;right:12px;top:calc(12px + env(safe-area-inset-top,0px));z-index:6;pointer-events:none;display:flex;align-items:stretch;transform:skewX(-10deg);
+  background:#0d0d16;color:#fff;box-shadow:4px 4px 0 rgba(0,0,0,.35),inset 0 -3px 0 #ff3a8a}
+#cxTrust > *{transform:skewX(10deg)}
+#cxTrust .tz{display:grid;place-items:center;padding:0 8px;background:#ff2a4a;font:900 13px/1 'Zen Kaku Gothic New',sans-serif;transform:none}
+#cxTrust .tl{align-self:center;padding:0 0 0 10px;font:700 10px/1 Archivo,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#a9a6c0}
+#cxTrust b{padding:4px 10px 6px 8px;font:400 26px/1 Anton,Impact,sans-serif;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+#cxTrust .tr{display:flex;flex-direction:column;justify-content:center;padding:0 10px;background:#ffd23a;color:#0d0d16;font:400 20px/1 Anton,Impact,sans-serif}
+#cxTrust .tr small{font:800 8px/1 Archivo,sans-serif;letter-spacing:.2em;text-transform:uppercase}
+#cxTrust.sube{animation:cxSube .6s ease}
+@keyframes cxSube{30%{scale:1.15;box-shadow:4px 4px 0 rgba(0,0,0,.35),inset 0 -3px 0 #ffd23a,0 0 24px #ffd23a}}
+@media (max-width:720px){ #cxTrust{right:8px;top:calc(10px + env(safe-area-inset-top,0px))} #cxTrust b{font-size:19px;padding:3px 7px 5px 6px} #cxTrust .tl{display:none} #cxTrust .tr{font-size:15px;padding:0 7px} }
+body.cine #cxTrust{display:none}
+
+/* ---------- Franjas de cine en el Canal X: de emisión ---------- */
+body.cine #cineTop,body.cine #cineBot{box-shadow:0 0 28px 10px rgba(0,0,0,.5)}
+body:is(.ch-anime,.ch-manga,.ch-vector,.ch-arcade,.ch-invaders,.ch-paper).cine #cineTop{background:linear-gradient(#0d0d16,#15152a);border-bottom:3px solid transparent;border-image:linear-gradient(90deg,#ff3a8a,#2af0ff) 1}
+body:is(.ch-anime,.ch-manga,.ch-vector,.ch-arcade,.ch-invaders,.ch-paper).cine #cineBot{background:linear-gradient(#15152a,#0d0d16);border-top:3px solid transparent;border-image:linear-gradient(90deg,#2af0ff,#ff3a8a) 1}
+body:is(.ch-anime,.ch-manga,.ch-vector,.ch-arcade,.ch-invaders,.ch-paper).cine #cineTop::after{content:'CANAL X  ●  EN DIRECTO';position:absolute;left:18px;bottom:8px;font:800 11px/1 Archivo,sans-serif;letter-spacing:.24em;color:#fff;opacity:.8}
+
+/* ---------- Estilos: menos bruscos ---------- */
+body.ch-manga #c{filter:grayscale(1) contrast(1.5) brightness(1.06)}
