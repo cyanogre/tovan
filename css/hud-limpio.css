@@ -61,4 +61,6 @@ body.hudmin #objCol.uiLado{width:300px}
 #capTag .ctp .roto b{text-decoration:line-through;color:#a49fb0} #capTag .ctp .roto em{color:#7dff8a} #capTag .ctp .roto em::before{content:'✔ '}
 @media (max-width:720px){ #capTag{min-width:150px;padding:4px 6px 5px} #capTag .ctp b{font-size:9.5px} #capTag .ctp em{font-size:8.5px} }
 /* Con una pantalla encima (pausa, cartas, menús), las etiquetas y tarjetas nuevas tampoco asoman */
-body:has(.overlay:not([hidden])) :is(#capTag,#rutaCard,#trozoFx,#cxTrust){visibility:hidden}
+body:has(.overlay:not([hidden])) :is(#capTag,#rutaCard,#trozoFx,#cxTrust,#pop7){visibility:hidden}
+/* Móvil: con el botón de opciones a la vista (título, pausa, final), los avisos van debajo y no lo tapan */
+@media (max-width:720px) and (min-height:521px){ body.menuVer #toasts{top:calc(58px + env(safe-area-inset-top,0px)) !important} }

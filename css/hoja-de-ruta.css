@@ -52,7 +52,7 @@
 body.cine #rutaCard{display:none}
 @media (max-width:720px){
   #rutaCard{top:calc(160px + env(safe-area-inset-top,0px));padding:8px 10px 10px}
-  .ruta .rp b{font-size:8.5px;letter-spacing:0}
+  .ruta .rp b{font-size:8px;letter-spacing:-.02em}
   .ruta .rp i{width:22px;height:22px;font-size:10px}
   .ruta .rp::before{top:10px}
   .rs{font-size:12px}

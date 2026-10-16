@@ -20,9 +20,9 @@ const TUTO_PASOS = [
   { txt: 'Rueda para esquivar: mientras ruedas, no te tocan.', pc: '<kbd>K</kbd> o <kbd>Shift</kbd>', tac: 'Pulsa RODAR', ojo: '[data-act=roll]', hecho: () => tuto.rod >= 1 },
   { txt: 'Salta. En el aire tampoco te tocan, y si atacas, caes en picado.', pc: '<kbd>Espacio</kbd>', tac: 'Pulsa SALTAR', ojo: '[data-act=jump]', hecho: () => tuto.sal >= 1 },
   { txt: '¡Ahí vienen! Tumba a tres.', suelta: true, hecho: () => tuto.bajas >= 3 },
-  { txt: 'Cada golpe llena el ímpetu. Te lo he llenado yo: suelta el especial.', pc: '<kbd>L</kbd> o clic derecho', tac: 'Pulsa ESPECIAL', ojo: '[data-act=special]',
-    entra: () => { player.meter = 100; }, hecho: () => tuto.esp >= 1 || tuto.t > 14 },
-  { txt: 'Acaba con los que quedan: cuando no quede ninguno, la oleada se cierra.', hecho: () => gameState === 'upgrade' },
+  { txt: 'Cada golpe llena el ímpetu. Te lo he llenado yo: suelta el especial (con los pies en el suelo).', pc: '<kbd>L</kbd> o clic derecho', tac: 'Pulsa ESPECIAL', ojo: '[data-act=special]',
+    entra: () => { player.meter = 100; }, hecho: () => tuto.esp >= 1 || tuto.t > 20 },   // (en el aire no sale: a los 20 s, se sigue igual)
+  { txt: 'Acaba con los que quedan: cuando no quede ninguno, la oleada se cierra.', resto: true, hecho: () => gameState === 'upgrade' },
   { txt: 'Elige una carta. Tres cartas de la misma familia activan un bonus.', pc: '<kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> o clic', tac: 'Toca una carta', arriba: true, hecho: () => tuto.carta }
 ];
 
@@ -44,12 +44,13 @@ function tutoPinta(){
 }
 function tutoPaso(i){
   tuto.i = i; tuto.t = 0;
+  if (TUTO_PASOS[i] && TUTO_PASOS[i].resto) while (tuto.extra > 0 && queue.length && queue[queue.length - 1] === 'imp'){ queue.pop(); waveTotal--; tuto.extra--; }   // fuera los de práctica que no han salido
   if (i >= TUTO_PASOS.length){ tutoFin(true); return; }
   const P = TUTO_PASOS[i]; if (P.entra) P.entra();
   tutoPinta(); play('cursor');
 }
 function tutoEmpieza(){
-  Object.assign(tuto, { on: true, i: 0, t: 0, dist: 0, giro: 0, atq: 0, rod: 0, sal: 0, esp: 0, bajas: 0, carta: false, px: hero.position.x, pz: hero.position.z, yaw: camYaw, okT: 0 });
+  Object.assign(tuto, { on: true, i: 0, t: 0, extra: 0, dist: 0, giro: 0, atq: 0, rod: 0, sal: 0, esp: 0, bajas: 0, carta: false, px: hero.position.x, pz: hero.position.z, yaw: camYaw, okT: 0 });
   tutoEl.hidden = false; tutoPaso(0);
 }
 function tutoFin(completo){
@@ -86,7 +87,15 @@ function tutoTick(dt){
   tuto.giro += Math.abs(camYaw - tuto.yaw); tuto.yaw = camYaw;
   if (!TUTO_PASOS.slice(0, tuto.i + 1).some(p => p.suelta) && queue.length) spawnTimer = Math.max(spawnTimer, 0.5);   // aún no salen enemigos
   if (player.dead){ tuto.on = false; tutoEl.hidden = true; return; }
-  if (gameState === 'upgrade' && tuto.i < TUTO_PASOS.length - 1){ tutoPaso(TUTO_PASOS.length - 1); return; }   // si la oleada se acaba antes, directo a las cartas
+  // Entre «pelea» y «resto» la oleada no se puede acabar: si se quedan sin enemigos, salen diablillos de práctica
+  const iPelea = TUTO_PASOS.findIndex(p => p.suelta), iResto = TUTO_PASOS.findIndex(p => p.resto);
+  // (dos en cola, no uno: main.js cuenta los vivos antes de sacar al siguiente, y si sale el último con nadie vivo da la oleada por cerrada)
+  if (gameState === 'play' && tuto.i >= iPelea && tuto.i < iResto){
+    while (queue.length < 2){ queue.push('imp'); waveTotal++; tuto.extra++; }
+    if (enemies.filter(e => e.alive).length >= 2) spawnTimer = Math.max(spawnTimer, 0.5);
+  }
+  if (P.entra && tuto.i === iResto - 1 && player.meter < 100 && tuto.esp < 1 && state === 'normal') player.meter = 100;   // el ímpetu sigue lleno hasta que suelte el especial
+  if (gameState === 'upgrade' && tuto.i < TUTO_PASOS.length - 1){ tutoPaso(TUTO_PASOS.length - 1); return; }   // por si acaso: si la oleada se cerrase antes, a las cartas
   if (tuto.okT > 0){ if ((tuto.okT -= dt) <= 0) tutoPaso(tuto.i + 1); return; }
   if (P.hecho()){ tuto.okT = 0.7; tutoEl.classList.add('ok'); play('pickup'); }
 }
