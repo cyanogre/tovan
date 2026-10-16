@@ -16,3 +16,42 @@ body:has(.overlay:not([hidden])) #objCol,body:has(.overlay:not([hidden])) #mpRad
   body[data-ui]:not([data-ui=clasica]) #bossBox{top:calc(16px + env(safe-area-inset-top,0px))}
   body[data-ui]:not([data-ui=clasica]).cine #bossBox{top:calc(clamp(36px,8vh,64px) + 12px)}
 }
+
+/* ---------- Móvil: la partida no se tapa (todos los temas) ----------
+   Misión y capitán en formato compacto (una línea para la misión; nombre, vida y piezas en otra para
+   el capitán), Lumen justo encima de los controles y los rótulos en el hueco libre. En horizontal,
+   misión y capitán van en la columna izquierda, bajo el HUD (temas.js: #objCol.uiApaisado). */
+@media (max-width:720px), (max-height:520px){
+  #objCol{gap:4px !important}
+  body[data-ui] #objBox,body[data-ui] #capBox{padding:5px 9px 6px !important;transform:none !important;clip-path:none !important}
+  body[data-ui] #objBox::before,body[data-ui] #objBox::after,body[data-ui] #capBox::before,body[data-ui] #capBox::after{display:none !important}
+  body[data-ui] #objBox{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:8px}
+  body[data-ui] .objtit{font-size:13px !important;line-height:1.15 !important;white-space:nowrap;min-width:0}
+  body[data-ui] .objtit::before{display:none !important}
+  body[data-ui] #objIc{display:inline !important;font-size:12px}
+  body[data-ui] #objLin{margin:0 !important;font-size:11.5px !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;min-width:0}
+  body[data-ui] #objBox .wprog{grid-column:1/-1;margin:4px 0 0 !important;height:3px !important}
+  body[data-ui] .caphead{flex-direction:row !important;align-items:baseline;font-size:14px !important;line-height:1.1 !important;margin-bottom:3px !important;gap:8px}
+  body[data-ui] #capInfo{font-size:10.5px !important;white-space:nowrap}
+  body[data-ui] #capBox .bar.boss{height:6px !important;margin-bottom:0 !important}
+  body[data-ui] #capParts{flex-direction:row !important;gap:4px !important;margin-top:5px !important}
+  body[data-ui] .cpart{display:flex !important;flex-direction:column;flex:1;min-width:0;padding:2px 5px !important;gap:1px !important;text-align:left;transform:none !important}
+  body[data-ui] .cpart::before,body[data-ui] .cpart::after{display:none !important}
+  body[data-ui] .cpart b{font-size:11px !important;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body[data-ui] .cpart em{font-size:9.5px !important;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body[data-ui] .cpart i{display:block !important;height:3px !important}
+  /* Lumen: encima de los controles, compacto */
+  body[data-ui] #bark,body[data-ui].con-obj #bark{top:auto !important;bottom:calc(214px + env(safe-area-inset-bottom,0px)) !important;left:50% !important;transform:translateX(-50%) !important;
+    width:max-content !important;max-width:calc(100% - 16px) !important;padding:5px 12px 5px 5px !important;gap:8px !important;font-size:12.5px !important;line-height:1.3 !important}
+  body[data-ui] #barkPic{width:30px !important;height:30px !important}
+  /* Rótulos: pequeños y en el hueco central */
+  body[data-ui] #banner,body[data-ui].con-obj #banner{top:34% !important;font-size:17px !important;padding:6px 14px !important;max-width:calc(100% - 24px)}
+  body[data-ui] #banner small{font-size:11px !important;margin-top:2px !important}
+}
+@media (max-height:520px) and (min-width:521px){
+  #objCol.uiApaisado{left:8px !important;transform:none !important;width:min(290px,36vw) !important}
+  /* Lumen y los rótulos entre el joystick y los botones */
+  body[data-ui] #bark,body[data-ui].con-obj #bark{bottom:calc(8px + env(safe-area-inset-bottom,0px)) !important;max-width:calc(100% - 410px) !important;min-width:240px}
+  body[data-ui] #banner,body[data-ui].con-obj #banner{top:26% !important;left:calc(50% + 70px) !important;max-width:calc(100% - 460px)}
+  body[data-ui] #comboBox{top:52% !important}
+}

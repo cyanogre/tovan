@@ -64,6 +64,9 @@ document.getElementById('dlgSkip').addEventListener('click', e => { e.stopPropag
 const barkEl = document.getElementById('bark'), barkText = document.getElementById('barkText');
 drawLumen(document.getElementById('barkPic'));
 let barkT = 0, barkSaid = {};
-function bark(text){ if (barkT > 0.6) return; barkText.textContent = text; barkEl.hidden = false; barkT = 3.4; play('talkL'); }
+// El retrato se pinta al cargar, pero si la hoja de texturas aún no estaba decodificada salía vacío: se repinta en cada comentario (sin gastar rnd())
+const barkPic = document.getElementById('barkPic');
+function barkRetrato(){ const g = barkPic.getContext('2d'); if (!g) return; g.imageSmoothingEnabled = false; g.drawImage(assetImg('retratos/lumen'), 0, 0); }
+function bark(text){ if (barkT > 0.6) return; barkRetrato(); barkText.textContent = text; barkEl.hidden = false; barkT = 3.4; play('talkL'); }
 function barkOnce(key, text){ if (barkSaid[key]) return; barkSaid[key] = true; bark(text); }
 function updateBark(dt){ if (barkT > 0){ barkT -= dt; barkEl.style.opacity = String(Math.min(1, barkT / 0.3)); if (barkT <= 0) barkEl.hidden = true; } }

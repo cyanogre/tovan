@@ -66,12 +66,13 @@ new MutationObserver(() => { for (const c of capPartsEl.children){ const n = (c.
 const _objColAjustaUI = objColAjusta;
 objColAjusta = function(){
   _objColAjustaUI();
-  const lado = uiTema !== 'clasica' && innerWidth > 720 && innerHeight > 520;
-  objCol.classList.toggle('uiLado', lado);
+  // también en móvil en horizontal (con cualquier tema): ahí no cabe nada en el centro
+  const apaisado = innerHeight <= 520 && innerWidth > innerHeight, lado = apaisado || (uiTema !== 'clasica' && innerWidth > 720 && innerHeight > 520);
+  objCol.classList.toggle('uiLado', lado); objCol.classList.toggle('uiApaisado', apaisado);
   if (!lado){ tagsEl.style.top = ''; return; }
-  const h = hud.hidden ? 12 : hud.getBoundingClientRect().bottom + 10;
+  const h = hud.hidden ? 12 : hud.getBoundingClientRect().bottom + (apaisado ? 6 : 10);
   tagsEl.style.top = Math.round(h) + 'px';
-  const t = tagsEl.hidden || !tagsEl.childElementCount ? h : Math.max(h, tagsEl.getBoundingClientRect().bottom + 10);
+  const t = apaisado || tagsEl.hidden || !tagsEl.childElementCount ? h : Math.max(h, tagsEl.getBoundingClientRect().bottom + 10);   // en horizontal las familias se tapan con la misión
   objCol.style.top = Math.round(t) + 'px';
   document.body.style.setProperty('--objfin', '0px');
 };
