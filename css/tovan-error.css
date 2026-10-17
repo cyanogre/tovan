@@ -1,0 +1,32 @@
+/* ---------- TOVAN.EXE (js/jefes/tovan-error.js): pistas de escalada, gritos de técnica y la ventana del final ---------- */
+/* Pista de controles abajo, en el centro */
+#terPista{position:fixed;left:50%;bottom:max(104px,15vh);transform:translateX(-50%);z-index:13;pointer-events:none;padding:5px 16px;background:rgba(14,4,24,.8);
+  border:2px solid #ff2ae0;border-radius:6px;color:#fff;font-family:'Pixelify Sans',ui-monospace,monospace;font-size:clamp(14px,1.8vw,19px);white-space:nowrap;
+  box-shadow:3px 3px 0 #20ffe0}
+#terPista b{display:inline-block;min-width:1.4em;margin:0 4px 0 0;padding:0 6px;background:#fff;color:#2a0a30;border-radius:3px;text-align:center}
+@media (pointer:coarse){ #terPista{bottom:auto;top:clamp(96px,15vh,140px);font-size:14px} }
+/* Nombre de la técnica gigante: aberración cromática magenta/cian */
+#terGrito{position:fixed;left:50%;top:27%;transform:translateX(-50%);z-index:30;pointer-events:none;text-align:center;color:#fff;
+  font-family:'Pixelify Sans',ui-monospace,monospace;white-space:nowrap}
+#terGrito b{display:block;font-size:clamp(24px,4.6vw,56px);line-height:1;letter-spacing:.03em;text-shadow:-3px 0 0 #ff2ae0,3px 0 0 #20ffe0,0 5px 0 #000}
+#terGrito small{display:block;margin-top:6px;font-size:clamp(13px,1.8vw,19px);text-shadow:2px 2px 0 #000}
+#terGrito.on{animation:terGrito 2.3s steps(1,end) both}
+#terGrito.on b{animation:terGritoB 2.3s ease-out both}
+@keyframes terGrito{0%{opacity:0}4%,86%{opacity:1}6%{transform:translateX(-52%)}8%{transform:translateX(-48%)}10%{transform:translateX(-50%)}100%{opacity:0}}
+@keyframes terGritoB{0%{transform:scale(1.8)}10%{transform:scale(1)}100%{transform:scale(1.04)}}
+@media (max-width:720px){ #terGrito{white-space:normal;width:94vw} }
+/* «TOVAN.EXE ha dejado de funcionar» */
+#terVentana{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);z-index:46;width:min(430px,90vw);padding:0;pointer-events:none;background:#e8e4ee;color:#1a1424;
+  border:2px solid #fff;border-radius:3px;box-shadow:0 0 0 2px #2a2236,10px 10px 0 rgba(0,0,0,.45);font-family:'Segoe UI',system-ui,sans-serif;text-shadow:none;animation:terVentana .25s steps(3,end) both}
+#terVentana .tvT{display:flex;justify-content:space-between;align-items:center;padding:5px 10px;background:linear-gradient(90deg,#c8307a,#7a1aa8);color:#fff;font-weight:700;font-size:14px}
+#terVentana .tvT i{font-style:normal;padding:0 7px;background:#e8455a;border:1px solid #fff}
+#terVentana .tvB{display:flex;gap:14px;align-items:flex-start;padding:16px 16px 8px;font-size:14px;line-height:1.4}
+#terVentana .tvB b{font-size:30px;line-height:1;color:#e8a020}
+#terVentana .tvB strong{display:block;margin-bottom:4px}
+#terVentana .tvBtns{display:flex;justify-content:flex-end;gap:10px;padding:8px 16px 14px}
+#terVentana .tvBtns span{padding:3px 16px;border:1px solid #6a5a80;background:#f6f4fa;font-size:13px}
+#terVentana .tvBtns .si{outline:2px solid #3a7ae8;outline-offset:1px}
+#terVentana .tvBtns .si.pulsa{background:#c8d8f8;transform:translate(1px,1px)}
+@keyframes terVentana{from{transform:translate(-50%,-50%) scale(.6);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+body.cine #terPista,body.cine #terGrito{display:none}
+body.terOn #mpRadar{visibility:hidden}
