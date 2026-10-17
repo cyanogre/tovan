@@ -244,14 +244,16 @@ Al final, ffmpeg junta las dos. Por eso el guion solo mueve cosas con `csTween`/
 Al dejar a Ryūjin (oleada 10) a cero, no muere: brilla, toca la bocina como Camión-kun, atropella a Tovan y crece hasta el «tamaño mudanza». La pelea sigue en el cielo, a lomos del dragón, al estilo *Shadow of the Colossus* (`js/jefes/ryujin-colosal.js`, `css/ryujin-colosal.css`). Sale siempre que el dragón cae en una partida normal; no sale en el Canal X, en el castillo ni en los marcianitos.
 - **El lomo** es una pasarela de escudos dorados entre dos filas de púas. El dragón ondula de lado y arrastra a Tovan. Abajo hay un mar de nubes, montañas y campos; alrededor, nubes, líneas de velocidad y viento (también se oye).
 - **Tres sellos de jade** (las escamas que brillan, con una columna de luz) que hay que romper a golpes.
-- **Agarrarse:** cuando sale «¡AGÁRRATE!» hay que mantener RODAR (K o Shift; en el móvil el botón pasa a «Agarra» y parpadea). Un aro de aguante se vacía mientras te agarras.
-- **Maniobras del dragón:**
-  - **Sacudidas:** si no te agarras, te escurres hacia el lado que baja.
-  - **Sacudida violenta:** acaba en una coz que te tira por los aires si no estás agarrado.
-  - **Subida en vertical:** sin agarrarte resbalas y te caes.
-  - **Tirabuzón:** se pone boca abajo un rato; sin agarrarte, te caes.
+- **Agarrarse:** cuando sale «¡AGÁRRATE!» hay que mantener RODAR (K o Shift; en el móvil el botón pasa a «Agarra» y parpadea). Un aro de aguante se vacía mientras te agarras, así que conviene agarrarse cuando empieza la maniobra y no durante el aviso: en el tirabuzón, si te agarras desde el aviso, se te escurren las manos antes de acabar.
+- **Te tira con facilidad:** si en plena maniobra no estás agarrado (te sueltas, saltas o se te acaba el aguante), el aviso tiembla en rojo, Tovan se tambalea y en menos de medio segundo sale despedido **por un costado**. Pasa en todas las maniobras:
+  - **Sacudidas.**
+  - **Sacudida violenta:** además acaba en una coz.
+  - **Ráfagas.**
+  - **Subida en vertical.**
+  - **Tirabuzón:** se pone boca abajo un rato.
   - Lo que se inclina es el mundo, así que se ve el horizonte girar o ponerse del revés.
-- **Si te caes:** caes por el cielo. Puedes moverte en el aire y darte un impulso con RODAR (una vez por caída). Debajo vuelan tres crías: si pasas junto a una, te montas. Montado, la llevas hasta el lomo, sube sola, y SALTAR te suelta y te deja caer encima. Si no pillas ninguna, te estrellas y mueres (salvo que un poder como el Fénix te devuelva la vida, que te deja en el lomo).
+- **Si te caes:** sales volando de lado y caes por el cielo. Puedes moverte en el aire y darte un impulso con RODAR (una vez por caída). A lo largo de la caída vuelan tres crías: si pasas junto a una, te montas. Montado, la llevas hasta el lomo, sube sola, y SALTAR te suelta y te deja caer encima. Si no pillas ninguna, te estrellas y mueres (salvo que un poder como el Fénix te devuelva la vida, que te deja en el lomo).
+- **No quiere que subas:** cuando la cría se acerca, el dragón se aparta de golpe, hasta tres veces por caída. Se mueve todo el cuerpo, como una ola que sale de donde está la cría y tarda en llegar a la cabeza y a la cola, así se nota lo largo que es. Montado, la cámara se aleja y se gira poco a poco hacia él, en tres cuartos, para verlo entero. La cría es más rápida: persíguelo y salta cuando estés encima. Al volver al lomo, la cámara vuelve a como estaba.
 - **Fuego:** para escupirte se da la vuelta: estira el cuello, lo curva en gancho hacia un lado y la cabeza vuelve mirando a Tovan, por delante de él (se ve también en el móvil).
   - **Lluvia de fuego:** gira el cuello y escupe meteoros con estela de llamas a círculos rojos. Al caer levantan una columna de fuego y dejan quemaduras en el lomo.
   - **Aliento de fuego:** barre una franja del lomo de lado a lado con un chorro de llamas, dejándolo ardiendo. Hay que salir de la franja roja.

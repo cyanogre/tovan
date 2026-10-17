@@ -17,3 +17,6 @@
 body.cine #colAviso,body.cine #colAgarre{display:none}
 body.trailer #colViento{display:none}
 @media (max-width:720px){ #colAviso{top:22%} }
+/* Sin agarrarse en plena sacudida: el aviso tiembla en rojo (está a punto de tirarte) */
+#colAviso.mal{color:#ffe0d8;text-shadow:0 3px 0 #000,0 0 22px rgba(255,40,30,.95);animation:colTiembla .09s steps(2,end) infinite}
+@keyframes colTiembla{0%{transform:translate(calc(-50% - 5px),-50%) scale(1.08)}100%{transform:translate(calc(-50% + 5px),calc(-50% + 2px)) scale(1.08)}}
