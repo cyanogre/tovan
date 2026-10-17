@@ -43,7 +43,7 @@ updateInvaders = function(dt){
     if (SI.shotT <= 0 && !SI.wind){ SI.wind = 0.45; play('cursor');  }
     if (SI.wind){ SI.wind -= dt; starSpr.material.uniforms.uColor.value.setHex(Math.sin(time * 40) > 0 ? 0xffe070 : 0xffffff); starSpr.scale.setScalar(1.2 + 0.1 * Math.sin(time * 40)); starWarn.visible = Math.sin(time * 30) > -0.5; starWarn.position.set(x, y - 1.75, 0.3);
       if (SI.wind <= 0){ SI.wind = 0; starWarn.visible = false; SI.shotT = (bossE.hp < bossE.maxHp * 0.5 ? 1.25 : 1.7) * (SI.down ? 0.9 : 1); const sx = inv.ship.position.x, sp = SI.down ? 3.6 : 4.3;
-        for (const o of [-1, 0, 1]){ const m = mesh(B(0.26, 0.26, 0.05), starBombMat, x, y - 1.2, 0.02, invG); m.rotation.z = Math.PI / 4; const a = Math.atan2(sx - x, -(y - 1)) + o * 0.36; SI.bombs.push({ m, vx: Math.sin(a) * sp, vy: -Math.cos(a) * sp }); }
+        for (const o of [-1, 0, 1]){ const m = mesh(B(0.26, 0.26, 0.05), starBombMat, x, y - 1.2, 0.02, invG); m.rotation.z = Math.PI / 4; const a = Math.atan2(sx - x, -(y - 1)) + o * 0.36; SI.bombs.push({ m, vx: Math.sin(a) * sp, vy: Math.cos(a) * sp }); }   // (iban hacia arriba: el signo de vy estaba al revés)
         play('shoot'); } }
     SI.beamT -= dt;
     if (SI.beamSt === 0 && SI.beamT <= 0 && !SI.wind && !SI.bombs.length){ SI.beamSt = 1; SI.beamT = 1.15; SI.beamX = inv.ship.position.x; starBeam.visible = true; starBeam.position.x = SI.beamX; starBeamMat.uniforms.uOpacity.value = 0.25; play('kameCharge');

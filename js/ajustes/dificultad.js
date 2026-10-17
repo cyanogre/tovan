@@ -77,8 +77,10 @@ function escTick(dt, playing){
   let jefe = null;
   for (const e of enemies){
     if (!e.difOk && e.alive){ e.difOk = true; e.dm = (e.dm || 1) * DIF.danoEnemigo; }
-    if (!e.escJ && e.alive && e.isBoss && ESC_TIPOS.has(e.type) && e.spawnT <= 0) escPone(e);
+    const enShow = e.type === 'star' && MG.active;   // (en el show de Míster Confianza no hay escudo: las rondas van por su vida)
+    if (!e.escJ && e.alive && e.isBoss && ESC_TIPOS.has(e.type) && e.spawnT <= 0 && !enShow) escPone(e);
     const E = e.escJ; if (!E) continue;
+    if (enShow){ if (E.burbuja) E.burbuja.visible = false; E.est = 'espera'; E.t = DIF.esperaT; continue; }
     if (!e.alive){ escQuita(e); continue; }
     if (!jefe && e === bossE) jefe = e;
     if (playing){
