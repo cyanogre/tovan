@@ -1,8 +1,8 @@
 'use strict';
 /* ======================================================================
    TOVAN.EXE (la segunda vida del ERROR 404)
-   Al «matarlo», el cubo se copia del modelo de Tovan con la textura
-   perdida (la del vestidor), crece hasta unos 13 m y se lleva la pelea
+   Al «matarlo», el cubo se copia del modelo de Tovan (una versión
+   corrupta, con la textura perdida), crece hasta unos 13 m y se lleva la pelea
    fuera del mapa. Desde el suelo no se le hace nada: hay que trepar por
    una pierna, la espalda y la cabeza y apuñalar sus tres puntos débiles
    (cinturón, nuca y coronilla), como en Shadow of the Colossus.
@@ -92,7 +92,7 @@ function terConstruye(){
   R.neck.scale.set(1.45, 1.42, 1.45);
   // ojos encendidos (lo único que no lleva la textura perdida)
   const ojoM = terPropio(makeMat(0xff2a5a, { emissive: 1 }));
-  for (const s of [-1, 1]){ const o = mesh(B(0.075, 0.032, 0.03), ojoM, 0.085 * s, 0.32, 0.232, R.neck); o.rotation.z = -0.22 * s; }
+  TER.ojos = [-1, 1].map(s => { const o = mesh(B(0.075, 0.032, 0.03), ojoM, 0.085 * s, 0.32, 0.232, R.neck); o.rotation.z = -0.22 * s; return o; });   // [0] = el del lado del hombro derecho
   // píxeles sueltos que orbitan, como los del cubo
   const bm = [terPropio(makeMat(0xff2ae0, { emissive: 1 })), terPropio(makeMat(0x20ffe0, { emissive: 1 }))], r = TER.r;
   TER.bits = Array.from({ length: 22 }, (_, i) => { const m = mesh(B(0.06, 0.06, 0.06), bm[i % 2], 0, 0, 0, g); m.userData = { a: r() * TAU, r: 0.45 + r() * 0.35, y: 0.2 + r() * 2.0, v: 0.5 + r() * 0.8 }; return m; });
@@ -249,7 +249,7 @@ function terOnda(x, z, r0){ const m = TER.ondaPool.find(o => !o.visible); if (!m
 function terOndasTick(et){
   for (let i = TER.ondas.length - 1; i >= 0; i--){ const o = TER.ondas[i]; o.r += et * 9.5; o.m.scale.set(o.r, 1, o.r); o.m.material.uniforms.uOpacity.value = 0.6 * clamp(1 - (o.r - 12) / 10, 0, 1);
     const hp = hero.position, d = Math.hypot(hp.x - o.x, hp.z - o.z);
-    if (!o.toca && Math.abs(d - o.r) < 0.6 && hp.y < 0.6 && !TER.trepa){ o.toca = true; if (hurtPlayer(Math.round(13 * TER.dm), o.x, o.z, 6) === 'hit'){ vy = 4; grounded = false; } }
+    if (!o.toca && Math.abs(d - o.r) < 0.6 && hp.y < 0.6 && !TER.trepa){ o.toca = true; if (hurtPlayer(Math.round(10 * TER.dm), o.x, o.z, 6) === 'hit'){ vy = 4; grounded = false; } }
     if (o.r > 22){ o.m.visible = false; TER.ondas.splice(i, 1); } }
 }
 function terPeligrosFuera(){
@@ -271,7 +271,7 @@ const TER_ATQ = {
     empieza(a){ const R = TER.R, hp = hero.position;
       const dL = R.legL.knee.getWorldPosition(terV[1]).distanceTo(hp), dR = R.legR.knee.getWorldPosition(terV[2]).distanceTo(hp);
       a.L = dL < dR ? R.legL : R.legR; a.c = terPiePlantado(a.L); terCirculo(a.c.x, a.c.z, 2.5, 0.95); play('bruteWarn'); },
-    tick(a){ if (a.t >= 1.0 && !a.hecho){ a.hecho = true; terGolpe(a.c.x, a.c.z, 2.5, 17); terImpacto(a.c.x, a.c.z, 2.5); play('terPaso'); play('boom'); } },
+    tick(a){ if (a.t >= 1.0 && !a.hecho){ a.hecho = true; terGolpe(a.c.x, a.c.z, 2.5, 12); terImpacto(a.c.x, a.c.z, 2.5); play('terPaso'); play('boom'); } },
     pose(a, R){ const t = a.t; if (t < 0.95) terPisa(R, a.L, smooth(Math.min(1, t / 0.55)));
       else if (t < 1.08){ terPisa(R, a.L, 1 - (t - 0.95) / 0.13); terPlanta(R, a.L, (t - 0.95) / 0.13); }
       else terPlanta(R, a.L, t < 2.5 ? 1 : 1 - smooth((t - 2.5) / 0.5)); } },
@@ -282,7 +282,7 @@ const TER_ATQ = {
       terCirculo(a.d.x, a.d.z, 3.6, 1.55); terGrito('¡ATERRIZAJE DE SUPERHÉROE!', 'Salta la onda expansiva'); play('terRugido'); },
     tick(a){ const t = a.t, G = TER.g.position; TER.yaw = lerpAngle(TER.yaw, a.yaw, 0.2);
       if (t > 0.55 && t < 1.55){ const k = (t - 0.55) / 1.0; G.set(lerp(a.o.x, a.d.x, k), Math.sin(Math.PI * k) * 10, lerp(a.o.z, a.d.z, k)); if (!a.sube){ a.sube = true; play('jump'); puffAt(a.o.x, a.o.z, 12, 3); } }
-      if (t >= 1.55 && !a.hecho){ a.hecho = true; G.set(a.d.x, 0, a.d.z); terGolpe(a.d.x, a.d.z, 3.6, 20); terImpacto(a.d.x, a.d.z, 3.6); terOnda(a.d.x, a.d.z, 3.2);
+      if (t >= 1.55 && !a.hecho){ a.hecho = true; G.set(a.d.x, 0, a.d.z); terGolpe(a.d.x, a.d.z, 3.6, 14); terImpacto(a.d.x, a.d.z, 3.6); terOnda(a.d.x, a.d.z, 3.2);
         play('boom'); play('terPaso'); play('bossSlam'); flash('#ff2ae0', 0.3); shake = Math.max(shake, 1.0); hitStop = 0.06; }
       if (t > 2.0 && !a.dijo && !TER.trepa){ a.dijo = true; barkT = 0; bark('¡Ahora! ¡Está de rodillas: agárrate a su pierna!'); } },
     pose(a, R){ const t = a.t; if (t < 0.55) TER_POSES.agacha(R, smooth(t / 0.4)); else if (t < 1.55) TER_POSES.salto(R, Math.min(1, (t - 0.55) / 0.2) * Math.min(1, (1.55 - t) / 0.12 + 0.3));
@@ -302,7 +302,7 @@ const TER_ATQ = {
           if (k > 0 && k < 1 && rnd() < 0.7) spawnFx(fin.x, fin.y, fin.z, (rnd() - 0.5) * 2, 1, (rnd() - 0.5) * 2, 0xffffff, 0.2, 0.25, 0, 1);
           g.t.quaternion.setFromUnitVectors(terY, terV[3].subVectors(fin, o).normalize()); g.p.position.copy(fin); g.p.quaternion.copy(g.t.quaternion);
         } else if (p.ci && t > p.at + 0.34) g.t.visible = g.p.visible = false;   // (si el siguiente que usa este brazo ya ha salido, lo vuelve a enseñar después)
-        if (!p.hecho && t >= p.at){ p.hecho = true; terGolpe(p.x, p.z, 1.6, 11); ringFx(p.x, p.z, 0xffffff, 0.3, 2.0, 0.3); puffAt(p.x, p.z, 6, 1.2, 0x6a3a7a); play('slam'); shake = Math.max(shake, 0.35); }
+        if (!p.hecho && t >= p.at){ p.hecho = true; terGolpe(p.x, p.z, 1.6, 8); ringFx(p.x, p.z, 0xffffff, 0.3, 2.0, 0.3); puffAt(p.x, p.z, 6, 1.2, 0x6a3a7a); play('slam'); shake = Math.max(shake, 0.35); }
       }
       if (t > a.golpes[a.golpes.length - 1].at + 0.4) for (const g of TER.gomas){ g.t.visible = g.p.visible = false; } },
     fin(){ for (const g of TER.gomas){ g.t.visible = g.p.visible = false; } },
@@ -325,7 +325,7 @@ const TER_ATQ = {
         const P_ = (s, v) => v.lerpVectors(a.o, a.p, s).add(terV[4].set(0, Math.sin(s * 9 + time * 20) * 0.25, 0));
         a.cintas.forEach((c, j) => tintaPinta(c, P_, Math.max(0, 1 - 9 / Math.max(9, L)), 1, k => (j ? 2.2 : 3.6) * (0.3 + 0.7 * k)));
         const hp = hero.position, rx = hp.x - a.o.x, rz = hp.z - a.o.z, lo = rx * a.dx + rz * a.dz, la = Math.abs(rx * a.dz - rz * a.dx);
-        if (!a.dio && la < 2.1 && lo > a.prev - 1 && lo < L + 1 && hp.y < 3){ a.dio = true; terGolpe(hp.x, hp.z, 1, 22, 3); }
+        if (!a.dio && la < 2.1 && lo > a.prev - 1 && lo < L + 1 && hp.y < 3){ a.dio = true; terGolpe(hp.x, hp.z, 1, 15, 3); }
         a.prev = L; if (rnd() < 0.8) spawnFx(a.p.x, a.p.y, a.p.z, (rnd() - 0.5) * 3, 1 + rnd() * 2, (rnd() - 0.5) * 3, rnd() < 0.5 ? 0xffd060 : 0xff6a14, 0.3, 0.6, -1, 1);
         if (L >= 36){ TER.hiken.visible = false; a.cintas.forEach(tintaSuelta); a.cintas = null; } } },
     fin(a){ TER.carril.visible = false; TER.hiken.visible = false; if (a.cintas){ a.cintas.forEach(tintaSuelta); a.cintas = null; } },
@@ -346,7 +346,7 @@ const TER_ATQ = {
         if (!b.hecho && t >= b.at){ b.hecho = true; const x = b.x, z = b.z, top = new V3(x + (rnd() - 0.5) * 4, 30, z + (rnd() - 0.5) * 4), bot = new V3(x, 0, z);
           const base = (s, v) => v.lerpVectors(top, bot, s), cintas = [tintaCoge(RAYO_AZUL, 0, 'rayo'), tintaCoge(RAYO_CIAN, 0, 'rayo')];
           TER.peligros.push({ tipo: 'rayo', t: 0, cintas, P: [rayoTiembla(base, 16, 1.2), rayoTiembla(base, 16, 0.7)] });
-          terGolpe(x, z, 1.9, 13, 2.5); ringFx(x, z, 0xbfe8ff, 0.3, 2.6, 0.35); lightFlash(x, 1.5, z, 0x8fd0ff, 2.4, 10); flash('#cfe8ff', 0.18); play('terRayo'); shake = Math.max(shake, 0.35);
+          terGolpe(x, z, 1.9, 9, 2.5); ringFx(x, z, 0xbfe8ff, 0.3, 2.6, 0.35); lightFlash(x, 1.5, z, 0x8fd0ff, 2.4, 10); flash('#cfe8ff', 0.18); play('terRayo'); shake = Math.max(shake, 0.35);
           for (let i = 0; i < 10; i++){ const an = rnd() * TAU; spawnFx(x, 0.3, z, Math.cos(an) * 4, 2 + rnd() * 4, Math.sin(an) * 4, 0xbfe8ff, 0.12, 0.4, 8, 0); } } } },
     fin(a){ TER.chidori.visible = false; if (a.cintas){ a.cintas.forEach(tintaSuelta); a.cintas = null; } },
     pose(a, R){ TER_POSES.chidori(R, Math.min(1, a.t / 0.5) * Math.min(1, (a.dur - a.t) / 0.6)); } },
@@ -360,8 +360,8 @@ const TER_ATQ = {
         for (let i = 0; i < 3; i++){ const an = rnd() * TAU, r = 5 + rnd() * 6; spawnFx(a.p.x + Math.cos(an) * r, 0.3 + rnd() * 3, a.p.z + Math.sin(an) * r, -Math.cos(an) * r * 1.4, 0, -Math.sin(an) * r * 1.4, rnd() < 0.5 ? 0xff4af0 : 0x8a20ff, 0.12, 0.6, 0, -0.5); }
         if (!TER.trepa && !player.dead && t < 5.8){ const dx = a.p.x - hp.x, dz = a.p.z - hp.z, d = Math.hypot(dx, dz) || 1, f = 3.3 * clamp(1 - d / 18, 0.35, 1) * k;
           hp.x += dx / d * f * et; hp.z += dz / d * f * et; a.dano -= et;
-          if (d < 1.6 && a.dano <= 0){ a.dano = 0.45; terGolpe(hp.x, hp.z, 1, 8, 3); } } }
-      if (t >= 5.8 && !a.boom){ a.boom = true; terImpacto(a.p.x, a.p.z, 3.4, 0x8a20ff); play('boom'); terGolpe(a.p.x, a.p.z, 3.4, 12, 3); }
+          if (d < 1.6 && a.dano <= 0){ a.dano = 0.45; terGolpe(hp.x, hp.z, 1, 6, 3); } } }
+      if (t >= 5.8 && !a.boom){ a.boom = true; terImpacto(a.p.x, a.p.z, 3.4, 0x8a20ff); play('boom'); terGolpe(a.p.x, a.p.z, 3.4, 9, 3); }
       if (t >= 6.2) ag.visible = false; },
     fin(){ TER.agujero.visible = false; },
     pose(a, R){ TER_POSES.invoca(R, Math.min(1, a.t / 0.5) * Math.min(1, (a.dur - a.t) / 0.6)); } }
@@ -494,7 +494,7 @@ function terTovanTick(pdt){
   const hp = hero.position;
   if (TER.agarreCd > 0) TER.agarreCd -= pdt;
   if (TER.trepa){ terTrepaTick(pdt); return; }
-  if (TER.cae && grounded){ const h = TER.cae; TER.cae = 0; if (h > 3.5 && !player.dead) hurtPlayer(Math.round((4 + h * 1.1) * TER.dm), hp.x, hp.z, 0); }
+  if (TER.cae && grounded){ const h = TER.cae; TER.cae = 0; if (h > 3.5 && !player.dead) hurtPlayer(Math.round((3 + h * 0.8) * TER.dm), hp.x, hp.z, 0); }
   if (!grounded && vy < 0 && TER.agarreCd <= 0 && !player.dead){ const c = terAgarrable(1.2); if (c){ terAgarra(c); terTrepaTick(0); return; } }
   terColisiones();
   TER.aguante = Math.min(1, TER.aguante + pdt * 0.5);
@@ -625,7 +625,7 @@ function terCineTransforma(){
     csShot((cam, t) => { cam.position.set(mx + uz * dl + ux * 0.4, 1.35 + t * 0.05, mz - ux * dl + uz * 0.4); cam.lookAt(mx, 1.05, mz); });
     csCaption('Tovan: …¿Ese soy yo?'); await csWait(1.8);
     csShot((cam, t) => { cam.position.set(hp.x + ux * (3 + t * 0.15) - uz * 1.2, 2.1, hp.z + uz * (3 + t * 0.15) + ux * 1.2); cam.lookAt(E.x, 1.15, E.z); });
-    csCaption('Lumen: Es tu modelo. Con la textura perdida, como en el vestidor. ¡El ERROR se ha copiado de ti!'); await csWait(2.8);
+    csCaption('Lumen: Es una versión corrupta de ti. ¡El ERROR se ha copiado de tu modelo!'); await csWait(2.8);
     // 4. Crece a saltos y se sale del mapa
     fase = 'crece'; TER.imita = false; csCaption('');
     csShot((cam, t) => { const k = smooth(clamp(t / 2.4, 0, 1)); cam.position.set(hp.x + ux * (2 + k * 3) - uz * 1.5, 1.2 + k * 1.2, hp.z + uz * (2 + k * 3) + ux * 1.5); cam.lookAt(TER.g.position.x, 1.5 + TER.esc * 1.1 * k, TER.g.position.z); });

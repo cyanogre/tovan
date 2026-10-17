@@ -28,7 +28,7 @@ js/
   entrada/            mando, teclado, ratón y táctil
   jugador/            modelo de Tovan, movimientos, acciones, ataque cargado, inercia, acrobacias
   enemigos/           enemigos base, oni, realistas, capitanes (piezas rompibles); regiones/ = enemigos propios de cada escenario
-  jefes/              Ryūjin (y su segunda vida colosal), Gashadokuro, Tetera de Utah, ERROR 404 (y TOVAN.EXE), Seis Ojos, Míster Confianza, Gato final…
+  jefes/              Ryūjin (y su segunda vida colosal), Gashadokuro, Tetera de Utah, ERROR 404 (y TOVAN.EXE, con su forma «fuera de memoria»), Seis Ojos, Míster Confianza, Gato final…
   mundo/              escenarios (biomas), ambiente, playa, ruinas corruptas, castillo, capítulos, mapas grandes (mapas-*.js)
   partida/            oleadas, objetivos de oleada, mejoras, ciclo de partida (empezar / perder / volver al título)
   combate/            combo, billetes, limpieza de restos, sensación de impacto
@@ -101,7 +101,7 @@ Los iconos con emoji se cambian solos por pixel art si el emoji está en la hoja
 **Selector de jefes** (contraseña `jefes`, `js/interfaz/selector-jefes.js`): lista de todos los jefes para pelear directamente con el que quieras. Desde entonces sale un botón «⚔ Jefes» en el título.
 - **Opciones:** «Con cartas al azar» (las que llevarías al llegar jugando) e «Invencible» (para mirar ataques con calma).
 - **Ryūjin:** se puede ir directo a la forma colosal.
-- **ERROR 404:** se puede ir directo a TOVAN.EXE.
+- **ERROR 404:** se puede ir directo a TOVAN.EXE o a su tercera forma («fuera de memoria»).
 - **Míster Confianza:** se puede empezar por cualquier programa del show o saltar a la fase 2.
 
 **Pantalla completa en móvil:** en pantallas táctiles el juego pasa a pantalla completa al primer toque (`js/interfaz/pantalla-completa.js`; se desactiva en Opciones). En iPhone, Safari no lo permite: usa Compartir → «Añadir a pantalla de inicio» (`manifest.webmanifest`) y se abrirá sin barras.
@@ -265,7 +265,7 @@ Al subir al cielo (y al volver) se limpian, tras el fogonazo, todos los efectos 
 
 ## TOVAN.EXE (la segunda vida del ERROR 404)
 
-Al dejar al ERROR 404 (oleada 30) a cero, el cubo se queda colgado, se pliega en píxeles y se copia del modelo de Tovan con la **textura perdida** (la del vestidor) y los ojos encendidos. Luego crece a saltos hasta unos 13 m y se lleva la pelea **fuera del mapa**: una plataforma de depuración con su rejilla, flotando en el vacío entre trozos de escenario sueltos (`js/jefes/tovan-error.js`, `css/tovan-error.css`). Como el colosal, va al estilo *Shadow of the Colossus*:
+Al dejar al ERROR 404 (oleada 30) a cero, el cubo se queda colgado, se pliega en píxeles y se copia del modelo de Tovan: una **versión corrupta** de él, con la textura perdida y los ojos encendidos. Luego crece a saltos hasta unos 13 m y se lleva la pelea **fuera del mapa**: una plataforma de depuración con su rejilla, flotando en el vacío entre trozos de escenario sueltos (`js/jefes/tovan-error.js`, `css/tovan-error.css`). Como el colosal, va al estilo *Shadow of the Colossus*:
 - **Desde el suelo no se le hace nada.** Hay que acercarse por detrás a un talón y agarrarse con RODAR (K o Shift; en el móvil, «Agarra»). También vale saltar contra su pierna.
 - **Trepar:** W/S (o el joystick) sube y baja por la pierna, la espalda y la cabeza. SALTAR te suelta. Un aro de aguante se gasta al trepar y, sobre todo, al agarrarse; se recupera en el suelo (y un poco de pie en su cabeza). Si se vacía, te caes.
 - **Tres puntos débiles** con un sello «404»: el **cinturón**, la **nuca** y la **coronilla**. Se apuñalan con ATACAR: al pulsar se alza el bastón y se clava al soltar; cuanto más lo mantienes, más fuerte. Con el ímpetu lleno, ESPECIAL da una estocada enorme. Romper el cinturón lo deja de rodillas un rato.
@@ -277,9 +277,22 @@ Al dejar al ERROR 404 (oleada 30) a cero, el cubo se queda colgado, se pliega en
   - **¡Puño de fuego… Giga!:** un puño de llamas que cruza toda la plataforma por la franja roja.
   - **¡Mil pájaros… Giga!** (desde el primer punto roto): carga el rayo en la mano y hace caer relámpagos que te persiguen.
   - **¡Agujero negro… Giga!** (desde el segundo): un agujero negro a tu lado que te arrastra; hay que correr en contra y al final explota.
-- **Final:** «¡CTRL + ALT + SUPR!», sale la ventana «TOVAN.EXE ha dejado de funcionar», se deshace en cubos de arriba abajo, volvemos al mapa y sigue lo de siempre: «¡ERROR 404 derrotado!», los procesos cerrados, las dos cartas extra, el logro y el diálogo.
+- **Al romper los tres puntos:** «¡CTRL + ALT + SUPR!» y sale la ventana «TOVAN.EXE ha dejado de funcionar»… pero no se deja cerrar: «está usando el 100 % de la memoria». Crece todavía más y empieza la tercera forma.
 
-La barra de jefe enseña los puntos débiles rotos. Si mueres, reintentar o volver al título lo deja todo como estaba.
+### Fuera de memoria (la tercera forma)
+
+`js/jefes/tovan-error-max.js`. TOVAN.EXE mide ya unos 150 m y la pelea sigue **sobre su hombro derecho**, en mitad de una tormenta: por debajo de sus hombros solo hay nubarrones, con relámpagos entre las nubes y viento. Su cara, enorme y con los ojos rojos, está inclinada sobre el hombro mirándote.
+- **Tres procesos** clavados en el hombro (`memoria.exe`, `copia.exe` y `rabia.exe`): se rompen a golpes, con cualquier ataque o poder.
+- **Sus ataques:**
+  - **¡Manotazo!:** su otra mano barre el hombro de lado a lado. No se puede saltar: hay que rodar justo cuando pasa.
+  - **¡Aplastón!:** la mano cae desde el cielo sobre el círculo, suelta una onda y se queda apoyada un momento.
+  - **¡Mirada láser!:** los dos ojos disparan un láser que recorre la línea roja.
+  - **¡Tormenta!:** rayos que te persiguen.
+  - **¡Lluvia de ventanas!** (desde el primer proceso cerrado): caen ventanas de error sobre círculos.
+- **El ojo:** con los tres procesos cerrados, baja la cara hasta el hombro para mirarte de cerca. Hay que pegarle en el ojo (el aro del suelo marca dónde) mientras sigue atacando.
+- **Final:** «¡FORZAR CIERRE!», la ventana se cierra esta vez, se deshace de arriba abajo por encima de las nubes, el hombro se rompe y Tovan cae entre los nubarrones hasta el mapa. Después, lo de siempre: «¡ERROR 404 derrotado!», los procesos cerrados, las dos cartas extra, el logro y el diálogo.
+
+La barra de jefe enseña los puntos débiles rotos, luego los procesos y, al final, el ojo. Si mueres, reintentar o volver al título lo deja todo como estaba.
 
 ## Dificultad
 
