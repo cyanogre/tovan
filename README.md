@@ -296,6 +296,8 @@ Al dejar al ERROR 404 (oleada 30) a cero, el cubo se queda colgado, se pliega en
 
 La barra de jefe enseña los puntos débiles rotos, luego los procesos y, al final, el ojo. Si mueres, reintentar o volver al título lo deja todo como estaba.
 
+Las indicaciones de la escalada (la pista de controles y el aviso de «¡SACUDIDA!») son pequeñas para no tapar la pelea. En el móvil en horizontal van a la izquierda, bajo el HUD; en vertical, bajo la barra del jefe.
+
 ## Dificultad
 
 En `js/ajustes/dificultad.js` y `css/dificultad.css`. Cuesta sobre todo al principio: lo que la compensa son las mejoras del santuario.
@@ -361,7 +363,7 @@ Cada pieza rota da +3 ✦ y una curación; tumbar al capitán, +5 ✦ y dos cura
 En las oleadas normales de las Ruinas, el Santuario y la Cumbre, el mapa pasa de 6,3 m de radio a 18, rodeado de colinas. Las oleadas de jefe vuelven a la plaza central de siempre, cerrada con una barrera naranja (si Tovan estaba lejos, aparece en el centro). Los demás escenarios no cambian.
 
 - **Por dónde llegan:** cada oleada elige 2 frentes (3 desde la oleada 8) y los enemigos aparecen por ellos, a 9–13 m del jugador. El **radar** de la esquina gira con la cámara: marca los frentes con flechas rojas mientras quedan enemigos por salir, y enseña obstáculos, trampolines, zonas, enemigos (capitanes en naranja, puestos en morado, ladrones en rosa), el paquete con su perímetro y las curaciones.
-- **Obstáculos:** pilares, muros, rocas, árboles y edificios tienen colisión. Los bajos (muros derruidos, rocas pequeñas, faroles…) se pueden saltar. Los altos paran los orbes enemigos y sirven de cobertura. Lo alto que tapa a Tovan se oculta. Los enemigos que no ven a Tovan en línea recta lo rodean: siguen un mapa de distancias hasta él en una rejilla de 0,6 m, recalculado cuatro veces por segundo.
+- **Obstáculos:** pilares, muros, rocas, árboles y edificios tienen colisión. Los bajos (muros derruidos, rocas pequeñas, faroles…) se pueden saltar. Los altos paran los orbes enemigos y sirven de cobertura. Lo alto que tapa a Tovan se desvanece poco a poco (y vuelve igual al apartarse), sin desaparecer de golpe; lo mismo pasa con el cuerpo del Ryūjin colosal cuando la cámara se acerca y con la columna de luz de sus sellos (`js/mundo/fundido-oclusion.js`). Los enemigos que no ven a Tovan en línea recta lo rodean: siguen un mapa de distancias hasta él en una rejilla de 0,6 m, recalculado cuatro veces por segundo.
 - **Movilidad:** cada mapa tiene 3 trampolines (rodeados de piedras en las Ruinas, de bambú en el Santuario, géiseres en la Cumbre) que lanzan a Tovan muy alto con un salto mortal; desde ahí arriba se rompen las piezas «desde el aire» de los capitanes. La Cumbre tiene un lago helado donde se resbala. Desde la 2.ª oleada aparece una curación lejos, para invitar a moverse.
 - **Objetivos:** todo se coloca alrededor del jugador: el paquete a 4–8 m, con un perímetro dorado de 8,5 m (el ladrón que lo cruza se lo lleva); los puestos, a 8–12 m en tres direcciones; el capitán, a 10–13 m (si huye, se escapa al alejarse 10 m).
 
