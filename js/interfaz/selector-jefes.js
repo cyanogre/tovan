@@ -18,20 +18,23 @@ const SELJ_LISTA = [
   { id: 'teapot', n: 'La Tetera de Utah', d: 'Oleada 25', w: 25 },
   { id: 'error', n: 'ERROR 404', d: 'Oleada 30', w: 30, sub: [['Normal', 'n'], ['Directo a TOVAN.EXE', 'ter'], ['Directo a «fuera de memoria»', 'max']] },
   { id: 'sixeyes', n: 'El de los Seis Ojos', d: 'Castillo Infinito', w: 20 },
-  { id: 'final', n: '???', d: 'El jefe final (destripa la historia)', w: FINAL_WAVE }
+  { id: 'final', n: '???', d: 'El jefe final (destripa la historia)', w: FINAL_WAVE },
+  { id: 'prueba', n: 'Campo de pruebas', d: 'Oleada 3 · sin jefe, para probar poderes', w: 3 }
 ];
 
 /* ---------- Panel ---------- */
 const selJEl = document.createElement('div'); selJEl.id = 'selJ'; selJEl.hidden = true;
 selJEl.innerHTML = `<h3>⚔ Elegir jefe</h3>
   <div class="sjOpc"><label><input type="checkbox" id="sjCartas" checked> Con cartas al azar (como si llegaras jugando)</label>
-  <label><input type="checkbox" id="sjDios"> Invencible (para probar)</label></div>
+  <label><input type="checkbox" id="sjDios"> Invencible (para probar)</label>
+  <label>Poder foil <select id="sjFoil" aria-label="Poder foil"><option value="">Ninguno</option><option value="azar">Uno al azar</option></select></label></div>
   <div class="sjLista">${SELJ_LISTA.map((B, i) => `<div class="sjJefe"><button class="win btn sjGo" data-i="${i}"><b>${B.n}</b><small>${B.d}</small></button>${B.sub ? `<select class="sjSub" data-i="${i}" aria-label="Variante">${B.sub.map(([t, v]) => `<option value="${v}">${t}</option>`).join('')}</select>` : ''}</div>`).join('')}</div>`;
 document.querySelector('#passScr .passp').appendChild(selJEl);
 selJEl.addEventListener('keydown', e => e.stopPropagation());
 selJEl.querySelectorAll('.sjGo').forEach(b => b.addEventListener('click', () => {
   const i = +b.dataset.i, s = selJEl.querySelector(`.sjSub[data-i="${i}"]`); play('confirm'); selJefeEmpieza(SELJ_LISTA[i], s ? s.value : null); }));
-function selJAbre(){ selJEl.hidden = false; passScr.querySelector('.passp').classList.add('conJefes'); }
+function selJAbre(){ selJEl.hidden = false; passScr.querySelector('.passp').classList.add('conJefes');
+  const s = document.getElementById('sjFoil'); if (s.options.length <= 2) for (const u of UPGRADES.filter(x => x.r === 'foil')){ const o = document.createElement('option'); o.value = u.id; o.textContent = `${u.ic} ${u.name}`; s.appendChild(o); } }   // (los foil se registran después de este fichero)
 const _probarPassJ = probarPass;
 probarPass = function(){
   if (passIn.value.trim().toLowerCase() === CLAVE_JEFES){ meta.selJefes = true; saveMeta(); selJBoton(); selJAbre(); passMsg.textContent = '¡Selector de jefes desbloqueado! Elige contra quién quieres pelear.'; passMsg.className = 'ok'; play('achieve'); return; }
@@ -69,11 +72,13 @@ function selJefeEmpieza(B, sub){
 }
 function selJefeSigue(B, cartas){
   queue.length = 0; if (cartas) selJCartas(B.id === 'final' ? 28 : Math.max(0, B.w - 1));
+  let fv = document.getElementById('sjFoil').value;   // un poder foil para probarlo
+  if (fv){ const L = UPGRADES.filter(u => u.r === 'foil'), u = fv === 'azar' ? L[Math.floor(rnd() * L.length)] : L.find(x => x.id === fv); if (u){ foilDa(u.id); fv = `${u.ic} ${u.name}`; } }
   player.hp = player.maxHp;
   if (B.id === 'final'){ applyBiome(FINAL); startFinal(); }
   else if (B.id === 'sixeyes'){ wave = B.w; isekaiRun = true; isekaiArrive(); special = { kind: 'castle', stage: 4, max: 4, retWave: B.w, retBiome: biomeOfWave(B.w), done: false }; startSpecialWave(); }
   else { const b = biomeOfWave(B.w); if (b !== curBiome){ wave = B.w - 1; travelTo(b, B.w, true); } else startWave(B.w); }
-  banner(`Selector de jefes<small>${B.n}${SELJ.dios ? ' · invencible' : ''}</small>`, 1.6);
+  banner(`Selector de jefes<small>${B.n}${SELJ.dios ? ' · invencible' : ''}${fv ? ' · ' + fv : ''}</small>`, 1.8);
 }
 // invencible: los golpes no hacen nada (sí cuentan como esquiva para los poderes que miran el resultado)
 const _hurtPlayerSelJ = hurtPlayer;
