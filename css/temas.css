@@ -63,3 +63,11 @@ body:has(.overlay:not([hidden])) #objCol,body:has(.overlay:not([hidden])) #mpRad
 #passIn:focus{box-shadow:0 0 0 3px var(--accent,#ffd970)}
 #passMsg{min-height:1.3em;margin:4px 0 10px;font-size:14px} #passMsg.ok{color:#2fb35a} #passMsg.mal{color:#e0503b}
 .endi{position:relative} .endi .verfin{margin:0 0 0 auto;align-self:center;flex:none;font-size:12px;padding:5px 10px}
+
+/* ---------- Móvil en horizontal: la barra del jefe, a la derecha del HUD (todos los temas) ----------
+   Antes salía centrada encima de la vida de Tovan (Emaki, Relámpago, Albarán completo en pantallas
+   pequeñas) o, en Albarán, empezaba en el centro y se salía por la derecha. El HUD mide hasta 258 px. */
+@media (max-height:520px) and (orientation:landscape){
+  body:not(.ch-invaders) #bossBox{top:calc(8px + env(safe-area-inset-top,0px)) !important;left:auto !important;right:calc(12px + env(safe-area-inset-right,0px)) !important;
+    width:min(520px,calc(100% - 282px - env(safe-area-inset-right,0px))) !important;transform:none !important}
+}
