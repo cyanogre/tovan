@@ -5,18 +5,18 @@
    lista (y desde entonces, un botón «Jefes» en el título).
    · Cartas al azar: las que llevarías al llegar jugando (una por oleada).
    · Invencible: no te hacen daño (para mirar ataques con calma).
-   · Ryūjin: normal o directo a la forma colosal. ERROR 404: normal o directo a TOVAN.EXE.
+   · Ryūjin: normal o directo a la forma colosal. ERROR 404: normal, directo a TOVAN.EXE o a su forma «fuera de memoria».
    · Míster Confianza: desde qué programa del show empezar (o la fase 2).
    ====================================================================== */
 const CLAVE_JEFES = 'jefes';
-const SELJ = { on: false, dios: false, col: false, ter: false, mgDesde: 0, fase2: false };
+const SELJ = { on: false, dios: false, col: false, ter: false, max: false, mgDesde: 0, fase2: false };
 const SELJ_LISTA = [
   { id: 'boss', n: 'Guardián de las Ruinas', d: 'Oleada 5 · Ruinas del Ocaso', w: 5 },
   { id: 'dragon', n: 'Ryūjin', d: 'Oleada 10 · el dragón de jade', w: 10, sub: [['Normal', 'n'], ['Directo a la forma colosal', 'col']] },
   { id: 'skeleton', n: 'Gashadokuro', d: 'Oleada 15', w: 15 },
   { id: 'star', n: 'Míster Confianza', d: 'Oleada 20 · el show', w: 20, sub: [['Show completo', 0], ['2 · ¡Humor Confianza!', 1], ['3 · ¡Marcianitos!', 2], ['4 · La Fantasía Final', 3], ['Fase 2 · ¡Sin guion!', 4]] },
   { id: 'teapot', n: 'La Tetera de Utah', d: 'Oleada 25', w: 25 },
-  { id: 'error', n: 'ERROR 404', d: 'Oleada 30', w: 30, sub: [['Normal', 'n'], ['Directo a TOVAN.EXE', 'ter']] },
+  { id: 'error', n: 'ERROR 404', d: 'Oleada 30', w: 30, sub: [['Normal', 'n'], ['Directo a TOVAN.EXE', 'ter'], ['Directo a «fuera de memoria»', 'max']] },
   { id: 'sixeyes', n: 'El de los Seis Ojos', d: 'Castillo Infinito', w: 20 },
   { id: 'final', n: '???', d: 'El jefe final (destripa la historia)', w: FINAL_WAVE }
 ];
@@ -58,7 +58,7 @@ function selJCartas(n){   // n cartas al azar entre las que podrían salir (sin 
 }
 function selJefeEmpieza(B, sub){
   const cartas = document.getElementById('sjCartas').checked;
-  SELJ.dios = document.getElementById('sjDios').checked; SELJ.col = B.id === 'dragon' && sub === 'col'; SELJ.ter = B.id === 'error' && sub === 'ter';
+  SELJ.dios = document.getElementById('sjDios').checked; SELJ.col = B.id === 'dragon' && sub === 'col'; SELJ.ter = B.id === 'error' && (sub === 'ter' || sub === 'max'); SELJ.max = B.id === 'error' && sub === 'max';
   SELJ.mgDesde = B.id === 'star' ? +sub || 0 : 0;
   passScr.hidden = true; meta.intro2 = true; meta.introSeen = true; saveMeta();
   startRun(); SELJ.on = true;
@@ -75,7 +75,7 @@ hurtPlayer = function(...a){ if (SELJ.on && SELJ.dios && gameState === 'play'){ 
 const _startRunSelJ = startRun;
 startRun = function(){ SELJ.on = false; _startRunSelJ(); };
 const _toTitleSelJ = toTitle;
-toTitle = function(){ SELJ.on = false; SELJ.dios = false; SELJ.col = false; SELJ.ter = false; SELJ.mgDesde = 0; _toTitleSelJ(); };
+toTitle = function(){ SELJ.on = false; SELJ.dios = false; SELJ.col = false; SELJ.ter = false; SELJ.max = false; SELJ.mgDesde = 0; _toTitleSelJ(); };
 // Ryūjin directo a la forma colosal (y ERROR 404 directo a TOVAN.EXE): en cuanto puede pelear, «muere» y empieza la segunda vida
 const _v3UpdateSelJ = v3Update;
 v3Update = function(dt, pdt, playing){ _v3UpdateSelJ(dt, pdt, playing);

@@ -28,5 +28,8 @@
 #terVentana .tvBtns .si{outline:2px solid #3a7ae8;outline-offset:1px}
 #terVentana .tvBtns .si.pulsa{background:#c8d8f8;transform:translate(1px,1px)}
 @keyframes terVentana{from{transform:translate(-50%,-50%) scale(.6);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+#terVentana.mal .tvT{background:linear-gradient(90deg,#d8202a,#8a1030)}
+#terVentana.mal{animation:terVentanaMal .12s steps(2,end) infinite}
+@keyframes terVentanaMal{0%{transform:translate(-50%,-50%)}50%{transform:translate(calc(-50% + 6px),calc(-50% - 3px))}100%{transform:translate(calc(-50% - 5px),calc(-50% + 2px))}}
 body.cine #terPista,body.cine #terGrito{display:none}
 body.terOn #mpRadar{visibility:hidden}
