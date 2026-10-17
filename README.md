@@ -42,7 +42,7 @@ js/
   progreso/           fragmentos, santuario, logros, estéticos, títulos, % completado
   interfaz/           pantallas y menús (título, pausa, vestidor, logros, poderes, móvil…)
   canal-x/            el capítulo que cambia de estilo, y los marcianitos
-  show/               el show de Míster Confianza (4 minijuegos)
+  show/               el show de Míster Confianza (4 programas; los de pixel art se sustituyeron por versiones 3D)
   ajustes/            ajustes de equilibrio (v8, v10) y la dificultad (escudo de jefe, enemigos más duros)
   main.js             bucle principal; arranca el juego
 backup/               el index.html original de un solo archivo y las herramientas con las que se partió
@@ -97,6 +97,11 @@ Crea tus ficheros nuevos y añádelos a `index.html` en el hueco **`<!-- Tus añ
 Los iconos con emoji se cambian solos por pixel art si el emoji está en la hoja (`js/interfaz/iconos-pixel.js`).
 
 **Contraseña** (menú de título → Contraseña, `js/interfaz/contrasena.js`): `marckbyn` desbloquea todo (logros y estéticos, finales, poderes, jefes, sinergias y 9999 ✦). En **Finales**, cada final conseguido tiene «▶ Ver» para repetir su escena.
+
+**Selector de jefes** (contraseña `jefes`, `js/interfaz/selector-jefes.js`): lista de todos los jefes para pelear directamente con el que quieras. Desde entonces sale un botón «⚔ Jefes» en el título.
+- **Opciones:** «Con cartas al azar» (las que llevarías al llegar jugando) e «Invencible» (para mirar ataques con calma).
+- **Ryūjin:** se puede ir directo a la forma colosal.
+- **Míster Confianza:** se puede empezar por cualquier programa del show o saltar a la fase 2.
 
 **Pantalla completa en móvil:** en pantallas táctiles el juego pasa a pantalla completa al primer toque (`js/interfaz/pantalla-completa.js`; se desactiva en Opciones). En iPhone, Safari no lo permite: usa Compartir → «Añadir a pantalla de inicio» (`manifest.webmanifest`) y se abrirá sin barras.
 
@@ -181,6 +186,22 @@ Una rareza por encima de las legendarias, con carta holográfica (`js/poderes/fo
 | 🔥 **Puño de fuego** | Arcos de llamas | Un puño de fuego que sale recto con su cola de llamas | **Ardor:** sube con cada golpe que acierta mientras no te den (+5 % de daño por nivel, máx. 12); al máximo, el remate es «Gran llamarada»: un anillo de llamas y un sol que crece sobre la cabeza y cae, arrasando a 6 m. Si te dan, se apaga |
 
 Para verlas desde la consola (F12): `taken.waterBreath = 1` (o `foilChidori`, `foilHiken`) y ataca; o directamente `aguaDragon(heading)`, `truenoPrimera(heading)`, `fuegoPuno(heading)`, `FOIL.danza = 12; fuegoRueda(heading)`.
+
+## El show de Míster Confianza (en 3D)
+
+Antes eran minijuegos en un lienzo pixelado de 320×180. Ahora son programas en un plató 3D (`js/show/plato-3d.js`, `css/show-3d.css`), con el Tovan de verdad y sus controles de siempre.
+- **El plató:** suelo de escenario con la estrella, pantalla gigante con su cara y un rótulo que corre, focos que barren, gradas con público y neones.
+- **Textos nítidos:** las barras, los rótulos y la leyenda de teclas van en HTML.
+- **Rondas:** cada programa se lleva un cuarto de su vida.
+
+| Programa | Cómo se juega |
+|---|---|
+| **1 · ¡Pelea de la Fama!** (`pelea-3d.js`) | Lucha de lado al estilo *Street Fighter*: J combo, K esquiva, Espacio salto, L especial. Cada golpe suyo se avisa con su nombre en grande, un «!» amarillo (golpe) o un «!!» rojo (salta o rueda) sobre la cabeza y una franja roja en el suelo cuando cruza el escenario. Sus golpes: puñetazo, patada estelar, selfie cegador, firma relámpago, trofeo bumerán y la pose de chulito (le duele un 50 % más). Barras grandes, RONDA y K.O. |
+| **2 · ¡Humor Confianza!** (`prueba-3d.js`) | Prueba de obstáculos tipo *Humor Amarillo* (sustituye a la carrera). Él mira desde su podio; tú pulsas los botones verdes (J a su lado) para que le caiga un castigo: guantazo, cubo de agua o tarta. Barredor rojo a ras de suelo: salta. Desde media ronda, barredor azul a la altura de la cabeza: rueda. Además tira pelotas gigantes. |
+| **3 · ¡Marcianitos!** | El canal 3D de siempre. Arreglado: sus estrellas iban hacia arriba (tenían el signo vertical al revés). |
+| **4 · La Fantasía Final** (`fantasia-3d.js`) | Por turnos con los dos modelos frente a frente y ventanas de RPG clásico, nítidas. W/S elige, J confirma, K vuelve; también se toca o se pincha cada opción. Al atacar, pulsa J cuando el aro blanco toque el amarillo; para bloquear, K cuando el aro azul se cierre sobre ti. |
+
+Durante el show no hay escudo de jefe. Al acabar, el plató se recoge y empieza la fase 2 («¡Sin guion!») en el escenario de siempre.
 
 ## Canal X
 
