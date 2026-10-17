@@ -58,7 +58,7 @@ const FT3 = {
     // en guardia: busca la distancia buena, con saltitos de boxeador
     const want = dist > 4.2 ? 1 : dist < 1.9 ? -1 : 0, sp = 2.4 * (this.fase() > 0.5 ? 1 : 1.25);
     e.g.position.x += want * dir * sp * dt; pose11(e, 'guardia', dt, 10);
-    const bote = Math.sin(time * 9); e.body.position.y = Math.abs(bote) * 0.06; e.legs[0].rotation.x += want ? bote * 0.4 : 0; e.legs[1].rotation.x -= want ? bote * 0.4 : 0;
+    const bote = Math.sin(time * 9); e.body.position.y = Math.abs(bote) * 0.06; if (want){ const G = POSE11.guardia.lg; e.legs[0].rotation.x = G[0] + bote * 0.4; e.legs[1].rotation.x = G[1] - bote * 0.4; }   // (asignado, no sumado: sumarlo cada fotograma lo acumulaba y las piernas giraban como un remolino)
     this.cd -= dt; if (this.cd <= 0 && !player.dead && gameState === 'play') this.elige(e, dist);
   },
   fase(){ const b = bossE, r = Math.max(0, MG.round), top = r ? MG_THR[r - 1] : 1, bot = MG_THR[r]; return b ? clamp((b.hp / b.maxHp - bot) / Math.max(0.01, top - bot), 0, 1) : 1; },
