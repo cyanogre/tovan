@@ -28,7 +28,7 @@ js/
   entrada/            mando, teclado, ratón y táctil
   jugador/            modelo de Tovan, movimientos, acciones, ataque cargado, inercia, acrobacias
   enemigos/           enemigos base, oni, realistas, capitanes (piezas rompibles); regiones/ = enemigos propios de cada escenario
-  jefes/              Ryūjin (y su segunda vida colosal), Gashadokuro, Tetera de Utah, ERROR 404, Seis Ojos, Míster Confianza, Gato final…
+  jefes/              Ryūjin (y su segunda vida colosal), Gashadokuro, Tetera de Utah, ERROR 404 (y TOVAN.EXE), Seis Ojos, Míster Confianza, Gato final…
   mundo/              escenarios (biomas), ambiente, playa, ruinas corruptas, castillo, capítulos, mapas grandes (mapas-*.js)
   partida/            oleadas, objetivos de oleada, mejoras, ciclo de partida (empezar / perder / volver al título)
   combate/            combo, billetes, limpieza de restos, sensación de impacto
@@ -101,6 +101,7 @@ Los iconos con emoji se cambian solos por pixel art si el emoji está en la hoja
 **Selector de jefes** (contraseña `jefes`, `js/interfaz/selector-jefes.js`): lista de todos los jefes para pelear directamente con el que quieras. Desde entonces sale un botón «⚔ Jefes» en el título.
 - **Opciones:** «Con cartas al azar» (las que llevarías al llegar jugando) e «Invencible» (para mirar ataques con calma).
 - **Ryūjin:** se puede ir directo a la forma colosal.
+- **ERROR 404:** se puede ir directo a TOVAN.EXE.
 - **Míster Confianza:** se puede empezar por cualquier programa del show o saltar a la fase 2.
 
 **Pantalla completa en móvil:** en pantallas táctiles el juego pasa a pantalla completa al primer toque (`js/interfaz/pantalla-completa.js`; se desactiva en Opciones). En iPhone, Safari no lo permite: usa Compartir → «Añadir a pantalla de inicio» (`manifest.webmanifest`) y se abrirá sin barras.
@@ -157,6 +158,13 @@ En la primera partida, la 1.ª oleada es un tutorial (`js/partida/tutorial.js`, 
 - Lumen hace menos chistes (uno cada 40 s como mucho); los avisos de juego y la historia, sí.
 
 Con cualquier HUD, en el móvil en vertical la cámara se abre al jugar (antes se veían unos 3 m de lado a lado). En el móvil, **pellizcar con dos dedos** acerca o aleja la cámara, como la rueda del ratón (`js/entrada/zoom-tactil.js`).
+
+## Cámara automática
+
+**Opciones → Cámara: Automática | Manual** (`js/entrada/camara-auto.js`; por defecto, Automática). Al correr de lado, la cámara se va poniendo poco a poco detrás de Tovan, como en los juegos de ahora; así en el móvil no hace falta arrastrar el dedo todo el rato. Es suave a propósito:
+- Si corres hacia la cámara, no se da la vuelta: se le sigue viendo la cara a Tovan.
+- Si la mueves tú (ratón, dedo o palanca derecha del mando), se queda quieta un par de segundos.
+- No toca los planos semifijos: cinemáticas, Canal X, marcianitos, el show, el Ryūjin colosal, TOVAN.EXE, el Gashadokuro y las técnicas con cámara propia.
 
 ## Valoración del cliente (premios y castigos)
 
@@ -252,6 +260,26 @@ Al dejar a Ryūjin (oleada 10) a cero, no muere: brilla, toca la bocina como Cam
 - **Remate:** «¡ENTREGADO!», el dragón se deshace en jade, Tovan cae al santuario y sigue lo de siempre: «¡Ryūjin derrotado!», el diálogo, el trozo de la hoja de ruta y las cartas.
 
 La barra de jefe enseña los sellos que quedan y la perla. Si mueres arriba, reintentar o volver al título deja el santuario como estaba.
+
+Al subir al cielo (y al volver) se limpian, tras el fogonazo, todos los efectos de los poderes que hubiera en pantalla: agujeros negros, técnicas foil y otaku, aliados y bichos, cráteres, peligros de los jefes, proyectiles, partículas, rayos y números de daño. Antes se quedaban flotando entre las nubes, igual que el aro dorado que marca la plaza en las oleadas de jefe. Lo hace `limpiaEfectos()` (`js/combate/limpieza-colosos.js`), que se usa también con TOVAN.EXE y al entrar en el plató del show; los orbitales, las cartas y la vida no se tocan.
+
+## TOVAN.EXE (la segunda vida del ERROR 404)
+
+Al dejar al ERROR 404 (oleada 30) a cero, el cubo se queda colgado, se pliega en píxeles y se copia del modelo de Tovan con la **textura perdida** (la del vestidor) y los ojos encendidos. Luego crece a saltos hasta unos 13 m y se lleva la pelea **fuera del mapa**: una plataforma de depuración con su rejilla, flotando en el vacío entre trozos de escenario sueltos (`js/jefes/tovan-error.js`, `css/tovan-error.css`). Como el colosal, va al estilo *Shadow of the Colossus*:
+- **Desde el suelo no se le hace nada.** Hay que acercarse por detrás a un talón y agarrarse con RODAR (K o Shift; en el móvil, «Agarra»). También vale saltar contra su pierna.
+- **Trepar:** W/S (o el joystick) sube y baja por la pierna, la espalda y la cabeza. SALTAR te suelta. Un aro de aguante se gasta al trepar y, sobre todo, al agarrarse; se recupera en el suelo (y un poco de pie en su cabeza). Si se vacía, te caes.
+- **Tres puntos débiles** con un sello «404»: el **cinturón**, la **nuca** y la **coronilla**. Se apuñalan con ATACAR: al pulsar se alza el bastón y se clava al soltar; cuanto más lo mantienes, más fuerte. Con el ímpetu lleno, ESPECIAL da una estocada enorme. Romper el cinturón lo deja de rodillas un rato.
+- **Sacudidas:** si te nota encima, ruge (¡SACUDIDA!) y se sacude. Hay que mantener RODAR; si no, te tira (y desde arriba la caída duele). Apuñalarle mucho las adelanta, y con dos puntos rotos son más largas.
+- **Sus técnicas**, versiones gigantes de los poderes de Tovan, con su nombre en grande:
+  - **Pisotón:** si estás a sus pies, levanta una pierna y pisa el círculo. Luego deja la pierna plantada: buen momento para agarrarse.
+  - **¡Aterrizaje de superhéroe!:** salta, cae sobre el círculo y suelta una onda expansiva que hay que saltar. Se queda de rodillas un rato: la mejor ocasión para trepar (es lo primero que hace).
+  - **¡Gomu Gomu no… Giga Gatling!:** una ráfaga de puñetazos de goma sobre círculos alrededor de ti.
+  - **¡Puño de fuego… Giga!:** un puño de llamas que cruza toda la plataforma por la franja roja.
+  - **¡Mil pájaros… Giga!** (desde el primer punto roto): carga el rayo en la mano y hace caer relámpagos que te persiguen.
+  - **¡Agujero negro… Giga!** (desde el segundo): un agujero negro a tu lado que te arrastra; hay que correr en contra y al final explota.
+- **Final:** «¡CTRL + ALT + SUPR!», sale la ventana «TOVAN.EXE ha dejado de funcionar», se deshace en cubos de arriba abajo, volvemos al mapa y sigue lo de siempre: «¡ERROR 404 derrotado!», los procesos cerrados, las dos cartas extra, el logro y el diálogo.
+
+La barra de jefe enseña los puntos débiles rotos. Si mueres, reintentar o volver al título lo deja todo como estaba.
 
 ## Dificultad
 
@@ -398,6 +426,7 @@ Se guardan en el `localStorage` del navegador:
 - `tovan-ui`: tema de la interfaz.
 - `tovan-fs`: pantalla completa en móvil (Opciones → Pantalla completa).
 - `tovan-hud`: HUD limpio o completo (Opciones → HUD).
+- `tovan-cam`: cámara automática o manual (Opciones → Cámara).
 - `tovan-tuto`: si ya se hizo el tutorial (`1`) o se ha pedido repetirlo (`0`).
 
 Van ligadas a la dirección desde la que se abre el juego. Si un día lo sirves desde un servidor web (`http://…`), las partidas de `file://` no se verán allí.

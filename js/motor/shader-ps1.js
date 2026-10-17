@@ -34,6 +34,9 @@ float bayer4(vec2 a){ return bayer2(0.5 * a) * 0.25 + bayer2(a); }
 `;
 
 const VS = `
+#ifndef GLITCH_AMP
+#define GLITCH_AMP 0.14
+#endif
 uniform vec2 uRes; uniform float uSnap; uniform float uAffine;
 uniform vec3 uLightDir; uniform vec3 uLightCol; uniform vec3 uAmb;
 uniform vec3 uPointPos; uniform vec3 uPointCol; uniform float uPointRange;
@@ -74,7 +77,7 @@ void main(){
     p.xy = floor(p.xy / p.w * g + 0.5) / g * p.w;
   }
   if (uGlitch > 0.5){ float h = fract(sin(dot(floor(position * 3.0) + floor(uTime * 6.0), vec3(12.9898, 78.233, 37.719))) * 43758.5453);
-    if (h > 0.92) p.xy += (vec2(h, fract(h * 7.13)) - 0.5) * 0.14 * p.w; }
+    if (h > 0.92) p.xy += (vec2(h, fract(h * 7.13)) - 0.5) * GLITCH_AMP * p.w; }
   gl_Position = p;
   float w = uAffine > 0.5 ? p.w : 1.0;       // mapeo afín: se deshace la corrección de perspectiva
   vUvW = vec3(uv * w, w);
