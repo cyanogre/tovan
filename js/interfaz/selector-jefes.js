@@ -9,7 +9,7 @@
    · Míster Confianza: desde qué programa del show empezar (o la fase 2).
    ====================================================================== */
 const CLAVE_JEFES = 'jefes';
-const SELJ = { on: false, dios: false, col: false, ter: false, max: false, mgDesde: 0, fase2: false };
+const SELJ = { on: false, dios: false, col: false, ter: false, max: false, mgDesde: 0, fase2: false, pend: null };
 const SELJ_LISTA = [
   { id: 'boss', n: 'Guardián de las Ruinas', d: 'Oleada 5 · Ruinas del Ocaso', w: 5 },
   { id: 'dragon', n: 'Ryūjin', d: 'Oleada 10 · el dragón de jade', w: 10, sub: [['Normal', 'n'], ['Directo a la forma colosal', 'col']] },
@@ -62,6 +62,12 @@ function selJefeEmpieza(B, sub){
   SELJ.mgDesde = B.id === 'star' ? +sub || 0 : 0;
   passScr.hidden = true; meta.intro2 = true; meta.introSeen = true; saveMeta();
   startRun(); SELJ.on = true;
+  // con el kit de bienvenida (poder al empezar), startRun abre ya sus cartas: primero se elige y luego sale el jefe
+  // (antes el jefe empezaba detrás, con las cartas encima y sin poder elegir: gameState ya no era 'upgrade')
+  if (kitAfter){ SELJ.pend = [B, cartas]; banner(`Kit de bienvenida<small>Elige con qué empiezas · luego, ${B.n}</small>`, 1.8); return; }
+  selJefeSigue(B, cartas);
+}
+function selJefeSigue(B, cartas){
   queue.length = 0; if (cartas) selJCartas(B.id === 'final' ? 28 : Math.max(0, B.w - 1));
   player.hp = player.maxHp;
   if (B.id === 'final'){ applyBiome(FINAL); startFinal(); }
@@ -73,9 +79,11 @@ function selJefeEmpieza(B, sub){
 const _hurtPlayerSelJ = hurtPlayer;
 hurtPlayer = function(...a){ if (SELJ.on && SELJ.dios && gameState === 'play'){ player.inv = Math.max(player.inv, 0.2); return 'none'; } return _hurtPlayerSelJ(...a); };
 const _startRunSelJ = startRun;
-startRun = function(){ SELJ.on = false; _startRunSelJ(); };
+startRun = function(){ SELJ.on = false; SELJ.pend = null; _startRunSelJ(); };
+const _afterUpgradeSelJ = afterUpgrade;
+afterUpgrade = function(){ if (SELJ.pend && kitAfter){ const [B, c] = SELJ.pend; SELJ.pend = null; kitAfter = false; selJefeSigue(B, c); return; } _afterUpgradeSelJ(); };
 const _toTitleSelJ = toTitle;
-toTitle = function(){ SELJ.on = false; SELJ.dios = false; SELJ.col = false; SELJ.ter = false; SELJ.max = false; SELJ.mgDesde = 0; _toTitleSelJ(); };
+toTitle = function(){ SELJ.on = false; SELJ.pend = null; SELJ.dios = false; SELJ.col = false; SELJ.ter = false; SELJ.max = false; SELJ.mgDesde = 0; _toTitleSelJ(); };
 // Ryūjin directo a la forma colosal (y ERROR 404 directo a TOVAN.EXE): en cuanto puede pelear, «muere» y empieza la segunda vida
 const _v3UpdateSelJ = v3Update;
 v3Update = function(dt, pdt, playing){ _v3UpdateSelJ(dt, pdt, playing);
