@@ -6,10 +6,11 @@
    con él encima. Sobre el lomo hay que romper tres sellos de jade
    aguantando sacudidas (mantener RODAR para agarrarse), púas, lluvia de
    fuego y maniobras: sacudidas violentas, subidas en vertical y
-   tirabuzones boca abajo. Si te tira, caes por el cielo: te impulsas
-   (RODAR), te agarras a una cría y, montado en ella, saltas de vuelta al
-   lomo. Luego se lanza en picado y hay que llegar, con viento de cara,
-   hasta la perla de la cabeza. Al romperla sigue el flujo de siempre:
+   tirabuzones boca abajo. Sin agarrarse en plena maniobra te tira por un
+   costado y caes por el cielo: te impulsas (RODAR), te agarras a una cría
+   y, montado en ella, saltas de vuelta al lomo, mientras el dragón se
+   aparta para no dejarte subir. Luego se lanza en picado y hay que
+   llegar, con viento de cara, hasta la perla de la cabeza. Al romperla sigue el flujo de siempre:
    «¡Ryūjin derrotado!», win_dragon, el trozo de la hoja de ruta y las cartas.
    - El lomo es una pasarela plana a y = 0 (saltos y golpes funcionan igual):
      el dragón ondula de lado y arrastra a Tovan; el que se inclina es el mundo.
@@ -23,7 +24,8 @@
 const COL_Z0 = -30, COL_N = 40, COL_SP = 1.8, COL_ZMAX = 21.5, COL_ZMIN = -15.5, COL_ZMIN_FIN = -26.4, COL_SELLOS = [14.5, 1, -11.5], COL_ZPERLA = -25.2;
 const COL = { on: false, montado: false, built: false, fase: null, e: null, tt: 0, giro: 0, giroObj: 0, giroS: 1, picado: 0, banco: 0, bancoObj: 0, cabeceo: 0, boca: 0.12, temblor: 0,
   atq: null, atqCd: 0, primero: null, ultimo: '', rotas: 0, sellos: [], perla: null, aguante: 1, agarra: false, sinFuerza: 0, vu: 0, uLock: 0, zLock: 0, zMin: COL_ZMIN,
-  rafaga: 0, rafagaObj: 0, cabObj: 0, vz: 0, aire: null, pendFinal: 0, prev: null, son: null, despS: 0, despN: 0, crias: [] };
+  rafaga: 0, rafagaObj: 0, cabObj: 0, vz: 0, aire: null, pendFinal: 0, prev: null, son: null, despS: 0, despN: 0, crias: [], suelto: 0, lejos: 0, yaw0: 0, yawT: 0,
+  esq: { x: 0, v: 0, obj: 0, z: 0, cd: 0, n: 0, i: 0, acc: 0, h: null } };
 BOSS_CARDS.ryucol = ['RYŪJIN · SEGUNDA VIDA', 'Dragón de jade · Ahora en tamaño mudanza', '#7fe8c8'];
 
 /* ---------- Forma: radio, ondulación y altura del lomo a lo largo de z ---------- */
@@ -32,8 +34,25 @@ const colHW = z => Math.max(0.6, colR(z) * 0.55);   // media anchura de la pasar
 function colC(z){   // desplazamiento lateral del espinazo: ondula como una serpiente y la cola latiguea (el giro del cuello va en colCuello)
   let x = Math.sin(z * 0.15 - COL.tt * 0.85) * (0.6 + 0.025 * Math.max(0, z - 6));
   if (z > 22) x += Math.sin(z * 0.33 - COL.tt * 2.4) * (z - 22) * 0.13;
-  return x;
+  return x + colEsqX(z);
 }
+// Esquiva (con Tovan montado en una cría, el dragón se aparta): COL.esq.x es lo que se ha apartado y llega al resto
+// del cuerpo como una ola desde donde estaba la cría (COL.esq.z), a COL_ESQ_V m/s: la cabeza y la cola tardan en seguirla.
+const COL_ESQ_HZ = 30, COL_ESQ_N = 120, COL_ESQ_V = 24, COL_ESQ_MAX = 3;
+COL.esq.h = new Float32Array(COL_ESQ_N);
+function colEsqX(z){
+  const E = COL.esq, d = Math.min(COL_ESQ_N - 2, Math.abs(z - E.z) / COL_ESQ_V * COL_ESQ_HZ), k = Math.floor(d), f = d - k;
+  const at = j => j === 0 ? E.x : E.h[(E.i - j + 1 + COL_ESQ_N) % COL_ESQ_N];
+  return at(k) + (at(k + 1) - at(k)) * f;
+}
+function colEsqTick(dt){
+  const E = COL.esq; if (dt <= 0) return;
+  if (COL.fase !== 'aire') E.obj *= Math.exp(-dt * 0.25);   // de vuelta a su sitio, sin prisa (el lomo arrastra a Tovan)
+  E.cd = Math.max(0, E.cd - dt);
+  const w = 3.1; E.v += ((E.obj - E.x) * w * w - 2 * w * E.v) * dt; E.x += E.v * dt;
+  E.acc += dt; while (E.acc >= 1 / COL_ESQ_HZ){ E.acc -= 1 / COL_ESQ_HZ; E.i = (E.i + 1) % COL_ESQ_N; E.h[E.i] = E.x; }
+}
+function colEsqReset(){ const E = COL.esq; E.x = E.v = E.obj = E.z = E.cd = E.n = E.acc = 0; E.h.fill(0); }
 function colTop(z){   // altura de la cara de arriba (0 en la pasarela; el cuello sube hasta la cabeza y la cola cae)
   let y = 0;
   if (z < -15){ const t = clamp((-15 - z) / 15, 0, 1); y += 6 * (1 - COL.picado) * smooth(t) + COL.giro * 1.5 * (Math.sin(Math.PI * t) + t * t); }   // girado: el cuello hace arco y la cabeza se alza un poco
@@ -56,6 +75,7 @@ function colCuello(){
   }
 }
 const COL_AGARRE = new Set(['sacude', 'rafaga', 'violenta', 'vertical', 'tirabuzon']);   // los ataques en los que hay que agarrarse
+const COL_SUELTA = { sacude: 0.45, violenta: 0.3, rafaga: 0.6, vertical: 0.45, tirabuzon: 0.35 };   // segundos sin agarrarse (a toda fuerza) hasta que te tira
 const colPeligro = () => !!COL.atq && COL_AGARRE.has(COL.atq.tipo);
 const colTactil = () => matchMedia('(pointer:coarse)').matches;
 const colV = [new V3(), new V3(), new V3(), new V3()], colMira = new THREE.Object3D();
@@ -69,6 +89,7 @@ let colTocaRodar = false;
 if (colBtnRodar){ colBtnRodar.addEventListener('pointerdown', () => { colTocaRodar = true; }); for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) colBtnRodar.addEventListener(ev, () => { colTocaRodar = false; }); }
 function colPadRodar(){ try { const ps = navigator.getGamepads ? navigator.getGamepads() : null; if (ps) for (const p of ps) if (p && p.connected) return [1, 5, 7].some(i => p.buttons[i] && p.buttons[i].pressed); } catch (err) {} return false; }
 function colAviso(txt, sub, agarre = true){
+  if (!txt || !agarre) colAvisoEl.classList.remove('mal');
   if (!txt || !agarre){ if (colBtnRodar && colBtnRodar.dataset.col){ colBtnRodar.textContent = colBtnRodar.dataset.col; delete colBtnRodar.dataset.col; colBtnRodar.classList.remove('tutoOjo'); } }
   if (txt && !agarre){ colAvisoEl.querySelector('b').textContent = txt; colAvisoEl.querySelector('small').textContent = sub || ''; colAvisoEl.hidden = false; return; }
   if (!txt){ colAvisoEl.hidden = true; if (colBtnRodar && colBtnRodar.dataset.col){ colBtnRodar.textContent = colBtnRodar.dataset.col; delete colBtnRodar.dataset.col; colBtnRodar.classList.remove('tutoOjo'); } return; }
@@ -392,32 +413,32 @@ function colAlientoTick(A, dt){
 function colAtaqueTick(dt){
   const A = COL.atq;
   if (!A){ if (COL.pendFinal > 0) return; COL.atqCd -= dt; if (COL.atqCd <= 0 && !player.dead) colElige(); return; }
-  A.t += dt;
+  A.t += dt; A.fuerza = 0;   // (lo fuerte que zarandea ahora: sin agarrarse, te acaba tirando; ver colTick)
   if (A.tipo === 'sacude'){
     const AV = 1.4, D = 2.8;
-    if (A.t >= AV && A.t < AV + D){ const k = (A.t - AV) / D; COL.bancoObj = A.s * 0.58 * Math.sin(k * Math.PI * 2.5) * Math.min(1, (1 - k) * 4);
+    if (A.t >= AV && A.t < AV + D){ const k = (A.t - AV) / D; COL.bancoObj = A.s * 0.58 * Math.sin(k * Math.PI * 2.5) * Math.min(1, (1 - k) * 4); A.fuerza = Math.min(1, (1 - k) * 4);
       if (!A.son){ A.son = true; play('colRafaga'); COL.boca = 0.2; } }
     else if (A.t >= AV + D){ COL.bancoObj = 0; colFinAtq(); }
   } else if (A.tipo === 'aliento'){ colAlientoTick(A, dt);
   } else if (A.tipo === 'violenta'){   // sacudida a lo bestia que acaba en una coz: sin agarrarse, por los aires
     const AV = 1.1, D = 2.6;
-    if (A.t >= AV && A.t < AV + D){ const k = (A.t - AV) / D; COL.bancoObj = A.s * 0.85 * Math.sin(k * Math.PI * 5) * Math.min(1, (1 - k) * 6); COL.temblor = Math.max(COL.temblor, 0.3);
+    if (A.t >= AV && A.t < AV + D){ const k = (A.t - AV) / D; COL.bancoObj = A.s * 0.85 * Math.sin(k * Math.PI * 5) * Math.min(1, (1 - k) * 6); COL.temblor = Math.max(COL.temblor, 0.3); A.fuerza = Math.min(1, (1 - k) * 6);
       if (!A.son){ A.son = true; play('colRafaga'); }
       if (!A.coz && k > 0.86){ A.coz = true; shake = Math.max(shake, 0.9); play('boom'); if (!COL.agarra && grounded && !player.dead){ colLanza(Math.sign(hero.position.x - colC(hero.position.z)) || A.s, 0, true); return; } } }
     else if (A.t >= AV + D){ COL.bancoObj = 0; colFinAtq(); }
   } else if (A.tipo === 'vertical'){   // sube en vertical: la gravedad tira hacia la cola
     const AV = 1.3, D = 3.2;
-    if (A.t >= AV && A.t < AV + D){ const k = (A.t - AV) / D; COL.cabObj = -1.25 * Math.min(1, k * 4, (1 - k) * 4); if (!A.son){ A.son = true; play('colRafaga'); } }
+    if (A.t >= AV && A.t < AV + D){ const k = (A.t - AV) / D; COL.cabObj = -1.25 * Math.min(1, k * 4, (1 - k) * 4); A.fuerza = Math.min(1, k * 4, (1 - k) * 4); if (!A.son){ A.son = true; play('colRafaga'); } }
     else if (A.t >= AV + D){ COL.cabObj = 0; colFinAtq(); }
   } else if (A.tipo === 'tirabuzon'){   // media vuelta, un rato boca abajo y la otra media
     const AV = 1.3, G1 = 0.9, HOLD = 2.0, G2 = 0.9;
     if (A.t >= AV){ const t = A.t - AV;
-      COL.bancoObj = A.s * (t < G1 ? Math.PI * smooth(t / G1) : t < G1 + HOLD ? Math.PI : Math.PI * (1 + smooth(Math.min(1, (t - G1 - HOLD) / G2))));
+      COL.bancoObj = A.s * (t < G1 ? Math.PI * smooth(t / G1) : t < G1 + HOLD ? Math.PI : Math.PI * (1 + smooth(Math.min(1, (t - G1 - HOLD) / G2)))); A.fuerza = t < G1 + HOLD + G2 ? 1 : 0;
       if (!A.son){ A.son = true; play('colRafaga'); }
       if (t >= G1 + HOLD + G2 + 0.35){ COL.banco -= A.s * TAU; COL.bancoObj = 0; colFinAtq(); } }
   } else if (A.tipo === 'rafaga'){
     const AV = 1.1, D = 1.9;
-    if (A.t >= AV && A.t < AV + D) COL.rafagaObj = 6.5;
+    if (A.t >= AV && A.t < AV + D){ COL.rafagaObj = 6.5; A.fuerza = Math.min(1, (A.t - AV) * 3); }
     else if (A.t >= AV + D){ COL.rafagaObj = 0; colFinAtq(); }
   } else if (A.tipo === 'puas'){
     const AV = 1.15;
@@ -454,10 +475,13 @@ function colCriaNueva(){   // como las crías de la pelea, pero del tamaño just
   const segs = Array.from({ length: 8 }, (_, i) => { const m = mesh(new THREE.IcosahedronGeometry(0.42 - i * 0.032, 1), i % 2 ? M.panza : M.rojo, 0, -50, 0); m.visible = false; return m; });
   return { g, alas, segs, rastro: [], pos: new V3(), prev: new V3(), centro: new V3(), oy: 0, fa: 0, on: false, libreT: 0, cansa: 0, fuera: 0 };
 }
-function colCriasSuelta(lado){   // tres crías escalonadas por debajo de donde te tira, hacia tu lado: al caer, guíate hasta una
+function colCriasSuelta(lado){   // tres crías escalonadas a lo largo de la caída (la de colAireTick sin tocar nada), hacia tu lado: guíate hasta una
   if (!COL.crias.length) COL.crias = [colCriaNueva(), colCriaNueva(), colCriaNueva()];
-  const p = hero.position, of = [[3.6, -3, -1.5], [6, -6.5, 2], [3.2, -10, 3.5]];
-  COL.crias.forEach((c, k) => { const [ox, oy, oz] = of[k]; c.centro.set(p.x + lado * ox, p.y + oy, p.z + oz); c.oy = oy; c.fa = k * 2.1; c.on = true; c.libreT = 0; c.cansa = 12; c.fuera = 0;
+  const A = COL.aire, p = A.pos.clone(), v = A.vel.clone(), alto = [-3, -6.5, -10], sitios = [], h = 1 / 30;
+  for (let t = 0; t < 8 && sitios.length < 3; t += h){ v.y = Math.max(-5, v.y - 7 * h); v.x *= Math.exp(-h * 0.9); v.z *= Math.exp(-h * 0.9); p.addScaledVector(v, h);
+    if (p.y <= A.pos.y + alto[sitios.length]) sitios.push(p.clone()); }
+  const of = [[0, -1.5], [1.4, 2], [-1.2, 3.5]];   // (de lado y en z, respecto a la caída)
+  COL.crias.forEach((c, k) => { const q = sitios[k] || p; c.centro.set(q.x + lado * of[k][0], q.y, q.z + of[k][1]); c.fa = k * 2.1; c.on = true; c.libreT = 0; c.cansa = 15; c.fuera = 0;
     c.pos.set(c.centro.x + lado * 6, c.centro.y - 3, c.centro.z); c.prev.copy(c.pos); c.rastro.length = 0; c.g.visible = true; for (const m of c.segs) m.visible = true; });
 }
 function colCriasFuera(ya){ for (const c of COL.crias){ if (ya){ c.on = false; c.g.visible = false; for (const m of c.segs) m.visible = false; } else if (c.on && !c.fuera) c.fuera = 2.5; } }
@@ -479,12 +503,14 @@ function colCriasTick(dt){
   }
 }
 const colAsiento = (c, v) => v.set(0, 0.55, -0.75).applyQuaternion(c.g.quaternion).add(c.pos);
-function colLanza(sx, sz, arriba){   // te ha tirado: por los aires
-  const fase0 = COL.fase === 'aire' && COL.aire ? COL.aire.fase0 : COL.fase;
-  COL.aire = { pos: hero.position.clone(), vel: new V3(sx * 5.5, arriba ? 7.5 : 4, sz * 6), t: 0, cria: null, dash: 1, fase0 };
-  COL.fase = 'aire'; COL.agarra = false; COL.vu = COL.vz = 0; COL.atq = null; colQuitaAtaques(); for (const p of COL.puas) p.g.visible = false;
-  state = 'normal'; attackW = 0; staffToBack(); grounded = true; vy = 0; blob.visible = false;
-  colCriasSuelta(sx || (hero.position.x - colC(hero.position.z) >= 0 ? 1 : -1));
+function colLanza(sx, sz, arriba){   // te ha tirado: por los aires, siempre por un costado
+  if (COL.fase !== 'aire' && !(COL.yawT > 0)) COL.yaw0 = camYaw;   // (para devolver la cámara al volver al lomo)
+  const fase0 = COL.fase === 'aire' && COL.aire ? COL.aire.fase0 : COL.fase, lado = Math.sign(sx) || (hero.position.x - colC(hero.position.z) >= 0 ? 1 : -1);
+  COL.aire = { pos: hero.position.clone(), vel: new V3(lado * 11, arriba ? 5.5 : 3.5, sz * 2.5), t: 0, cria: null, dash: 1, fase0, lado };
+  COL.fase = 'aire'; COL.agarra = false; COL.vu = COL.vz = 0; COL.suelto = 0; COL.atq = null; colQuitaAtaques(); for (const p of COL.puas) p.g.visible = false;
+  COL.bancoObj = COL.cabObj = COL.rafagaObj = 0; COL.esq.n = 0; COL.esq.cd = 0.6;
+  state = 'normal'; attackW = 0; staffToBack(); grounded = true; vy = 0; blob.visible = false; colAvisoEl.classList.remove('mal');
+  colCriasSuelta(lado);
   play('jump'); play('colRafaga'); shake = Math.max(shake, 0.5); slowT = Math.max(slowT, 0.5);
   barkT = 0; bark('¡Te ha tirado! ¡Agárrate a una cría o te estrellas!');
 }
@@ -495,16 +521,22 @@ function colAireTick(dt){
     const c = A.cria; c.cansa -= dt;
     A.vel.x += (ix * 9 - A.vel.x) * (1 - Math.exp(-dt * 3)); A.vel.z += (iz * 9 - A.vel.z) * (1 - Math.exp(-dt * 3)); A.vel.y += ((2.3 - c.pos.y) * 1.3 - A.vel.y) * (1 - Math.exp(-dt * 2));
     c.prev.copy(c.pos); c.pos.addScaledVector(A.vel, dt); colAsiento(c, A.pos);
-    const sobre = Math.abs(c.pos.x - colC(c.pos.z)) < colHW(c.pos.z) + 0.6 && c.pos.z > COL.zMin && c.pos.z < COL_ZMAX && c.pos.y > -0.5;
-    colAviso(sobre ? '¡SALTA!' : 'Vuela hasta el lomo', sobre ? 'Salta y caes encima' : c.cansa < 4 ? '¡La cría se cansa!' : 'SALTAR para soltarte', false);
+    colEsquiva(c);
+    { const zz = clamp(c.pos.z, COL.zMin, COL_ZMAX), dx = colC(zz) - c.pos.x, dz = zz - c.pos.z;   // la cámara se va girando hacia el dragón, en tres cuartos: se le ve entero apartarse
+      if (Math.abs(dx) > 2.5 && !dragging){ const a = Math.atan2(-dx, -(dz - Math.abs(dx) * 0.7)); camYaw += Math.atan2(Math.sin(a - camYaw), Math.cos(a - camYaw)) * (1 - Math.exp(-dt * 1.4)); } }
+    const sobre = Math.abs(c.pos.x - colC(c.pos.z)) < colHW(c.pos.z) + 0.6 && c.pos.z > COL.zMin && c.pos.z < COL_ZMAX && c.pos.y > -0.5, huye = Math.abs(COL.esq.v) > 2.5;
+    colAviso(sobre ? '¡SALTA!' : huye ? '¡Se aparta!' : 'Vuela hasta el lomo', sobre ? 'Salta y caes encima' : c.cansa < 4 ? '¡La cría se cansa!' : huye ? '¡Persíguelo!' : 'SALTAR para soltarte', false);
     if (c.cansa <= 0){ A.cria = null; c.libreT = 3; c.fuera = 2.5; A.vel.y = 1.5; barkT = 0; bark('¡La cría se ha cansado! ¡Busca otra!'); }
+    A.viento = Math.max(0, (A.viento || 0) - dt);
+    if (A.viento > 0){ c.pos.x += Math.sin(time * 27) * 0.05 * A.viento; c.pos.y += Math.sin(time * 31) * 0.06 * A.viento; }   // el aire que mueve un bicho así de grande te zarandea
   } else {
     A.vel.y = Math.max(-5, A.vel.y - 7 * dt); const dr = Math.exp(-dt * 0.9);   // caída frenada por el viento, y el aire te frena de lado
-    A.vel.x = A.vel.x * dr + ix * 10 * dt; A.vel.z = A.vel.z * dr + iz * 10 * dt; const h = Math.hypot(A.vel.x, A.vel.z); if (h > 7){ A.vel.x *= 7 / h; A.vel.z *= 7 / h; }
+    A.vel.x = A.vel.x * dr + ix * 10 * dt; A.vel.z = A.vel.z * dr + iz * 10 * dt; const h = Math.hypot(A.vel.x, A.vel.z), cap = A.t < 1 ? 12 : 7; if (h > cap){ A.vel.x *= cap / h; A.vel.z *= cap / h; }   // (el primer segundo, el tirón del lanzamiento)
     A.pos.addScaledVector(A.vel, dt);
-    if (!A.muerto) colAviso('¡Agárrate a una cría!', A.pos.y < -11 ? '¡O caerás al vacío!' : 'Muévete hacia ella · RODAR para impulsarte', false);
+    const encima = Math.abs(A.pos.x - colC(A.pos.z)) < colHW(clamp(A.pos.z, COL.zMin, COL_ZMAX)) + 0.5 && A.pos.y > 0 && A.pos.z > COL.zMin - 0.5 && A.pos.z < COL_ZMAX + 0.5;
+    if (!A.muerto) colAviso(encima ? '¡Al lomo!' : '¡Agárrate a una cría!', encima ? 'Caes encima' : A.pos.y < -11 ? '¡O caerás al vacío!' : 'Muévete hacia ella · RODAR para impulsarte', false);
     for (const c of COL.crias) if (c.on && !c.fuera && c.libreT <= 0 && Math.hypot(A.pos.x - c.pos.x, A.pos.z - c.pos.z) < 2.1 && Math.abs(A.pos.y - c.pos.y - 0.4) < 1.6){
-      A.cria = c; c.cansa = 12; play('colAgarre'); play('land'); foilGritoCol('¡Montado!'); barkOnce('colCria', '¡Eso es! Llévala hasta el lomo y salta.'); break; }
+      A.cria = c; c.cansa = 15; play('colAgarre'); play('land'); foilGritoCol('¡Montado!'); barkOnce('colCria', '¡Eso es! Llévala hasta el lomo y salta.'); break; }
     // vuelta al lomo: cayendo por encima de la pasarela
     const cz = colC(A.pos.z), hw = colHW(A.pos.z);
     if (A.vel.y < 0 && A.pos.y <= 0 && A.pos.y > -1.4 && Math.abs(A.pos.x - cz) < hw + 0.5 && A.pos.z > COL.zMin - 0.5 && A.pos.z < COL_ZMAX + 0.5){ colAterriza(); return; }
@@ -513,6 +545,17 @@ function colAireTick(dt){
   }
   hero.position.copy(A.pos); grounded = true; vy = 0;
   if (Math.hypot(A.vel.x, A.vel.z) > 0.5){ heading = Math.atan2(A.vel.x, A.vel.z); hero.rotation.y = lerpAngle(hero.rotation.y, heading, 1 - Math.exp(-dt * 8)); }
+}
+function colEsquiva(c){   // montado en una cría: el dragón se aparta para no dejarte subir (hasta COL_ESQ_MAX veces por caída; luego se cansa)
+  const E = COL.esq, z = clamp(c.pos.z, COL.zMin, COL_ZMAX), dx = c.pos.x - colC(z);
+  const cerca = Math.abs(dx) < colHW(z) + 3.4 && c.pos.y > -2.6 && c.pos.z > COL.zMin - 3 && c.pos.z < COL_ZMAX + 3;
+  if (!cerca || E.cd > 0 || E.n >= COL_ESQ_MAX) return;
+  const s = -(Math.sign(dx) || -Math.sign(E.obj) || 1), obj = clamp(E.obj + s * 7.5, -16, 16);
+  if (Math.abs(obj - E.obj) < 3) return;   // arrinconado: esta vez no puede
+  E.obj = obj; E.z = c.pos.z; E.cd = 0.9; E.n++; COL.aire.viento = 0.9;
+  play('colRafaga'); if (E.n === 1) play('dragonRoar'); shake = Math.max(shake, 0.45); COL.temblor = Math.max(COL.temblor, 0.4); COL.boca = 0.6;
+  for (let k = 0; k < 14; k++){ const zz = c.pos.z + (rnd() - 0.5) * 9; spawnFx(colC(zz) - s * colHW(zz), 0.4 + rnd() * 1.5, zz, s * (5 + rnd() * 5), (rnd() - 0.3) * 2, (rnd() - 0.5) * 2, 0xffffff, 0.12, 0.5, 0, 0.2); }
+  barkT = 0; bark(E.n === 1 ? '¡Se aparta! ¡No quiere que subas!' : E.n < COL_ESQ_MAX ? '¡Otra vez! ¡Es enorme, pero tu cría es más rápida!' : '¡Se cansa! ¡Ahora, encima!');
 }
 function foilGritoCol(txt){ colV[3].set(hero.position.x, hero.position.y + 2.6, hero.position.z); spawnNumber(colV[3], txt, 'react', '#bfffe6'); }
 function colAireImpulso(){   // RODAR en el aire: un impulso hacia donde mires (una vez por caída)
@@ -526,7 +569,7 @@ function colAireSalta(){   // SALTAR montado: te sueltas de la cría con impulso
 }
 function colAterriza(){
   const A = COL.aire, z = clamp(A.pos.z, COL.zMin, COL_ZMAX); hero.position.set(A.pos.x, 0, z); grounded = true; vy = 0; landT = 0.18; P.body.rotation.x = 0; blob.visible = true;
-  COL.fase = A.fase0; COL.aire = null; COL.aguante = 1; COL.atqCd = 3; colAviso(null); colCriasFuera(false);
+  COL.fase = A.fase0; COL.aire = null; COL.aguante = 1; COL.atqCd = 3; colAviso(null); colCriasFuera(false); COL.yawT = 1.8;
   puff(8); play('land'); shake = Math.max(shake, 0.35); foilGritoCol('¡De vuelta!'); player.inv = Math.max(player.inv, 1);
 }
 function colCaidaMortal(){   // te has caído sin pillar una cría: al vacío (si un poder te revive, vuelves al lomo)
@@ -537,7 +580,7 @@ function colCaidaMortal(){   // te has caído sin pillar una cría: al vacío (s
   // revivido (Fénix, Segundo aliento…): de vuelta al lomo
   flash('#ffffff', 0.9); P.body.rotation.x = 0; blob.visible = true;
   const z = clamp(A.pos.z, COL.zMin + 1, COL_ZMAX - 1); hero.position.set(colC(z), 0, z); grounded = true; player.inv = Math.max(player.inv, 1.6);
-  COL.fase = A.fase0; COL.aire = null; COL.aguante = 1; COL.atq = null; colQuitaAtaques(); COL.atqCd = 3; colCriasFuera(false);
+  COL.fase = A.fase0; COL.aire = null; COL.aguante = 1; COL.atq = null; colQuitaAtaques(); COL.atqCd = 3; colCriasFuera(false); COL.yawT = 1.8;
 }
 
 /* ---------- Cada fotograma ---------- */
@@ -546,7 +589,8 @@ function colTick(dt, pdt, playing){
   const run = gameState === 'paused' ? 0 : dt, jugando = playing && COL.on && (COL.fase === 'lomo' || COL.fase === 'final' || COL.fase === 'aire');
   const z0 = hero.position.z, c0 = colC(z0);
   // estado del dragón: ondulación, cuello, picado, alabeo
-  COL.tt += run;
+  COL.tt += run; colEsqTick(run);
+  COL.lejos += ((COL.fase === 'aire' && COL.aire && COL.aire.cria ? 1 : 0) - COL.lejos) * (1 - Math.exp(-run * 1.5));   // montado en una cría, la cámara se aleja: se ve el dragón entero apartarse
   COL.giro += (COL.giroObj - COL.giro) * (1 - Math.exp(-run * 2.2));
   if (COL.fase === 'final' || COL.fase === 'remate') COL.picado = Math.min(1, COL.picado + run / 2.5);
   COL.banco += (COL.bancoObj - COL.banco) * (1 - Math.exp(-run * 5));
@@ -600,6 +644,7 @@ function colTick(dt, pdt, playing){
   COL.zMin = lerp(COL_ZMIN, COL_ZMIN_FIN, COL.picado);
   if (COL.pendFinal > 0 && (COL.pendFinal -= pdt) <= 0){ COL.fase = 'final'; COL.atq = null; COL.atqCd = 3.5; COL.primero = 'rafaga'; play('dragonRoar'); play('colRafaga'); shake = Math.max(shake, 0.8);
     banner('¡En picado!<small>Llega hasta la perla de la cabeza</small>', 2.2); }
+  if (COL.yawT > 0){ COL.yawT -= pdt; if (!dragging) camYaw += Math.atan2(Math.sin(COL.yaw0 - camYaw), Math.cos(COL.yaw0 - camYaw)) * (1 - Math.exp(-pdt * 2.5)); }   // de vuelta en el lomo: la cámara vuelve a como estaba
   colAtaqueTick(pdt);
   if (COL.fase === 'aire') return;   // (una coz te acaba de tirar)
   // agarre
@@ -609,19 +654,25 @@ function colTick(dt, pdt, playing){
   const c1 = colC(hero.position.z);
   if (agarra && !COL.agarra){ COL.uLock = hero.position.x - c1; COL.zLock = hero.position.z; play('colAgarre'); state = state === 'charge' ? 'normal' : state; }
   COL.agarra = agarra;
-  if (agarra){ COL.aguante = Math.max(0, COL.aguante - pdt * 0.21);
+  if (agarra){ COL.aguante = Math.max(0, COL.aguante - pdt * 0.22);
     if (COL.aguante <= 0){ COL.agarra = false; COL.sinFuerza = 1.4; barkT = 0; bark('¡Se te escurren las manos!'); COL.vu = Math.sign(COL.banco || 1) * 1.2; } }
   else COL.aguante = Math.min(1, COL.aguante + pdt * (peligro ? 0.05 : 0.4));
   colAvisoEl.classList.toggle('ok', COL.agarra);
   // posición sobre el lomo: deslizarse con el alabeo, viento de cara, bordes
   let z = hero.position.z, u = hero.position.x - c1;
   const g = colV[1].set(0, -1, 0).applyEuler(COL.env.rotation);   // la gravedad, vista desde el dragón (x: de lado · z: hacia la cola · y: contra el lomo)
+  // sin agarrarse mientras zarandea (o saltando, o sin aguante): en un momento te tira por un costado
+  const fz = COL.atq && COL.atq.fuerza || 0;
+  if (fz > 0 && !COL.agarra && !player.dead){ COL.suelto += pdt * fz;
+    if (COL.suelto >= (COL_SUELTA[COL.atq.tipo] || 0.5)){ colLanza(Math.abs(g.x) > 0.12 ? Math.sign(g.x) : Math.sign(u) || COL.atq.s || 1, 0, true); return; } }
+  else COL.suelto = Math.max(0, COL.suelto - pdt * 2);
+  colAvisoEl.classList.toggle('mal', COL.suelto > 0.04);
   if (COL.agarra){ u = COL.uLock; z = COL.zLock; COL.vu = COL.vz = 0; }
   else {
     if (grounded && Math.abs(g.x) > 0.04) COL.vu += g.x * 14 * pdt;
     if (grounded && Math.abs(g.z) > 0.35) COL.vz += g.z * 14 * pdt;
     COL.vu *= Math.exp(-pdt * 1.2); COL.vz *= Math.exp(-pdt * 1.2); u += COL.vu * pdt; z += (COL.rafaga + COL.vz) * pdt;
-    if (grounded && g.y > -0.45 && !player.dead){ hero.position.x = colC(z) + u; hero.position.z = clamp(z, COL.zMin, COL_ZMAX); colLanza(Math.sign(g.x) || 1, 0, true); return; }   // en vertical o boca abajo sin agarrarse: te caes
+    if (grounded && g.y > -0.45 && !player.dead){ hero.position.x = colC(z) + u; hero.position.z = clamp(z, COL.zMin, COL_ZMAX); colLanza(Math.abs(g.x) > 0.12 ? Math.sign(g.x) : Math.sign(u) || 1, 0, true); return; }   // en vertical o boca abajo sin agarrarse: te caes
   }
   if (z >= COL_ZMAX && COL.vz > 2.2 && !player.dead){ hero.position.x = colC(COL_ZMAX) + u; hero.position.z = COL_ZMAX; colLanza(0, 1, false); return; }   // resbaló hasta la cola
   z = clamp(z, COL.zMin, COL_ZMAX); if (z === COL.zMin || z === COL_ZMAX) COL.vz = 0; const hw = colHW(z);
@@ -643,7 +694,7 @@ function colTick(dt, pdt, playing){
 /* ---------- Cámara y pose ---------- */
 function colCamara(cam){
   if (!COL.montado || cs.active || lcut) return;
-  cam.position.sub(camTarget).multiplyScalar(1.28).add(camTarget); cam.lookAt(camTarget);
+  cam.position.sub(camTarget).multiplyScalar(1.28 + 0.55 * COL.lejos).add(camTarget); cam.position.y += 2.5 * COL.lejos; cam.lookAt(camTarget);
   const j = 0.025 + 0.05 * COL.picado + (COL.rafaga > 2 ? 0.05 : 0) + COL.temblor * 0.5;
   cam.position.x += Math.sin(time * 37.1) * j; cam.position.y += Math.sin(time * 41.7 + 1) * j;
   cam.rotateZ(-clamp(Math.atan2(Math.sin(COL.banco), Math.cos(COL.banco)), -0.7, 0.7) * 0.3);
@@ -657,6 +708,10 @@ function colPose(){
   P.tailHair.forEach((g, i) => { g.rotation.x += 0.5 * w + Math.sin(time * 16 - i) * 0.1; });
   P.ahoge.rotation.x += 0.3 * w;
   bl(P.spine.rotation, 'z', COL.fase === 'aire' ? 0 : -clamp(Math.atan2(Math.sin(COL.banco), Math.cos(COL.banco)), -0.9, 0.9) * 0.6, 1);   // se echa contra el alabeo
+  if (COL.suelto > 0.02 && !COL.agarra && COL.fase !== 'aire'){   // sin agarrarse en plena sacudida: se tambalea y bracea
+    const k = Math.min(1, COL.suelto / 0.35); P.spine.rotation.z += Math.sin(time * 24) * 0.32 * k; P.spine.rotation.x -= 0.25 * k;
+    for (const [A, s] of [[P.armL, -1], [P.armR, 1]]){ bl(A.sh.rotation, 'z', (1.5 + Math.sin(time * 19 + s) * 0.6) * s, k); bl(A.el.rotation, 'x', -0.4, k); }
+  }
   if (COL.agarra){   // agachado y agarrado a la crin
     bl(P.spine.rotation, 'x', 0.75, 1); bl(P.neck.rotation, 'x', -0.4, 1);
     for (const [A, s] of [[P.armL, -1], [P.armR, 1]]){ bl(A.sh.rotation, 'x', -1.1, 1); bl(A.sh.rotation, 'z', -0.25 * s, 1); bl(A.el.rotation, 'x', -0.5, 1); }
@@ -674,7 +729,7 @@ function colPose(){
 function colPuede(e){ return e.type === 'dragon' && e.alive && !e.colHecho && !e.colFase && !special && !chActive && !invActive && !cs.active && gameState === 'play' && !player.dead; }
 function colEmpieza(e){
   Object.assign(COL, { on: true, fase: 'cine', e, tt: 0, giro: 0, giroObj: 0, picado: 0, banco: 0, bancoObj: 0, cabeceo: 0, boca: 0.12, temblor: 0, atq: null, rotas: 0, sellos: [], perla: null,
-    aguante: 1, agarra: false, sinFuerza: 0, vu: 0, vz: 0, cabObj: 0, zMin: COL_ZMIN, rafaga: 0, rafagaObj: 0, aire: null, pendFinal: 0, dijoAgarre: false });
+    aguante: 1, agarra: false, sinFuerza: 0, vu: 0, vz: 0, cabObj: 0, zMin: COL_ZMIN, rafaga: 0, rafagaObj: 0, aire: null, pendFinal: 0, dijoAgarre: false, suelto: 0, lejos: 0, yawT: 0 }); colEsqReset();
   e.colFase = true; e.alive = false; e.hp = 0; e.flash = 0; e.burnT = e.chillT = e.frozenT = e.shockT = 0; e.chill = 0;
   hideTeles(e); if (e.x5 && e.x5.end) e.x5.end(); e.x5 = null; sweepHazards();
   for (const p of projectiles) scene.remove(p.m); projectiles.length = 0;
