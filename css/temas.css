@@ -70,4 +70,7 @@ body:has(.overlay:not([hidden])) #objCol,body:has(.overlay:not([hidden])) #mpRad
 @media (max-height:520px) and (orientation:landscape){
   body:not(.ch-invaders) #bossBox{top:calc(8px + env(safe-area-inset-top,0px)) !important;left:auto !important;right:calc(12px + env(safe-area-inset-right,0px)) !important;
     width:min(520px,calc(100% - 282px - env(safe-area-inset-right,0px))) !important;transform:none !important}
+  /* con el radar de los mapas grandes (arriba a la derecha), la barra le deja su sitio */
+  body:not(.ch-invaders):has(#mpRadar:not([hidden])) #bossBox{right:calc(158px + env(safe-area-inset-right,0px)) !important;
+    width:min(520px,calc(100% - 428px - env(safe-area-inset-right,0px))) !important}
 }

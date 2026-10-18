@@ -9,3 +9,4 @@
 #selJ .sjGo{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;padding:8px 10px}
 #selJ .sjGo b{font-size:15px} #selJ .sjGo small{font-size:11px;opacity:.75}
 #selJ .sjSub{font:inherit;font-size:12px;padding:3px 4px;border-radius:4px}
+#selJ #sjFoil{font:inherit;font-size:13px;padding:3px 4px;border-radius:4px;max-width:230px}

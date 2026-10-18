@@ -166,6 +166,8 @@ Con cualquier HUD, en el móvil en vertical la cámara se abre al jugar (antes s
 - Si la mueves tú (ratón, dedo o palanca derecha del mando), se queda quieta un par de segundos.
 - No toca los planos semifijos: cinemáticas, Canal X, marcianitos, el show, el Ryūjin colosal, TOVAN.EXE, el Gashadokuro y las técnicas con cámara propia.
 
+**Jefes altos** (`js/entrada/encuadre-jefe.js`, siempre): si la cabeza de un jefe queda tapada por su barra de vida (le pasaba al gato del final con el móvil en horizontal), la cámara se aleja un poco, baja y mira más arriba hasta que se le ve la cara, y vuelve sola cuando ya no hace falta. En horizontal, la barra del jefe además deja sitio al radar de los mapas grandes.
+
 ## Valoración del cliente (premios y castigos)
 
 Cada oleada se puntúa de 1 a 5 estrellas al cerrarse (`js/partida/valoracion.js`, `css/valoracion.css`). Cuenta la vida perdida (más del 8 %, 30 % y 60 % resta una estrella cada umbral), el tiempo frente al tiempo de entrega (10 s + 1,8 s por enemigo; ×1,35 en los mapas grandes; 70 s en las de jefe), el encargo de la oleada (si falla, resta una) y el combo (×25 o más suma una).

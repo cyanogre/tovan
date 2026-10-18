@@ -1,0 +1,20 @@
+/* ---------- Poderes foil nuevos (js/poderes/foil-nucleo.js): rótulos, marcadores y la forma activa ----------
+   Cada poder pone su estilo en su propio CSS (css/foil-anime-a.css…) sobre estas bases. */
+#foilCapa{position:fixed;inset:0;z-index:28;pointer-events:none;overflow:hidden}
+.foilRot{position:absolute;left:50%;top:36%;transform:translate(-50%,-50%);text-align:center;white-space:nowrap;color:#fff;
+  font-family:'Pixelify Sans',ui-monospace,monospace;text-shadow:0 3px 0 #000;animation:foilRot var(--dur,1.6s) ease-out both}
+@keyframes foilRot{0%{opacity:0;scale:1.4}8%{opacity:1;scale:1}85%{opacity:1}100%{opacity:0}}
+@media (max-width:720px){ .foilRot{white-space:normal;width:94vw} }
+/* columna de marcadores (contadores, medidores) a la derecha, bajo el combo */
+#foilCol{position:fixed;right:calc(12px + env(safe-area-inset-right,0px));top:50%;z-index:12;display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none}
+.foilMarca{font-family:'Pixelify Sans',ui-monospace,monospace;color:#fff;text-shadow:2px 2px 0 #000}
+.foilMarca[hidden]{display:none}
+@media (pointer:coarse){ #foilCol{top:30%;scale:.85;transform-origin:top right} }
+/* la forma activa (transformación o montura): nombre y lo que le queda */
+#foilForma{position:fixed;left:50%;top:calc(96px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:12;pointer-events:none;text-align:center;
+  font-family:'Pixelify Sans',ui-monospace,monospace;color:#fff;text-shadow:2px 2px 0 #000}
+#foilForma b{display:block;font-size:15px;letter-spacing:.08em;color:var(--c,#ffd23a)}
+#foilForma i{display:block;width:150px;height:6px;margin:3px auto 0;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.6)}
+#foilForma u{display:block;height:100%;width:calc(var(--k,1) * 100%);background:var(--c,#ffd23a)}
+#foilForma[hidden]{display:none}
+body.cine #foilForma,body.cine #foilCol,body.cine #foilCapa{display:none}
