@@ -1,1 +1,72 @@
-/* foil-juegos-a */
+/* ======================================================================
+   Poderes foil · juegos (A) (js/poderes/foil-juegos-a.js): rótulos y marcadores
+   Cada poder con su prefijo: str (estrella), msw (espada), kby (inhalar),
+   pac (comecocos) y snc (bola azul). Medidas con clamp() para que quepan
+   en 390×844 y en 844×390.
+   ====================================================================== */
+
+/* ---------- Estrella invencible: monedas y «¡INVENCIBLE!» letra a letra ---------- */
+.strMarca{display:flex;align-items:center;gap:7px;font:700 clamp(15px,2.2vw,20px)/1 'Pixelify Sans',ui-monospace,monospace;color:#fff;text-shadow:2px 2px 0 #000}
+.strMarca .strIcono{display:block;width:11px;height:15px;border-radius:50%;box-shadow:0 0 0 2px #6a3200,2px 2px 0 2px #000;
+  background:linear-gradient(90deg,#fff3a0 0 25%,#ffc81e 25% 42%,#a85c00 42% 58%,#ffc81e 58% 78%,#d88a00 78%);animation:strGira 1s steps(4) infinite}
+@keyframes strGira{50%{transform:scaleX(.2)}}
+.strMarca u{position:relative;display:block;width:54px;height:6px;margin-right:16px;background:rgba(0,0,0,.6);border:1px solid #fff;text-decoration:none}
+.strMarca u s{display:block;height:100%;background:linear-gradient(90deg,#ff3a3a,#ff9a22,#ffe62e,#44e04a,#34b4ff,#b45aff)}
+.strMarca u::after{content:'★';position:absolute;right:-16px;top:-6px;font-size:14px;line-height:1;color:#ffe23a}
+.strMarca u.strLista::after{animation:strLista .3s steps(2) infinite}
+@keyframes strLista{50%{color:#fff;transform:scale(1.4)}}
+.strRot{font:700 clamp(36px,8.5vw,92px)/1 'Pixelify Sans',ui-monospace,monospace;letter-spacing:.02em}
+.strRot span{display:inline-block;color:#ffe23a;-webkit-text-stroke:2px #000;text-shadow:4px 4px 0 #000;animation:strSalta .32s ease-in-out infinite alternate}
+.strRot span:nth-child(6n+1){color:#ff4a3a}
+.strRot span:nth-child(6n+2){color:#ffa02a;animation-delay:.05s}
+.strRot span:nth-child(6n+3){color:#ffe62e;animation-delay:.1s}
+.strRot span:nth-child(6n+4){color:#4ae050;animation-delay:.15s}
+.strRot span:nth-child(6n+5){color:#3ab8ff;animation-delay:.2s}
+.strRot span:nth-child(6n){color:#c060ff;animation-delay:.25s}
+@keyframes strSalta{to{transform:translateY(-.18em)}}
+.dmg.strPts{font-size:19px;color:#fff;text-shadow:2px 2px 0 #000}
+
+/* ---------- Espada maestra: «¡Has conseguido…!» con los tres triángulos dorados ---------- */
+.mswRot{display:flex;flex-direction:column;align-items:center;gap:8px}
+.mswRot .mswTri{position:relative;width:clamp(54px,9vw,78px);aspect-ratio:1/.87;animation:mswBrilla 1.2s ease-in-out infinite alternate}
+.mswRot .mswTri i{position:absolute;width:50%;height:50%;background:linear-gradient(160deg,#fffbe0,#ffd23a 45%,#c88a00);clip-path:polygon(50% 0,100% 100%,0 100%)}
+.mswRot .mswTri i:nth-child(1){left:25%;top:0}
+.mswRot .mswTri i:nth-child(2){left:0;top:50%}
+.mswRot .mswTri i:nth-child(3){left:50%;top:50%}
+@keyframes mswBrilla{to{filter:drop-shadow(0 0 10px #ffe680)}}
+.mswRot b{display:block;padding:10px 18px;background:rgba(0,0,0,.84);border:3px solid #fff;border-radius:6px;box-shadow:0 0 0 3px #0e1638;
+  font:700 clamp(17px,3.3vw,32px)/1.2 'Pixelify Sans',ui-monospace,monospace;color:#fff;text-shadow:2px 2px 0 #0e1638}
+.mswRot small{display:block;font:400 clamp(12px,1.9vw,17px)/1.2 'Pixelify Sans',ui-monospace,monospace;color:#bff4ff}
+
+/* ---------- Inhalar: la panza llena ---------- */
+.kbyMarca{display:flex;align-items:center;gap:4px;margin:2px 0;padding:4px 9px;border-radius:14px;background:#ff9ac8;border:2px solid #fff;box-shadow:0 3px 0 #c0407a,0 0 0 2px #c0407a;animation:kbyBota .5s ease-in-out infinite alternate}
+.kbyMarca b{margin-right:3px;font:700 clamp(12px,1.7vw,15px)/1 'Pixelify Sans',ui-monospace,monospace;color:#fff;text-shadow:1px 1px 0 #c0407a,2px 2px 0 #7a1040}
+.kbyMarca i{display:block;width:13px;height:13px;background:#ffd6ea;clip-path:polygon(50% 0,63% 35%,100% 38%,71% 61%,80% 100%,50% 78%,20% 100%,29% 61%,0 38%,37% 35%)}
+.kbyMarca i.kbyOn{background:#ffe23a}
+@keyframes kbyBota{to{transform:scale(1.06,.94)}}
+
+/* ---------- Comecocos: cocos que se comen, la píldora y el rótulo de recreativa ---------- */
+.pacMarca{display:flex;align-items:center;gap:5px;margin:3px 0;padding:5px 7px;background:#000;border:2px solid #2121ff;border-radius:6px;box-shadow:0 0 8px #2121ff,inset 0 0 0 2px #000,inset 0 0 0 3px #2121ff}
+.pacMarca .pacCoco{display:block;width:14px;height:14px;border-radius:50%;background:conic-gradient(from 125deg,#ffe800 0 290deg,transparent 0);animation:pacBoca .3s steps(1) infinite}
+.pacMarca s{display:block;width:4px;height:4px;background:#ffb8ae}
+.pacMarca s.pacComido{opacity:0}
+.pacMarca u{display:block;width:10px;height:10px;border-radius:50%;background:#ffb8ae;opacity:.2}
+.pacMarca u.pacHay{opacity:1;animation:pacParpadea .4s steps(2) infinite}
+@keyframes pacBoca{50%{background:#ffe800}}
+@keyframes pacParpadea{50%{opacity:.15}}
+.pacRot b{display:block;font:700 clamp(26px,6.5vw,66px)/1 'Pixelify Sans',ui-monospace,monospace;color:#ffe800;letter-spacing:.06em;text-shadow:4px 4px 0 #2121ff,7px 7px 0 #000}
+.pacRot .pacFila{display:flex;justify-content:center;align-items:center;gap:clamp(10px,2vw,16px);margin-top:14px}
+.pacRot .pacFila u{display:block;width:clamp(30px,5vw,44px);aspect-ratio:1;border-radius:50%;background:conic-gradient(from 125deg,#ffe800 0 290deg,transparent 0);animation:pacBoca .24s steps(1) infinite}
+.pacRot .pacFila s{display:block;width:10px;height:10px;background:#ffb8ae}
+.pacRot .pacFila s.pacGorda{width:24px;height:24px;border-radius:50%;animation:pacParpadea .3s steps(2) infinite}
+.dmg.pacPts{font-size:20px;color:#00ffff;text-shadow:2px 2px 0 #000}
+
+/* ---------- Bola azul: anillos (rojo a cero) y «¡DEMASIADO LENTO!» ---------- */
+.sncMarca{display:flex;align-items:baseline;gap:8px;margin-top:3px;font:italic 700 clamp(16px,2.4vw,22px)/1 'Pixelify Sans',ui-monospace,monospace}
+.sncMarca b{color:#ffe23a;letter-spacing:.05em;text-shadow:2px 2px 0 #1a3cff,3px 3px 0 #000}
+.sncMarca span{min-width:2.2em;text-align:right;color:#fff;text-shadow:2px 2px 0 #000}
+.sncMarca.sncCero b{animation:sncRojo .5s steps(2) infinite}
+@keyframes sncRojo{50%{color:#ff2a2a}}
+.sncRot{font:italic 700 clamp(32px,7.6vw,80px)/1 'Pixelify Sans',ui-monospace,monospace;color:#2a6bff;-webkit-text-stroke:2px #fff;letter-spacing:.01em;
+  text-shadow:4px 4px 0 #ffe23a,8px 8px 0 #000;transform:translate(-50%,-50%) skewX(-12deg);animation:foilRot var(--dur,1.6s) ease-out both,sncEntra .28s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes sncEntra{from{translate:70vw 0}to{translate:0 0}}

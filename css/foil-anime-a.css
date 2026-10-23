@@ -1,1 +1,87 @@
-/* foil-anime-a */
+/* ======================================================================
+   PODERES FOIL · ANIME (A) (js/poderes/foil-anime-a.js)
+   Rótulos (sobre .foilRot de css/foil-nucleo.css: el transform centra, así
+   que aquí solo se añade a él) y marcadores de los cinco poderes.
+   Fuentes: las que ya carga index.html (Anton, Zen Kaku Gothic New, Yuji
+   Syuku, Shippori Mincho, Pixelify Sans) o genéricas.
+   ====================================================================== */
+
+/* ---------- Tercera marcha: onomatopeya de manga ---------- */
+.foilRot.g3Rot{top:22%;line-height:.86;rotate:-7deg}
+.g3Rot b{display:block;font:900 clamp(52px,14vmin,130px)/.9 'Zen Kaku Gothic New','Anton',sans-serif;color:#fff;letter-spacing:-.04em;
+  -webkit-text-stroke:clamp(5px,1.3vmin,11px) #140805;paint-order:stroke fill;text-shadow:clamp(5px,1.2vmin,10px) clamp(5px,1.2vmin,10px) 0 #e8382a;
+  animation:g3Golpe .5s cubic-bezier(.2,1.8,.4,1) both}
+.g3Rot i{display:block;margin-top:.15em;font:400 clamp(18px,4.6vmin,40px)/1 'Anton','Archivo',sans-serif;font-style:normal;letter-spacing:.04em;color:#ffe9c8;
+  -webkit-text-stroke:clamp(3px,.7vmin,6px) #140805;paint-order:stroke fill;text-shadow:0 4px 0 #140805}
+.g3Rot::before{content:'';position:absolute;left:50%;top:50%;width:clamp(200px,56vmin,520px);aspect-ratio:1;translate:-50% -50%;z-index:-1;border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.95) 0 3deg,transparent 3deg 9deg);
+  mask:radial-gradient(circle,transparent 26%,#000 30%,#000 52%,transparent 70%);-webkit-mask:radial-gradient(circle,transparent 26%,#000 30%,#000 52%,transparent 70%);opacity:.7}
+.foilRot.g3RotIn{top:20%;rotate:5deg}
+.g3RotIn::before{display:none}
+.g3RotIn i{font-size:clamp(16px,4.4vmin,34px)}
+.g3RotIn b{font:400 clamp(30px,8vmin,70px)/1 'Anton','Archivo',sans-serif;color:#ffd7b0;text-shadow:4px 4px 0 #e8382a;animation:g3Infla .9s ease-out both}
+@keyframes g3Golpe{0%{scale:2.4;opacity:0}40%{opacity:1}100%{scale:1}}
+@keyframes g3Infla{0%{scale:.3}30%{scale:1.25}55%{scale:.9}75%{scale:1.06}100%{scale:1}}
+@media (max-width:720px){ .foilRot.g3Rot{white-space:nowrap;width:auto} }
+
+/* ---------- Manto de las nueve colas: rollo ninja con la espiral del sello ---------- */
+.foilRot.kyuRot{top:24%}
+.kyuRot b{display:block;font:700 clamp(54px,15vmin,140px)/1 'Yuji Syuku','Shippori Mincho B1',serif;color:#ffcf4a;letter-spacing:.05em;
+  -webkit-text-stroke:clamp(3px,.8vmin,7px) #1a0c04;paint-order:stroke fill;text-shadow:0 0 18px rgba(255,140,20,.9),0 0 40px rgba(255,90,10,.6);animation:kyuEntra .6s cubic-bezier(.2,1.6,.4,1) both}
+.kyuRot i{display:inline-block;margin-top:.2em;padding:.18em .9em;font:400 clamp(18px,4.6vmin,38px)/1 'Anton','Archivo',sans-serif;font-style:normal;letter-spacing:.12em;color:#1a0c04;
+  background:linear-gradient(90deg,transparent,#ffb030 12%,#ffd56a 50%,#ffb030 88%,transparent);text-shadow:none}
+.kyuRot::before{content:'';position:absolute;left:50%;top:42%;width:clamp(150px,40vmin,380px);aspect-ratio:1;translate:-50% -50%;z-index:-1;border-radius:50%;opacity:.55;
+  background:repeating-conic-gradient(from 0deg,#ff7a10 0 10deg,transparent 10deg 20deg);mask:radial-gradient(circle,#000 0 30%,transparent 70%);-webkit-mask:radial-gradient(circle,#000 0 30%,transparent 70%);animation:kyuGira 1.8s linear both}
+@keyframes kyuEntra{0%{scale:.2;opacity:0;filter:blur(6px)}100%{scale:1;opacity:1;filter:none}}
+@keyframes kyuGira{to{rotate:200deg}}
+
+/* ---------- Colmillo lunar: kanji a pincel, negro con filo carmesí ---------- */
+.foilRot.gtsuRot{top:24%}
+.gtsuRot b{display:block;font:400 min(clamp(46px,12.5vmin,118px),17vw)/1 'Yuji Syuku','Shippori Mincho B1',serif;color:#0b0508;letter-spacing:.02em;
+  -webkit-text-stroke:clamp(1px,.35vmin,3px) #ff2a3a;paint-order:stroke fill;text-shadow:0 0 2px #fff,3px 3px 0 #c0101e,0 0 26px rgba(255,30,50,.7);animation:gtsuPincel .45s cubic-bezier(.3,1.4,.5,1) both}
+.gtsuRot i{display:block;margin-top:.25em;font:600 min(clamp(14px,3.6vmin,28px),4.2vw)/1 'Shippori Mincho B1',serif;font-style:normal;letter-spacing:.18em;color:#fff;text-shadow:0 2px 0 #000,0 0 10px #ff1a2e}
+.gtsuRot::before{content:'';position:absolute;left:-8%;right:-8%;top:8%;height:62%;z-index:-1;rotate:-4deg;opacity:.92;
+  background:linear-gradient(90deg,transparent,rgba(240,232,220,.9) 8%,rgba(255,248,236,.95) 60%,rgba(240,232,220,.85) 92%,transparent);
+  mask:linear-gradient(180deg,transparent,#000 18%,#000 82%,transparent);-webkit-mask:linear-gradient(180deg,transparent,#000 18%,#000 82%,transparent)}
+.gtsuRotLib b{color:#000;text-shadow:0 0 2px #fff,4px 4px 0 #ff1a2e,0 0 34px rgba(255,20,40,.95)}
+.gtsuRotLib::before{background:linear-gradient(90deg,transparent,rgba(120,0,16,.85) 10%,rgba(200,10,30,.9) 50%,rgba(120,0,16,.85) 90%,transparent)}
+@keyframes gtsuPincel{0%{clip-path:inset(0 100% 0 0);opacity:.4}100%{clip-path:inset(0 0 0 0);opacity:1}}
+.foilMarca.gtsuMarca{display:flex;align-items:center;gap:6px;padding:3px 8px;background:rgba(10,4,8,.78);border:1px solid #ff2a3a;box-shadow:0 0 8px rgba(255,30,50,.45)}
+.gtsuMarca b{font:400 clamp(15px,2.2vmin,20px)/1 'Yuji Syuku',serif;color:#fff;text-shadow:0 0 6px #ff1a2e}
+.gtsuMarca span{display:flex;gap:4px}
+.gtsuMarca span i{width:12px;height:12px;border-radius:50%;box-shadow:inset 4px -2px 0 0 rgba(255,255,255,.25)}
+.gtsuMarca span i.on{box-shadow:inset 4px -2px 0 0 #ff2a3a;filter:drop-shadow(0 0 3px #ff1a2e)}
+.gtsuMarca u{display:block;width:70px;height:5px;background:linear-gradient(90deg,#ff1a2e calc(var(--k,1) * 100%),rgba(255,255,255,.15) 0)}
+.foilMarca.gtsuMarca.gtsuLib{background:rgba(40,0,8,.85)}
+
+/* ---------- Espíritu de pelea: letras de cómic afiladas y «ゴゴゴ» ---------- */
+.foilRot.oraRot{top:26%;display:flex;flex-direction:column;align-items:center;line-height:.82}
+.oraRot b{display:block;font:400 clamp(40px,11vmin,104px)/.86 'Anton','Archivo',sans-serif;letter-spacing:.02em;color:#ffe14a;transform:skewX(-14deg);
+  -webkit-text-stroke:clamp(3px,.8vmin,7px) #1a0630;paint-order:stroke fill;text-shadow:clamp(4px,1vmin,8px) clamp(4px,1vmin,8px) 0 #8a3ad8,0 0 20px rgba(160,80,255,.6);animation:oraPega .16s steps(2) 6 both}
+.oraRot b:nth-child(2){translate:clamp(30px,8vmin,80px) 0;color:#f4e8ff;animation-delay:.12s}
+.oraRot b:nth-child(3){translate:clamp(-30px,-4vmin,-15px) 0;font-size:clamp(48px,13vmin,124px);animation-delay:.24s}
+@keyframes oraPega{0%{scale:1.25}100%{scale:1}}
+#oraCapa{position:fixed;inset:0;z-index:11;pointer-events:none;overflow:hidden}
+#oraCapa[hidden]{display:none}
+.oraGo{position:absolute;left:0;top:0;font:700 clamp(30px,6.5vmin,58px)/1 'Zen Kaku Gothic New','Anton',sans-serif;font-style:normal;color:#5a1a9a;
+  -webkit-text-stroke:clamp(2px,.45vmin,4px) #e8c8ff;paint-order:stroke fill;text-shadow:3px 3px 0 #1a0630;will-change:transform,opacity}
+body.cine #oraCapa{display:none}
+.foilMarca.oraMarca{display:flex;align-items:center;gap:6px;padding:3px 8px;background:rgba(26,6,48,.78);border:1px solid #b070ff}
+.oraMarca b{font:400 clamp(13px,1.9vmin,17px)/1 'Anton','Archivo',sans-serif;letter-spacing:.08em;color:#e8d0ff;transform:skewX(-10deg)}
+.oraMarca u{display:block;width:62px;height:5px;background:linear-gradient(90deg,#ffd23a calc(var(--k,1) * 100%),rgba(255,255,255,.15) 0)}
+.foilMarca.oraMarca.oraLista{box-shadow:0 0 10px rgba(176,112,255,.8)}
+
+/* ---------- Golpe serio: primero sin gracia ninguna, luego el estruendo ---------- */
+.foilRot.opmRot1{top:30%;padding:.3em .8em;font:400 clamp(14px,3vmin,22px)/1 Arial,Helvetica,sans-serif;color:#111;text-shadow:none;background:#fff;border:1px solid #111;animation:opmSeco var(--dur,1.3s) linear both}
+@keyframes opmSeco{0%,92%{opacity:1}100%{opacity:0}}
+.foilRot.opmRot2{top:30%;rotate:-4deg}
+.opmRot2 b{display:block;font:400 min(clamp(44px,13vmin,150px),12vw)/1 'Anton','Archivo',sans-serif;letter-spacing:-.01em;color:#fff;
+  -webkit-text-stroke:clamp(4px,1.1vmin,10px) #111;paint-order:stroke fill;text-shadow:0 0 30px #fff,clamp(5px,1.2vmin,10px) clamp(5px,1.2vmin,10px) 0 #e8382a;animation:opmTiembla .06s steps(2) 14 both}
+@keyframes opmTiembla{0%{translate:-4px 3px;scale:1.15}100%{translate:4px -3px;scale:1}}
+@media (max-width:720px){ .foilRot.opmRot2{white-space:nowrap;width:auto} .foilRot.opmRot1{white-space:nowrap;width:auto} }
+.foilMarca.opmMarca{display:flex;align-items:baseline;gap:5px;padding:3px 9px;background:#fff;color:#111;text-shadow:none;border:2px solid #111;box-shadow:3px 3px 0 #111;font-family:Arial,Helvetica,sans-serif}
+.opmMarca i{font-style:normal}
+.opmMarca b{font:700 clamp(15px,2.2vmin,19px)/1 Arial,Helvetica,sans-serif}
+.opmMarca small{font-size:11px;opacity:.6}
+.foilMarca.opmMarca.opmListo{background:#ffe14a;animation:opmLate 1s ease-in-out infinite}
+@keyframes opmLate{50%{scale:1.08}}

@@ -169,6 +169,10 @@ csCamera = function(cam){ _csCameraFX(cam); try { foilPost(cam); } catch (err) {
 const _v3UpdateFX = v3Update;
 v3Update = function(dt, pdt, playing){
   _v3UpdateFX(dt, pdt, playing);
+  if (!foilFormaEl.hidden){   // el nombre de la forma, bajo la barra del jefe si la hay (en el móvil la tapaba)
+    const r = bossBox.hidden ? null : bossBox.getBoundingClientRect(), top = r && r.height && r.top < innerHeight * 0.3 ? Math.round(r.bottom + 6) + 'px' : '';
+    if (foilFormaEl.style.top !== top) foilFormaEl.style.top = top; }
+  document.body.classList.toggle('foilFuera', gameState === 'title' || gameState === 'over' || player.dead);   // marcadores solo en partida
   try { const d = playing ? pdt : 0; for (const p of FOILP) if (p.tick && lvl(p.id)){ try { p.tick(d, playing); } catch (err) { console.error(p.id, err); } } foilFormaTick(d); } catch (err) { console.error(err); }
 };
 function foilLimpia(motivo){ foilFormaAcaba(motivo); for (const d of FOILP) if (d.limpia){ try { d.limpia(motivo); } catch (err) { console.error(d.id, err); } } foilCapaEl.textContent = ''; }

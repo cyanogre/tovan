@@ -9,7 +9,7 @@
 #foilCol{position:fixed;right:calc(12px + env(safe-area-inset-right,0px));top:50%;z-index:12;display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none}
 .foilMarca{font-family:'Pixelify Sans',ui-monospace,monospace;color:#fff;text-shadow:2px 2px 0 #000}
 .foilMarca[hidden]{display:none}
-@media (pointer:coarse){ #foilCol{top:30%;scale:.85;transform-origin:top right} }
+@media (pointer:coarse){ #foilCol{top:37%;scale:.85;transform-origin:top right} }   /* bajo el combo */
 /* la forma activa (transformación o montura): nombre y lo que le queda */
 #foilForma{position:fixed;left:50%;top:calc(96px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:12;pointer-events:none;text-align:center;
   font-family:'Pixelify Sans',ui-monospace,monospace;color:#fff;text-shadow:2px 2px 0 #000}
@@ -17,4 +17,4 @@
 #foilForma i{display:block;width:150px;height:6px;margin:3px auto 0;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.6)}
 #foilForma u{display:block;height:100%;width:calc(var(--k,1) * 100%);background:var(--c,#ffd23a)}
 #foilForma[hidden]{display:none}
-body.cine #foilForma,body.cine #foilCol,body.cine #foilCapa{display:none}
+body.cine #foilForma,body.cine #foilCol,body.cine #foilCapa,body.foilFuera #foilForma,body.foilFuera #foilCol{display:none}
