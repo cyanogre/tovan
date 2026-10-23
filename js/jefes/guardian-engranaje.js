@@ -584,7 +584,8 @@ function engEmpieza(e){
 }
 function engCineDespierta(){
   const e = ENG.e, hp = hero.position, gp = e.g.position.clone(), a0 = Math.atan2(hp.x - gp.x, hp.z - gp.z);
-  let fase = 'cuerda', gT = 0, caeV = 0, tocado = false;
+  let fase = 'cuerda', gT = 0, caeV = 0, tocado = false, pT = 0, rodo = false;
+  const piedra = () => ENG.piedras && ENG.piedras[0];
   if (state === 'tech') cancelTech(); state = 'normal'; attackW = 0; staffToBack(); grounded = true; vy = 0;
   heading = Math.atan2(gp.x - hp.x, gp.z - hp.z); hero.rotation.y = heading;
   runCine(async () => {
@@ -594,9 +595,18 @@ function engCineDespierta(){
         e.coreG.scale.setScalar(1 + gT * 0.25 + Math.sin(gT * 20) * 0.08); e.mats[1].em = 0.4 + 0.5 * Math.abs(Math.sin(gT * 9)); e.faceMat.uniforms.uMap.value = gFaceA;
         if ((ENG.ticT -= dt) <= 0){ ENG.ticT = Math.max(0.08, 0.45 - gT * 0.12); play(ENG.ticN++ % 2 ? 'engToc' : 'engTic'); }
         shake = Math.max(shake, Math.min(0.5, gT * 0.18)); }
-      else if (fase === 'cae' && !tocado){ caeV += 22 * dt; hp.y = Math.max(0, hp.y - caeV * dt); grounded = true; vy = 0; P.body.rotation.x += dt * 6;
+      else if (!tocado){ caeV += 22 * dt; hp.y = Math.max(0, hp.y - caeV * dt); grounded = true; vy = 0; P.body.rotation.x += dt * 6;   // (sigue cayendo aunque cambie la toma: antes se quedaba flotando a 9 m)
         if (hp.y <= 0){ tocado = true; P.body.rotation.x = 0; landT = 0.18; puff(8); play('land'); shake = Math.max(shake, 0.5); ringFx(hp.x, hp.z, 0xffffff, 0.3, 2.2, 0.4); } }
       if (fase === 'sube'){ ENG.sube = Math.min(1, ENG.sube + dt / 3.0); shake = Math.max(shake, 0.18); }
+      if (fase === 'piedra'){ pT += dt; const p = piedra(), k = Math.min(1, pT / 1.1);   // la piedra vuela hacia Tovan…
+        if (p && p.m.visible){ p.tele.position.set(p.a.x, p.a.y + 0.06, p.a.z); p.tele.material.uniforms.uOpacity.value = 0.35 + 0.35 * Math.abs(Math.sin(pT * 14));
+          p.m.position.lerpVectors(p.de, p.a, k); p.m.position.y += Math.sin(k * Math.PI) * 3 + 0.7 * (1 - k); p.m.rotation.x += dt * 5; p.m.rotation.z += dt * 3;
+          if (k >= 1){ p.m.visible = p.tele.visible = false; play('boom'); shake = Math.max(shake, 0.35); puffAt(p.a.x, p.a.z, 8, 1.3, 0x9a8a7a); ringFx(p.a.x, p.a.z, 0xd8c8a8, 0.3, 1.8, 0.3, 0.05);
+            for (let i = 0; i < 10; i++){ const a = rnd() * TAU; spawnFx(p.a.x, 0.4, p.a.z, Math.cos(a) * 3, 2 + rnd() * 3, Math.sin(a) * 3, 0x7a6a62, 0.18, 0.7, 14, 0); } } }
+        if (!rodo && pT >= 0.5){ rodo = true; state = 'roll'; rollT = 0; rollDir = Math.atan2(hp.x, hp.z); heading = hero.rotation.y = rollDir; puff(5); play('roll'); }   // …y rueda hacia fuera para esquivarla
+        if (rodo && !ENG.riel){ const c = engRielCerca(state === 'roll' ? 0.9 : 4);   // ¡y se sube al raíl sin querer!
+          if (c){ ENG.dijo.monta = true; engRielMonta(c.R, c.s); P.body.rotation.x = 0; P.body.scale.setScalar(1); sparks(hp.x, 0.3, hp.z, 12, 0xffd27a, 3.5); shake = Math.max(shake, 0.3); } } }
+      if (ENG.riel && (fase === 'piedra' || fase === 'riel')) engRielTick(dt);
     };
     // 1. No se cae: se arrodilla y se da cuerda
     csShot(cam => { cam.position.set(gp.x + Math.sin(a0 + 0.7) * 5.2, 1.0, gp.z + Math.cos(a0 + 0.7) * 5.2); cam.lookAt(gp.x, 2.0, gp.z); });
@@ -621,18 +631,35 @@ function engCineDespierta(){
     csShot(dollyShot([x + Math.sin(aT) * 3.5, 1.4, z + Math.cos(aT) * 3.5], [x + Math.sin(aT) * 2.8, 1.6, z + Math.cos(aT) * 2.8], [0, 7, 0], [0, 12, 0], 2.6));
     csCaption('Tovan: ¿Las ruinas eran… un reloj?'); await csWait(1.7);
     csCaption('Lumen: Y llevamos mil años de retraso.'); await csWait(1.7);
+    // 5. Echa a volar y le tira una piedra: Tovan la esquiva rodando… y acaba montado en el raíl de la pared
+    csCaption(''); Object.assign(ENG.g, { est: 'despega', t: 0, a: aT + Math.PI * 0.75, r: 7, y: 6 }); play('dragonRoar'); shake = Math.max(shake, 0.4);
+    await csWait(0.5);
+    { const p = piedra(), G = ENG.g; if (p){ p.de = G.p.clone(); p.a = new V3(hp.x, 0, hp.z); p.m.position.copy(p.de); p.m.visible = p.tele.visible = true; play('engLanza'); } }
+    const aH = Math.atan2(hp.x, hp.z); fase = 'piedra'; csCaption('Lumen: ¡Cuidado!');
+    csShot((cam, t) => { const H = hero.position;
+      if (!ENG.riel){ cam.position.set(Math.sin(aH + 0.55) * 6.2, 2.3, Math.cos(aH + 0.55) * 6.2); cam.lookAt(H.x * 0.92, 1.2, H.z * 0.92); return; }
+      const th = Math.atan2(H.x, H.z); cam.position.set(Math.sin(th - 0.5) * 8.6, 2.5, Math.cos(th - 0.5) * 8.6); cam.lookAt(H.x * 0.96, 0.9, H.z * 0.96); });   // montado: lo sigue desde dentro del foso
+    for (let i = 0; i < 40 && !ENG.riel; i++) await csWait(0.05);
+    fase = 'riel'; csCaption('Tovan: ¡Uoh! ¿Esto… me lleva?'); await csWait(1.5);
+    csCaption('Lumen: ¡Rodando te has subido al raíl! Si saltas, cruzas a la otra pared.'); await csWait(2.2);
     csCaption('');
   }, () => { csCaption(''); hideBossCard(); if (ENG.on) engEmpiezaPelea(); });
 }
 function engEmpiezaPelea(){
   const e = ENG.e; engMonta(); if (e.g.parent !== ENG.W) ENG.W.add(e.g);
   e.body.position.y = 0; e.torso.rotation.x = 0; cineEls.white.style.opacity = '0'; ENG.sube = 1;
-  const aT = Math.PI + 0.25; if (hero.position.y > 0 || Math.hypot(hero.position.x, hero.position.z) < 4){ hero.position.set(Math.sin(aT) * 10, 0, Math.cos(aT) * 10); heading = aT + Math.PI; hero.rotation.y = heading; camYaw = aT; }
-  hero.position.y = 0; grounded = true; vy = 0; P.body.rotation.x = 0; state = 'normal'; ENG.base = 0; ENG.W.position.y = 0; player.inv = Math.max(player.inv, 1);
+  const aT = Math.PI + 0.25, monta = !!ENG.riel;   // (en la cinemática se sube al raíl rodando: si llegó a montarse, sigue montado)
+  if (!monta){ if (hero.position.y > 0 || Math.hypot(hero.position.x, hero.position.z) < 4){ hero.position.set(Math.sin(aT) * 10, 0, Math.cos(aT) * 10); heading = aT + Math.PI; hero.rotation.y = heading; camYaw = aT; }
+    hero.position.y = 0; ENG.base = 0; ENG.W.position.y = 0; }
+  else { const H = hero.position, G = ENG.g.p; camYaw = Math.atan2(H.x - G.x, H.z - G.z); }   // (como la deja engCamYaw: detrás de Tovan, mirando al Guardián)
+  grounded = true; vy = 0; P.body.rotation.x = 0; P.body.scale.setScalar(1); state = 'normal'; player.inv = Math.max(player.inv, 1);
+  for (const p of ENG.piedras) if (!p.on){ p.m.visible = p.tele.visible = false; }   // (la piedra de la cinemática, si se saltó a medias)
   ENG.fase = 'pelea'; ENG.atq = null; ENG.atqCd = 4; ENG.nucleo = engNucleo();
-  Object.assign(ENG.g, { est: 'despega', t: 0, a: aT + Math.PI * 0.6, r: 7, y: 6 });
+  if (ENG.g.est !== 'despega' && ENG.g.est !== 'vuela') Object.assign(ENG.g, { est: 'despega', t: 0, a: aT + Math.PI * 0.6, r: 7, y: 6 });
   bossE = { type: 'engcol', alive: true, hp: 1, maxHp: 1, g: e.g, isBoss: true, spawnT: 0 }; bossBox.hidden = false; engBarra();
-  barkT = 0; bark(colTactil() ? '¡Ha echado a volar! Súbete al raíl: pulsa RODAR junto al piñón brillante de la pared.' : '¡Ha echado a volar! Súbete al raíl: RUEDA (K) junto al piñón brillante de la pared.'); clearT = 0;
+  barkT = 0; clearT = 0;
+  if (monta) bark(colTactil() ? '¡Pulsa SALTAR cuando pase cerca y lo derribarás!' : '¡SALTA cuando pase cerca y lo derribarás!');
+  else bark(colTactil() ? '¡Ha echado a volar! Súbete al raíl: pulsa RODAR junto al piñón brillante de la pared.' : '¡Ha echado a volar! Súbete al raíl: RUEDA (K) junto al piñón brillante de la pared.');
 }
 
 /* ---------- Remate: el núcleo se rompe, el reloj se para y se desmorona ---------- */
