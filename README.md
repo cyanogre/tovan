@@ -184,7 +184,7 @@ No puntúan el tutorial, el Castillo Infinito ni la pelea final. La valoración 
 
 ## Sin carteles
 
-Mientras se juega no sale texto que no haga falta: ni banners en el centro, ni palabras flotantes («¡Hop!», «¡Crítico!», frases de los enemigos), ni nombres de técnicas o poderes, ni la palabra del combo. La oleada, el encargo y la vida del jefe siguen en el HUD, y los avisos que piden algo (agarrarse al dragón, saltar la onda) salen en pequeño. Fuera de la partida (cartas, menús, cinemáticas) todo sigue igual. Está en `js/interfaz/sin-carteles.js` y `css/sin-carteles.css`.
+Mientras se juega no sale texto que no haga falta: ni banners en el centro, ni palabras flotantes («¡Hop!», «¡Crítico!», frases de los enemigos), ni nombres de técnicas o poderes, ni la palabra del combo, ni los contadores y barras de los foil (la barra de la forma, como la de «Moto roja», y la columna de marcadores de la derecha). La oleada, el encargo y la vida del jefe siguen en el HUD, y los avisos que piden algo (agarrarse al dragón, saltar la onda) salen en pequeño. Fuera de la partida (cartas, menús, cinemáticas) todo sigue igual. Está en `js/interfaz/sin-carteles.js` y `css/sin-carteles.css`.
 
 ## Poderes FOIL
 
@@ -201,11 +201,11 @@ Una rareza por encima de las legendarias, con carta holográfica (`js/poderes/fo
 
 Para verlas desde la consola (F12): `taken.waterBreath = 1` (o `foilChidori`, `foilHiken`) y ataca; o directamente `aguaDragon(heading)`, `truenoPrimera(heading)`, `fuegoPuno(heading)`, `FOIL.danza = 12; fuegoRueda(heading)`.
 
-### Los 20 foil nuevos
+### Los 24 foil nuevos
 
-Veinte poderes más, inspirados en animes y videojuegos, cada uno con su estética, sus sonidos y su rótulo. La pantalla foil ofrece **3 al azar** de los que aún no tienes, así que no salen siempre los mismos. Los de transformación o montura son **formas**: solo hay una a la vez, y su nombre y lo que le queda salen arriba. Los marcadores van en una columna a la derecha. En el colosal, TOVAN.EXE, el show y el Canal X no hay formas ni invocaciones (sale lo normal), y a los jefes nunca se los mata de un golpe ni se los traga nada.
+Veinticuatro poderes más, inspirados en animes y videojuegos, cada uno con su estética y sus sonidos. La pantalla foil ofrece **3 al azar** de los que aún no tienes, así que no salen siempre los mismos. Los de transformación o montura son **formas**: solo hay una a la vez. Sus nombres, barras y contadores no se enseñan en partida (ver «Sin carteles»). En el colosal, TOVAN.EXE, el show y el Canal X no hay formas ni invocaciones (sale lo normal), y a los jefes nunca se los mata de un golpe ni se los traga nada.
 
-Hay un fichero por grupo, más el núcleo común `js/poderes/foil-nucleo.js`.
+Hay un fichero por grupo, más el núcleo común `js/poderes/foil-nucleo.js`. «Pelo dorado» se quitó: sobraba, porque ya hay un poder normal parecido. A cambio salieron los cinco de `foil-extra.js` (abajo).
 
 **Anime** (`foil-anime-a.js` y `foil-anime-b.js`):
 
@@ -216,7 +216,6 @@ Hay un fichero por grupo, más el núcleo común `js/poderes/foil-nucleo.js`.
 | 🌙 **Colmillo lunar** | Cada golpe y remate | Tajos negros con filo carmesí; el remate lanza una media luna que lo atraviesa todo. Cada 3.er remate, liberación con abrigo negro |
 | 🗿 **Espíritu de pelea** | Siempre | Un espíritu flota tras Tovan: ráfaga de puñetazos «¡ORA ORA!» en el remate, «ゴゴゴ» si te quedas quieto y para un golpe cada 10 s |
 | 👊 **Golpe serio** | 12 golpes y remate | Cara de garabato, un toque seco… y la onda que parte el cielo. Mata a todo lo que no es jefe; al jefe le quita un 12 % |
-| 🌟 **Pelo dorado** | Por debajo del 35 % de vida (una vez por oleada) | Grito, piedras que flotan, pelo dorado: 14 s más rápido y fuerte; el remate es una patada teletransportada |
 | 🦴 **Titán** | Especial con el ímpetu lleno | Rayo y vapor: 10 s gigante que aplasta al andar; el remate deja un cráter |
 | 🎀 **Transformación mágica** | Primer remate de cada oleada | Lazos, corazones y pose: 15 s con varita de corazones teledirigidos y la «Tiara lunar» |
 | 🌀 **Taladro espiral** | Remate | Embestida con taladro; cada 4.º remate, «¡GIGATALADRO!» de 20 m desde el cielo |
@@ -226,7 +225,7 @@ Hay un fichero por grupo, más el núcleo común `js/poderes/foil-nucleo.js`.
 
 | Poder | Cómo sale | Qué hace |
 |---|---|---|
-| ⭐ **Estrella invencible** | 50 monedas (cada golpe suelta una) | 9 s invencible en arcoíris, atropellando; cada 100 monedas, un hongo que cura |
+| ⭐ **Estrella invencible** | 50 monedas (cada golpe suelta una) | 9 s invencible en arcoíris, atropellando, con el tema de la estrella de fondo; cada 100 monedas, un hongo que cura |
 | 🗡️ **Espada maestra** | Con la vida casi llena | Cada golpe dispara un rayo-espada; el remate es el «Giro huracanado» |
 | 🌸 **Inhalar** | Remate | Aspira y se traga hasta 3 enemigos; el siguiente ataque escupe una estrella |
 | 🟡 **Comecocos** | Píldora cada 10 bajas | 8 s de comecocos sobre una cuadrícula de neón: los enemigos se ponen azules y huyen |
@@ -237,7 +236,19 @@ Hay un fichero por grupo, más el núcleo común `js/poderes/foil-nucleo.js`.
 | 😈 **Estilo SSS** | Siempre | Medidor de D a SSS que premia variar; en SSS, 10 s de «Gatillo demoníaco» |
 | 🧩 **Lluvia de tetriminós** | Remate | Caen 4 piezas sobre los enemigos; si aciertan todas, «¡TETRIS!» y un láser |
 
-Para probarlos: contraseña `jefes` → «Poder foil» (uno elegido o al azar), o desde la consola `foilDa('foilGear3')` (los demás ids: `foilKyubi`, `foilGetsuga`, `foilOra`, `foilSaitama`, `foilSaiyan`, `foilTitan`, `foilMagica`, `foilTaladro`, `foilMoto`, `foilEstrella`, `foilEspada`, `foilKirby`, `foilPacman`, `foilSonic`, `foilDino`, `foilBahamut`, `foilPersona`, `foilDante`, `foilTetris`).
+El tema de la estrella sigue el análisis armónico del original (150 por minuto en 2/2): alterna Re m7 y Do maj7, la melodía salta entre la séptima y la fundamental de cada acorde y el bajo va de la fundamental a la quinta.
+
+**Cinco más** (`foil-extra.js`), los más espectaculares:
+
+| Poder | Cómo sale | Qué hace |
+|---|---|---|
+| 🌌 **Expansión de dominio** | Especial con el ímpetu lleno | Cruzas los dedos y una burbuja se traga el mundo: cielo de estrellas, suelo de cosmos y nada del escenario. Los enemigos se quedan paralizados mientras juntas una esfera azul y otra roja en el «Púrpura», que borra todo lo que encuentra en 26 m y deja una zanja. Luego la burbuja se rompe y vuelve el mundo |
+| 💀 **Calaveras cañón** | Cuando te hacen daño (cada 3 s como mucho) | Calaveras de cabra que llegan girando, apuntan a los más cercanos, abren la mandíbula y disparan un rayo blanco; un ojo de Tovan brilla. Cada 4.º remate, seis en abanico que se cruzan delante de ti |
+| 🌈 **Bola cósmica** | Al empezar cada oleada | Llueven cachivaches y empujas 16 s una bola pegajosa: lo que es más pequeño que ella se queda pegado y la bola crece; lo grande rebota. Al ganar la oleada (o al acabar), un arcoíris se la lleva y se convierte en estrella |
+| 🐴 **Burro de hormigón** | Cada 40 golpes cuerpo a cuerpo | Se abre el cielo con un coro sobre el grupo más grande, cae un burro de piedra gigante, rebota cuatro veces aplastándolo todo y se desmorona |
+| 🔆 **Bola Smash** | Cada 20 s aparece una bola arcoíris | Rómpela de tres golpes (se escapa si tardas) y arderás en arcoíris: el siguiente ataque es el golpe final. Subes, caes en picado, una cúpula de luz lanza a todos por los aires y cada uno revienta en el borde de la pantalla con su explosión de color |
+
+Para probarlos: contraseña `jefes` → «Poder foil» (uno elegido o al azar), o desde la consola `foilDa('foilGear3')` (los demás ids: `foilKyubi`, `foilGetsuga`, `foilOra`, `foilSaitama`, `foilTitan`, `foilMagica`, `foilTaladro`, `foilMoto`, `foilEstrella`, `foilEspada`, `foilKirby`, `foilPacman`, `foilSonic`, `foilDino`, `foilBahamut`, `foilPersona`, `foilDante`, `foilTetris`, `foilDominio`, `foilCalaveras`, `foilKatamari`, `foilBurro`, `foilSmash`).
 
 ## El show de Míster Confianza (en 3D)
 
@@ -297,7 +308,7 @@ Tovan lo mueve un piloto con el joystick y los botones de siempre, y la cámara 
 
 El primer jefe ya no se acaba al dejarlo a cero (`js/jefes/guardian-engranaje.js`). Al estilo de Stallord, de Zelda: Twilight Princess.
 
-**La cinemática:** el Guardián se arrodilla y se da cuerda. La plaza hace tictac y se abre: era la tapa de un reloj gigante. Tovan cae al fondo del foso, sobre la esfera del reloj, mientras se levanta una columna que gira con el Guardián encima. Después, el Guardián echa a volar.
+**La cinemática:** el Guardián se arrodilla y se da cuerda. La plaza hace tictac y se abre: era la tapa de un reloj gigante. Tovan cae al fondo del foso, sobre la esfera del reloj, mientras se levanta una columna que gira con el Guardián encima. Después, el Guardián echa a volar y le tira una piedra: Tovan la esquiva rodando… y, sin querer, acaba subido al raíl de la pared, que se lo lleva. Así descubre que se puede montar. La pelea empieza con Tovan ya en el raíl (si se salta la escena antes, empieza en el suelo).
 
 **Cómo se juega:**
 - **Dos raíles en hélice:** uno pegado a la columna (gira con ella) y otro pegado a la pared del foso.

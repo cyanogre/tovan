@@ -1,7 +1,9 @@
 'use strict';
 /* ======================================================================
    PODERES FOIL · GRUPO ANIME B (cinco más, sobre js/poderes/foil-nucleo.js)
-     · Pelo dorado (de una de guerreros del espacio) · prefijo ssj. Solo:
+     · Pelo dorado (de una de guerreros del espacio) · prefijo ssj. Ya no
+       es carta (sobraba: hay un poder normal parecido); el código se queda
+       porque los bloqueos de este fichero lo usan. Era así. Solo:
        al bajar del 35 % de vida (una vez por oleada; si hay otra forma,
        espera a que acabe) Tovan grita en cámara lenta, las piedras flotan,
        cae una columna de aura dorada y el pelo se le pone de punta y
@@ -315,9 +317,8 @@ Object.assign(SFX, {
   ssjChispa: () => { noise({ dur: 0.05, vol: 0.06, f0: 7000, type: 'highpass', q: 0.8 }); tone({ type: 'square', f0: 3000, f1: 1200, dur: 0.04, vol: 0.025 }); },
   ssjApaga: () => { tone({ type: 'triangle', f0: 620, f1: 150, dur: 0.6, vol: 0.08, rv: 0.4 }); noise({ dur: 0.5, vol: 0.1, f0: 2000, f1: 300, rv: 0.3 }); }
 });
-foilPoder({ id: 'foilSaiyan', ic: '🌟', name: 'Pelo dorado', tags: ['otaku'],
-  desc: 'Guerrero del espacio en apuros: cuando tu vida baja del 35 % (una vez por oleada) gritas hasta que flotan las piedras y el pelo se te pone dorado y de punta. Durante 14 s te curas un 25 %, vas más rápido y pegas mucho más, y el remate es una teletransportación con patada que manda al enemigo por los aires.',
-  tick(dt, jugando){ ssjVigila(dt, jugando); }, oleada(){ SSJ.usada = false; }, reset(){ SSJ.usada = false; }, limpia(m){ ssjLimpia(m); } });
+// (Pelo dorado ya no es una carta: sobraba, hay un poder normal parecido. El código se queda porque los bloqueos
+// de arriba y el resto del fichero lo usan; sin la carta nunca se activa.)
 
 /* ======================================================================
    TITÁN (tit)

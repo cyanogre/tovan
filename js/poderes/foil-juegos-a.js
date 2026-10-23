@@ -102,9 +102,13 @@ const strMonedaMat = strSpriteMat(strPix([
 Object.assign(SFX, {
   strPlin: () => { tone({ type: 'square', f0: NOTE(83), dur: 0.06, vol: 0.045, rv: 0.05 }); tone({ type: 'square', f0: NOTE(88), dur: 0.26, vol: 0.045, when: 0.06, rv: 0.15 }); },
   strEstrella: () => { [72, 76, 79, 84, 88, 91, 96].forEach((n, i) => tone({ type: 'square', f0: NOTE(n), dur: 0.09, vol: 0.05, when: i * 0.045, rv: 0.3 })); noise({ dur: 0.5, vol: 0.08, f0: 6000, type: 'highpass', rv: 0.3 }); },
-  strArp: () => { const A = STR.arpN++ % 2 ? [74, 77, 81, 86, 81, 77, 74, 81] : [72, 76, 79, 84, 79, 76, 72, 79];
-    A.forEach((n, i) => tone({ type: 'square', f0: NOTE(n), dur: 0.07, vol: 0.03, when: i * 0.08, rv: 0.05 }));
-    tone({ type: 'triangle', f0: NOTE(A[0] - 24), dur: 0.28, vol: 0.09, rv: 0.05 }); tone({ type: 'triangle', f0: NOTE(A[0] - 17), dur: 0.24, vol: 0.07, when: 0.32, rv: 0.05 }); },
+  // el tema de la estrella: un compás por llamada, alternando Re m7 y Do maj7; la melodía salta entre la séptima y la
+  // fundamental del acorde (Do–Re y Si–Do) con el ritmo de «ta-ta-ta-TAM ta-TAM», el bajo va de fundamental a quinta
+  strArp: () => { const dm = STR.arpN++ % 2 === 0, lo = dm ? 72 : 71, hi = dm ? 74 : 72, ba = dm ? 50 : 48, e = 0.1;   // 150 por minuto en 2/2: compás de 0,8 s, corchea de 0,1
+    [[0, lo, 1], [1, lo, 1], [2, lo, 1], [3, hi, 2], [5, lo, 1], [6, hi, 2]].forEach(([t, n, l]) => {
+      tone({ type: 'square', f0: NOTE(n), dur: e * l * 0.85, vol: 0.04, when: t * e, rv: 0.05 }); tone({ type: 'square', f0: NOTE(n + 12), dur: e * l * 0.5, vol: 0.012, when: t * e, rv: 0.05 }); });
+    [[0, ba], [2, ba + 7], [4, ba], [6, ba + 7]].forEach(([t, n]) => tone({ type: 'triangle', f0: NOTE(n), dur: e * 1.7, vol: 0.09, when: t * e, rv: 0.02 }));
+    for (let t = 0; t < 8; t++) noise({ dur: 0.025, vol: t % 2 ? 0.02 : 0.035, f0: 8000, type: 'highpass', when: t * e }); },
   strPatada: () => { tone({ type: 'square', f0: 330, f1: 990, dur: 0.09, vol: 0.06, rv: 0.05 }); noise({ dur: 0.06, vol: 0.12, f0: 900, type: 'lowpass' }); },
   strHongo: () => { for (let i = 0; i < 6; i++) tone({ type: 'square', f0: NOTE(60 + i * 3), f1: NOTE(64 + i * 3), dur: 0.07, vol: 0.04, when: i * 0.07, rv: 0.1 }); },
   strVida: () => seq_([[76, 0.1], [79, 0.1], [84, 0.1], [88, 0.1], [86, 0.1], [91, 0.3]], 'square', 0.09, 0.05, 0.25)
@@ -159,7 +163,7 @@ function strDevuelve(){ if (!STR.snap) return; HERO_MATS.forEach((m, i) => { m.u
 function strEstrellaTick(F, dt){
   strPinta(F); const O = hero.position;
   for (let i = 0; i < 2; i++) if (rnd() < dt * 30) pa(O.x + (rnd() - 0.5) * 0.9, O.y + 0.2 + rnd() * 1.5, O.z + (rnd() - 0.5) * 0.9, (rnd() - 0.5), 0.5 + rnd(), (rnd() - 0.5), STR_ARCO[Math.floor(rnd() * 6)], 0.24, 0.55, 0, 1, 0.2, SH7.star);
-  STR.arp -= dt; if (STR.arp <= 0){ STR.arp += 0.64; play('strArp'); }
+  STR.arp -= dt; if (STR.arp <= 0){ STR.arp += 0.8; play('strArp'); }
   for (const e of foilEnemigos(O, 0.95)){
     const dx = e.g.position.x - O.x, dz = e.g.position.z - O.z, d = Math.max(0.01, Math.hypot(dx, dz));
     if (strFuerte(e)){ const u = F.toques.get(e); if (u != null && time - u < 0.5) continue; F.toques.set(e, time);
