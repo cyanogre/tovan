@@ -197,6 +197,44 @@ Una rareza por encima de las legendarias, con carta holográfica (`js/poderes/fo
 
 Para verlas desde la consola (F12): `taken.waterBreath = 1` (o `foilChidori`, `foilHiken`) y ataca; o directamente `aguaDragon(heading)`, `truenoPrimera(heading)`, `fuegoPuno(heading)`, `FOIL.danza = 12; fuegoRueda(heading)`.
 
+### Los 20 foil nuevos
+
+Veinte poderes más, inspirados en animes y videojuegos, cada uno con su estética, sus sonidos y su rótulo. La pantalla foil ofrece **3 al azar** de los que aún no tienes, así que no salen siempre los mismos. Los de transformación o montura son **formas**: solo hay una a la vez, y su nombre y lo que le queda salen arriba. Los marcadores van en una columna a la derecha. En el colosal, TOVAN.EXE, el show y el Canal X no hay formas ni invocaciones (sale lo normal), y a los jefes nunca se los mata de un golpe ni se los traga nada.
+
+Hay un fichero por grupo, más el núcleo común `js/poderes/foil-nucleo.js`.
+
+**Anime** (`foil-anime-a.js` y `foil-anime-b.js`):
+
+| Poder | Cómo sale | Qué hace |
+|---|---|---|
+| 🎈 **Tercera marcha** | Remate | Se sopla el pulgar, el brazo se infla y el puño gigante sale disparado 8 m; luego Tovan va 3 s en miniatura con voz de pito |
+| 🦊 **Manto de las nueve colas** | Especial con el ímpetu lleno | 12 s con manto dorado, nueve colas de chakra, zarpazos gigantes y la «Bomba espiral» en el remate |
+| 🌙 **Colmillo lunar** | Cada golpe y remate | Tajos negros con filo carmesí; el remate lanza una media luna que lo atraviesa todo. Cada 3.er remate, liberación con abrigo negro |
+| 🗿 **Espíritu de pelea** | Siempre | Un espíritu flota tras Tovan: ráfaga de puñetazos «¡ORA ORA!» en el remate, «ゴゴゴ» si te quedas quieto y para un golpe cada 10 s |
+| 👊 **Golpe serio** | 12 golpes y remate | Cara de garabato, un toque seco… y la onda que parte el cielo. Mata a todo lo que no es jefe; al jefe le quita un 12 % |
+| 🌟 **Pelo dorado** | Por debajo del 35 % de vida (una vez por oleada) | Grito, piedras que flotan, pelo dorado: 14 s más rápido y fuerte; el remate es una patada teletransportada |
+| 🦴 **Titán** | Especial con el ímpetu lleno | Rayo y vapor: 10 s gigante que aplasta al andar; el remate deja un cráter |
+| 🎀 **Transformación mágica** | Primer remate de cada oleada | Lazos, corazones y pose: 15 s con varita de corazones teledirigidos y la «Tiara lunar» |
+| 🌀 **Taladro espiral** | Remate | Embestida con taladro; cada 4.º remate, «¡GIGATALADRO!» de 20 m desde el cielo |
+| 🏍️ **Moto roja** | Rodar dos veces seguidas | 14 s en moto con estelas rojas, caballito y derrape en abanico (descansa 10 s entre viaje y viaje) |
+
+**Videojuegos** (`foil-juegos-a.js` y `foil-juegos-b.js`):
+
+| Poder | Cómo sale | Qué hace |
+|---|---|---|
+| ⭐ **Estrella invencible** | 50 monedas (cada golpe suelta una) | 9 s invencible en arcoíris, atropellando; cada 100 monedas, un hongo que cura |
+| 🗡️ **Espada maestra** | Con la vida casi llena | Cada golpe dispara un rayo-espada; el remate es el «Giro huracanado» |
+| 🌸 **Inhalar** | Remate | Aspira y se traga hasta 3 enemigos; el siguiente ataque escupe una estrella |
+| 🟡 **Comecocos** | Píldora cada 10 bajas | 8 s de comecocos sobre una cuadrícula de neón: los enemigos se ponen azules y huyen |
+| 💨 **Bola azul** | Rodar | Bola de púas con ataque teledirigido en cadena; los golpes dan anillos y, si te hieren, se caen |
+| 🦖 **Dinosaurio verde** | Doble salto | Montura de 15 s: lengua que se traga, huevos que rebotan, revoloteo y culetazo |
+| 🐉 **Invocación: Rey dragón** | Especial con el ímpetu lleno | El cielo se oscurece, baja el dragón y suelta el «Megafulgor» sobre todo lo que se ve |
+| 🎭 **¡Ataque total!** | Derribar a 3 (críticos y remates) | Viñetas, nube de pelea de dibujos y «¡FIN DEL ESPECTÁCULO!» |
+| 😈 **Estilo SSS** | Siempre | Medidor de D a SSS que premia variar; en SSS, 10 s de «Gatillo demoníaco» |
+| 🧩 **Lluvia de tetriminós** | Remate | Caen 4 piezas sobre los enemigos; si aciertan todas, «¡TETRIS!» y un láser |
+
+Para probarlos: contraseña `jefes` → «Poder foil» (uno elegido o al azar), o desde la consola `foilDa('foilGear3')` (los demás ids: `foilKyubi`, `foilGetsuga`, `foilOra`, `foilSaitama`, `foilSaiyan`, `foilTitan`, `foilMagica`, `foilTaladro`, `foilMoto`, `foilEstrella`, `foilEspada`, `foilKirby`, `foilPacman`, `foilSonic`, `foilDino`, `foilBahamut`, `foilPersona`, `foilDante`, `foilTetris`).
+
 ## El show de Míster Confianza (en 3D)
 
 Antes eran minijuegos en un lienzo pixelado de 320×180. Ahora son programas en un plató 3D (`js/show/plato-3d.js`, `css/show-3d.css`), con el Tovan de verdad y sus controles de siempre.

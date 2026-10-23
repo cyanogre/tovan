@@ -115,6 +115,32 @@ Juego 3D roguelike por oleadas (three.js r128 por CDN, fuente Pixelify Sans de G
   - `foilRotulo(html, clase, dur)` (capa `#foilCapa`), `foilMarcador(id, clase)` (columna `#foilCol`), `foilVel(id, k)`, `foilEnemigos(O, R)`, `foilJefe(e)` (jefes, élites y sellos: nunca se los mata de un golpe ni se los traga nada), `foilDa(id)`.
   - El reparto: el envoltorio de `dealCards` deja la pantalla foil en 3 al azar de las que no tienes (antes salían todas).
   - Prefijos: cada poder usa el suyo en todo lo global (funciones, `SFX`, ids y clases de CSS), porque los cuatro ficheros comparten ámbito.
+    - Prefijos por fichero:
+      - `foil-anime-a.js`: `g3`, `kyu`, `gtsu`, `ora`, `opm`. `kyuTinte*` también lo usa la liberación del Colmillo.
+      - `foil-anime-b.js`: `ssj`, `tit`, `mag`, `drl`, `mto`.
+      - `foil-juegos-a.js`: `str` (lo común), `msw`, `kby`, `pac`, `snc`.
+      - `foil-juegos-b.js`: `yos`, `bah`, `prs`, `dmc`, `tet`.
+  - Envoltorios propios fuera del núcleo:
+    - `doAttack`/`doRoll`/`doJump`/`doSpecial`: los bloqueos durante las escenas.
+    - `renderClones`: la imagen residual del pelo dorado.
+    - `csCamera`: el titán.
+    - `hurtPlayer`: los anillos.
+    - `statusTint`/`updateEnemy`: el comecocos.
+    - `hitEnemy`: los derribos.
+  - Las escenas (Golpe serio, Rey dragón, Pelo dorado…) se recogen en `limpia`. Si se toca el cielo, la luz o los colores de Tovan, se guarda lo que había y se devuelve tal cual.
+  - El núcleo:
+    - Con `body.foilFuera` (título, fin de partida o muerto) esconde `#foilCol` y `#foilForma`.
+    - `#foilForma` se coloca bajo `#bossBox` si la barra está arriba. En el móvil en vertical la tapaba.
+    - Con pantalla táctil, `#foilCol` empieza al 37 %, bajo el combo.
+  - Se verificó en Chromium headless con Playwright:
+    - Cada poder por separado (lo hizo cada grupo).
+    - Los 20 a la vez:
+      - Un bot contra el Guardián (ataca, rueda, rueda dos veces, hace doble salto y usa el especial) durante 36 s.
+      - El colosal y TOVAN.EXE desde el selector, sin formas.
+      - La limpieza con `clearWorld`/`toTitle`.
+      - La pantalla foil con 3 cartas.
+      - El móvil en vertical y en horizontal.
+    - Las sesiones corta, móvil y larga del arnés, sin errores.
 - **Assets:**
   - Los mp3 de jefes están en `assets/audio/`. Los carga `track()` con `AUDIO_DIR` (en `js/audio/canciones-jefes.js`); si falta un mp3, suena la canción sintetizada.
   - La hoja de iconos `assets/img/iconos-16px.png` (16×16, 16 columnas) la usa `.px13` en `css/iconos-pixel.css`. `js/interfaz/iconos-pixel.js` sustituye solo los emojis del DOM por esos iconos.
