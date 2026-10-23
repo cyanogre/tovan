@@ -403,7 +403,7 @@ function engAlcanza(e){   // solo se le pega derribado y desde el suelo
 function engBarra(){
   if (!bossE || bossE.type !== 'engcol' || !ENG.e || !ENG.nucleo) return;
   const hN = ENG.nucleo.maxHp; bossE.maxHp = ENG_RONDAS * hN; bossE.hp = (ENG_RONDAS - 1 - ENG.rondas) * hN + Math.max(0, ENG.nucleo.hp);
-  const t = `Guardián · segunda vida · derribos ${ENG.rondas}/${ENG_RONDAS}`; if (bossNameEl.textContent !== t) bossNameEl.textContent = t;
+  const t = "Guardián · segunda vida"; if (bossNameEl.textContent !== t) bossNameEl.textContent = t;
 }
 function engRondaHecha(e){   // se ha llevado un tercio: se levanta (o, el tercero, se acaba)
   const x = e.g.position.x, y = e.g.position.y + 1, z = e.g.position.z;
