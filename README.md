@@ -315,7 +315,7 @@ El primer jefe ya no se acaba al dejarlo a cero (`js/jefes/guardian-engranaje.js
   - RODAR junto al piñón brillante (o caer encima del raíl) te monta, y lo recorres girando como una peonza.
   - SALTAR, montado, te lanza en arco hasta el otro raíl, de la columna a la pared o al revés. Al final de un raíl saltas solo.
   - RODAR otra vez te baja.
-- **Derribarlo:** el Guardián vuela entre la columna y la pared, a tu altura. Si en el salto entre paredes te cruzas con él, lo derribas.
+- **Derribarlo:** el Guardián vuela entre la columna y la pared, a tu altura. En el salto entre paredes hay que **ATACAR** cuando pasa cerca: el tajo dorado dura un instante y, si lo pilla, lo derriba. Tocarlo sin atacar no hace nada, y si fallas tardas un poco en poder volver a atacar. Cuando lo tienes a tiro, su núcleo chispea.
 - **Rematarlo:** derribado, cae a la esfera de rodillas, con el núcleo al aire y el reloj parado. Hay que bajar y coserlo a golpes antes de que se levante. Al levantarse suelta una onda que hay que saltar.
 - **Tres derribos** se llevan su vida. Si se levanta antes de que le quites su trozo, toca derribarlo otra vez.
 
@@ -333,6 +333,8 @@ El primer jefe ya no se acaba al dejarlo a cero (`js/jefes/guardian-engranaje.js
 Para ir directo: contraseña `jefes` → Guardián de las Ruinas → «Directo al mecanismo».
 
 ## Ryūjin colosal (la segunda vida del dragón)
+
+**Camión-kun** (el poder) no va a por Tovan mientras haya un jefe en pie: sigue atropellando enemigos (y al jefe le quita un 8 %), pero no te manda al isekai en plena pelea.
 
 Al dejar a Ryūjin (oleada 10) a cero, no muere: brilla, toca la bocina como Camión-kun, atropella a Tovan y crece hasta el «tamaño mudanza». La pelea sigue en el cielo, a lomos del dragón, al estilo *Shadow of the Colossus* (`js/jefes/ryujin-colosal.js`, `css/ryujin-colosal.css`). Sale siempre que el dragón cae en una partida normal; no sale en el Canal X, en el castillo ni en los marcianitos.
 - **El lomo** es una pasarela de escudos dorados entre dos filas de púas. El dragón ondula de lado y arrastra a Tovan. Abajo hay un mar de nubes, montañas y campos; alrededor, nubes, líneas de velocidad y viento (también se oye).
