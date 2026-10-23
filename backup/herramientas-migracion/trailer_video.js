@@ -1,5 +1,6 @@
 // Graba el tráiler del juego (js/cinematicas/trailer.js) a vídeo.
-// Uso:  node trailer_video.js <proyecto> <salida.mp4> [fps=30] [ancho=1280] [alto=720]
+// Uso:  node trailer_video.js <proyecto> <salida.mp4> [fps=30] [ancho=1280] [alto=720] [función=runTrailer]
+// (runTrailerJuego graba el tráiler de jugabilidad, js/cinematicas/trailer-juego.js)
 // Necesita Playwright con Chromium y ffmpeg. Dos pasadas:
 //   1) Imagen: el bucle del juego avanza a mano, fotograma a fotograma (dt = 1/fps exacto),
 //      y las animaciones y transiciones CSS se ponen en su sitio con el reloj virtual antes de cada captura.
@@ -7,7 +8,7 @@
 // Al final ffmpeg junta las capturas y el sonido.
 const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path'), { execFileSync } = require('child_process');
-const [DIR, OUT, FPS_ = '30', W_ = '1280', H_ = '720'] = process.argv.slice(2);
+const [DIR, OUT, FPS_ = '30', W_ = '1280', H_ = '720', FN = 'runTrailer'] = process.argv.slice(2);
 const FPS = +FPS_, W = +W_, H = +H_, DT = 1000 / FPS;
 const TMP = fs.mkdtempSync(path.join(path.dirname(path.resolve(OUT)), 'trailer-'));
 const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -41,7 +42,7 @@ async function abre(b, modo){
     proxy: process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY } : undefined });
   // ── 1) Imagen ──
   let p = await abre(b, 'video');
-  await p.evaluate(() => { runTrailer(); window.__v0 = window.__t; window.__anim = new Map(); });
+  await p.evaluate(fn => { window[fn](); window.__v0 = window.__t; window.__anim = new Map(); }, FN);
   let n = 0;
   for (;;){
     const fin = await p.evaluate(() => {
@@ -60,7 +61,7 @@ async function abre(b, modo){
   p = await abre(b, 'audio');
   const ms = Math.ceil(n * DT);
   await p.evaluate(() => { renderer.render = () => {}; });   // sin dibujar: así el bucle aguanta el tiempo real
-  await p.evaluate(() => { runTrailer(); window.__iv = setInterval(() => window.__step(), 1000 / window.__fps); });
+  await p.evaluate(fn => { window[fn](); window.__iv = setInterval(() => window.__step(), 1000 / window.__fps); }, FN);
   await wait(ms + 600);
   const b64 = await p.evaluate(async () => { clearInterval(window.__iv); window.__rec.stop(); await new Promise(r => setTimeout(r, 400));
     const blob = new Blob(window.__chunks, { type: 'audio/webm' }), buf = new Uint8Array(await blob.arrayBuffer()); let s = '';

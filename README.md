@@ -241,6 +241,16 @@ El jefe final no sale, para no destripar nada. Se salta con «Saltar» o Esc.
 
 Al final, ffmpeg junta las dos. Por eso el guion solo mueve cosas con `csTween`/`csWait`, nunca con animaciones CSS.
 
+**Jugabilidad** (botón justo debajo) es otro tráiler, de ~40 s, solo con partida de verdad: casi sin texto y con fundidos a negro entre planos (`js/cinematicas/trailer-juego.js`). Seis planos:
+1. Parkur por las ruinas: muro, salto triple, trampolín y picado.
+2. Esquiva en cámara lenta del golpe del bruto y contraataque.
+3. Corte de nuca.
+4. Dragón de agua y su corriente.
+5. Mil pájaros.
+6. Puño de fuego corriendo alrededor del grupo.
+
+Tovan lo mueve un piloto con el joystick y los botones de siempre, y la cámara es la de juego, colocada por fuera del grupo. Se graba igual, añadiendo el nombre de la función: `node backup/herramientas-migracion/trailer_video.js <proyecto> jugabilidad.mp4 30 1280 720 runTrailerJuego`.
+
 ## Ryūjin colosal (la segunda vida del dragón)
 
 Al dejar a Ryūjin (oleada 10) a cero, no muere: brilla, toca la bocina como Camión-kun, atropella a Tovan y crece hasta el «tamaño mudanza». La pelea sigue en el cielo, a lomos del dragón, al estilo *Shadow of the Colossus* (`js/jefes/ryujin-colosal.js`, `css/ryujin-colosal.css`). Sale siempre que el dragón cae en una partida normal; no sale en el Canal X, en el castillo ni en los marcianitos.
