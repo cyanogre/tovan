@@ -39,7 +39,7 @@ function foilPrimero(fn, ...a){ for (const d of FOILP) if (d[fn] && lvl(d.id)){ 
 function foilDa(id){ const u = UPGRADES.find(x => x.id === id); if (!u) return false; taken[id] = 1; u.apply(); try { recountTags(); } catch (err) {} return true; }
 const foilPuede = () => gameState === 'play' && !player.dead && !invActive && !cs.active && !lcut;
 // escenarios propios, donde no caben transformaciones ni monturas
-const foilEscenario = () => !COL.montado && !TER.montado && !SH3.montado && !MG.active && !chActive && !special;
+const foilEscenario = () => !COL.montado && !TER.montado && !SH3.montado && !MG.active && !chActive && !special && !(typeof ENG !== 'undefined' && ENG.montado);
 const foilEnemigos = (O, R) => enemies.filter(e => e.alive && e.spawnT <= 0 && e.reach !== false && Math.hypot(e.g.position.x - O.x, e.g.position.z - O.z) - e.r < R);
 const foilJefe = e => !!(e && (e.isBoss || e.elite || e.colEscama));
 

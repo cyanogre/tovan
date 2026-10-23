@@ -293,6 +293,34 @@ Al final, ffmpeg junta las dos. Por eso el guion solo mueve cosas con `csTween`/
 
 Tovan lo mueve un piloto con el joystick y los botones de siempre, y la cámara es la de juego, colocada por fuera del grupo. Se graba igual, añadiendo el nombre de la función: `node backup/herramientas-migracion/trailer_video.js <proyecto> jugabilidad.mp4 30 1280 720 runTrailerJuego`.
 
+## El Guardián · segunda vida (el mecanismo del Ocaso)
+
+El primer jefe ya no se acaba al dejarlo a cero (`js/jefes/guardian-engranaje.js`). Al estilo de Stallord, de Zelda: Twilight Princess.
+
+**La cinemática:** el Guardián se arrodilla y se da cuerda. La plaza hace tictac y se abre: era la tapa de un reloj gigante. Tovan cae al fondo del foso, sobre la esfera del reloj, mientras se levanta una columna que gira con el Guardián encima. Después, el Guardián echa a volar.
+
+**Cómo se juega:**
+- **Dos raíles en hélice:** uno pegado a la columna (gira con ella) y otro pegado a la pared del foso.
+  - RODAR junto al piñón brillante (o caer encima del raíl) te monta, y lo recorres girando como una peonza.
+  - SALTAR, montado, te lanza en arco hasta el otro raíl, de la columna a la pared o al revés. Al final de un raíl saltas solo.
+  - RODAR otra vez te baja.
+- **Derribarlo:** el Guardián vuela entre la columna y la pared, a tu altura. Si en el salto entre paredes te cruzas con él, lo derribas.
+- **Rematarlo:** derribado, cae a la esfera de rodillas, con el núcleo al aire y el reloj parado. Hay que bajar y coserlo a golpes antes de que se levante. Al levantarse suelta una onda que hay que saltar.
+- **Tres derribos** se llevan su vida. Si se levanta antes de que le quites su trozo, toca derribarlo otra vez.
+
+**Sus ataques:**
+- Piedras de su halo, lanzadas adonde vas a estar en el raíl.
+- La mirada: un barrido a tu altura.
+- Embestidas, con una línea roja de aviso.
+- La campana: ondas que se saltan.
+- Si te quedas en el suelo, cae en picado sobre ti.
+
+**En el suelo:** las agujas del reloj barren la esfera (hay que saltarlas), y dos chorros de vapor junto a la pared te lanzan hasta su raíl.
+
+**El final:** al último derribo el reloj se para, todo se desmorona y Tovan vuelve a la plaza. Ahí sigue el flujo de siempre: «¡Guardián derrotado!», el trozo de la hoja de ruta y las cartas.
+
+Para ir directo: contraseña `jefes` → Guardián de las Ruinas → «Directo al mecanismo».
+
 ## Ryūjin colosal (la segunda vida del dragón)
 
 Al dejar a Ryūjin (oleada 10) a cero, no muere: brilla, toca la bocina como Camión-kun, atropella a Tovan y crece hasta el «tamaño mudanza». La pelea sigue en el cielo, a lomos del dragón, al estilo *Shadow of the Colossus* (`js/jefes/ryujin-colosal.js`, `css/ryujin-colosal.css`). Sale siempre que el dragón cae en una partida normal; no sale en el Canal X, en el castillo ni en los marcianitos.
