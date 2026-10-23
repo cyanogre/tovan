@@ -6,3 +6,4 @@
 #colAviso b{font-size:clamp(18px,2.4vw,26px)}
 #colAviso small{font-size:clamp(11px,1.3vw,14px);margin-top:3px}
 #terGrito small{font-size:clamp(12px,1.5vw,16px)}
+#trailerBtn,#trailerJuegoBtn{display:none!important}   /* tráileres fuera del menú (siguen en el código: runTrailer / runTrailerJuego) */
