@@ -1,0 +1,8 @@
+/* ---------- Sin carteles (js/interfaz/sin-carteles.js): nada de texto grande que no haga falta ---------- */
+.dmg.crit small,#pop7,#foilCapa .foilRot,#oraCapa,#comboWord,#terGrito b{display:none!important}
+/* el combo, solo el número y pequeño */
+#comboNum{font-size:clamp(22px,2.6vw,30px)!important}
+/* los avisos que piden algo (agarrarse, saltar), en pequeño, también en el lomo del dragón */
+#colAviso b{font-size:clamp(18px,2.4vw,26px)}
+#colAviso small{font-size:clamp(11px,1.3vw,14px);margin-top:3px}
+#terGrito small{font-size:clamp(12px,1.5vw,16px)}

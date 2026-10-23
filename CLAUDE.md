@@ -3,7 +3,7 @@
 Juego 3D roguelike por oleadas (three.js r128 por CDN, fuente Pixelify Sans de Google Fonts). HTML/CSS/JS sin compilación: se abre con doble clic en `index.html` (`file://`). El usuario no tiene Node; sí Python 3.13 (`py -3`) y Chrome/Edge. Visión general para humanos en `README.md`.
 
 ## Arquitectura (léelo antes de tocar nada)
-- **Scripts clásicos, ámbito global compartido.** 178 ficheros en `js/` cargados con `<script src>` en `index.html`, cada uno con `'use strict'`. No hay ES modules ni IIFE: cualquier `function`/`const`/`let` de nivel superior es visible desde los demás ficheros. No introducir `import`/`export` sin decidirlo con el usuario: 92 funciones se reasignan desde capas posteriores (`const _old = fn; fn = function(){ _old(); … }`) y los imports no se pueden reasignar. Además, servir por http cambiaría el origen del `localStorage` y "perdería" las partidas.
+- **Scripts clásicos, ámbito global compartido.** 179 ficheros en `js/` cargados con `<script src>` en `index.html`, cada uno con `'use strict'`. No hay ES modules ni IIFE: cualquier `function`/`const`/`let` de nivel superior es visible desde los demás ficheros. No introducir `import`/`export` sin decidirlo con el usuario: 92 funciones se reasignan desde capas posteriores (`const _old = fn; fn = function(){ _old(); … }`) y los imports no se pueden reasignar. Además, servir por http cambiaría el origen del `localStorage` y "perdería" las partidas.
 - **El orden de los `<script>` en `index.html` es el orden de las capas originales (v1…v13) y no se debe cambiar.** Cada capa amplía las anteriores envolviendo funciones o con `push`/`Object.assign` sobre registros (`UPGRADES`, `TAGS`/`TAG_KEYS`, `BIOMES`, `BIOME_EX`, `MAKERS`, `SFX`, `SONGS`, `STORY`, `ACH`, `COS`, `COS_POW`, `SHRINE`, `BOSS_FILES`). El grupo «Arranque» (`interfaz/santuario.js` … `main.js`) va siempre al final. El contenido nuevo va en ficheros nuevos, en el hueco `<!-- Tus añadidos -->` justo antes de «Arranque».
 - **Regla de carga:** dentro de un fichero, las `function` se elevan (hoisting). Entre ficheros, el código que se ejecuta al cargar solo puede usar lo declarado en ficheros anteriores. El código dentro de funciones que se llaman después (bucle, eventos) puede usar cualquier cosa. Por eso `partida/ciclo.js` (startRun, clearWorld, showOver, togglePause, toTitle, updateBest) y `nucleo/dom.js` (hud, titleScr, overScr…) se cargan pronto aunque en el original estaban al final.
 - **Las funciones más envueltas:** `v3Update` (gancho por fotograma, 14 capas), `killEnemy`, `clearWorld`, `hitEnemy`, `startRun`, `spawnEnemy`, `startMove`, `hurtPlayer`, `startWave`. Para ver quién toca qué, busca `const _<nombre>`.
@@ -141,6 +141,11 @@ Juego 3D roguelike por oleadas (three.js r128 por CDN, fuente Pixelify Sans de G
       - La pantalla foil con 3 cartas.
       - El móvil en vertical y en horizontal.
     - Las sesiones corta, móvil y larga del arnés, sin errores.
+- **Sin carteles** (`js/interfaz/sin-carteles.js`, el último de «Tus añadidos»; `css/sin-carteles.css`, el último de la cascada). El usuario no quiere texto innecesario en pantalla:
+  - Con `gameState === 'play'`, `banner()` no hace nada. La oleada, el encargo y la vida del jefe ya están en el HUD; en cartas, menús y cinemáticas sí sale.
+  - `spawnNumber` no pinta los `react` (palabras flotantes, frases de enemigos, nombres de técnicas).
+  - El CSS esconde `¡Crítico!`, `#pop7`, los rótulos `.foilRot`, `#oraCapa`, `#comboWord` y el nombre de las técnicas de TOVAN.EXE (`#terGrito b`, su pista sí sale). También deja pequeños el número del combo y `#colAviso`.
+  - **No añadir carteles nuevos en partida.** Si algo hay que avisar para jugar, que sea pequeño, como `#colAviso`.
 - **Assets:**
   - Los mp3 de jefes están en `assets/audio/`. Los carga `track()` con `AUDIO_DIR` (en `js/audio/canciones-jefes.js`); si falta un mp3, suena la canción sintetizada.
   - La hoja de iconos `assets/img/iconos-16px.png` (16×16, 16 columnas) la usa `.px13` en `css/iconos-pixel.css`. `js/interfaz/iconos-pixel.js` sustituye solo los emojis del DOM por esos iconos.
