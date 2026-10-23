@@ -10,8 +10,8 @@
      y otro pegado a la pared del foso. RODAR junto a un raíl (o caer
      encima) te monta y lo recorres girando como una peonza.
    - SALTAR, montado, te lanza en arco hasta el otro raíl, de la columna a
-     la pared o al revés: así se esquivan sus ataques… y si en el arco te
-     cruzas con el Guardián, lo derribas.
+     la pared o al revés: así se esquivan sus ataques… y si en el arco
+     ATACAS cuando el Guardián pasa cerca, lo derribas (no basta con tocarlo).
    - Derribado, cae a la esfera con el núcleo al aire unos segundos: hay
      que bajar (RODAR te suelta del raíl) y coserlo a golpes. Al levantarse
      suelta una onda que hay que saltar. Tres derribos y el reloj se para.
@@ -280,6 +280,14 @@ function engGuardian(dt){
   if (G.est === 'vuela' && rnd() < 0.3){ const q = G.p; spawnFx(q.x + (rnd() - 0.5) * 2, q.y - ENG.base - 2.2, q.z + (rnd() - 0.5) * 2, 0, -1.5, 0, 0x9a8a7a, 0.16, 0.6, 2, 0.5); }
 }
 function engVuela(){ const G = ENG.g; G.est = 'vuela'; G.t = 0; G.cambio = 0; if (!G.aw) G.aw = 0.4; }
+// ATACAR en pleno salto: un tajo dorado que solo pega mientras dura (ENG_TAJO.t); si fallas, hay que esperar un poco
+const ENG_TAJO = { t: 0.28, cd: 0.55, r: 3.0, alto: 3.0 };
+function engTajoAire(){
+  const S = ENG.salto; if (!S || S.cd > 0) return;
+  S.tajo = ENG_TAJO.t; S.cd = ENG_TAJO.cd; S.tajoT = time; play('swingBig');
+  const H = hero.position, f = Math.atan2(S.dir.x, S.dir.z);
+  for (let i = 0; i < 9; i++){ const a = f + (i / 8 - 0.5) * 2.6, c = Math.cos(a - f); streak7(H.x + Math.sin(a) * 1.3, H.y + 0.9 + c * 0.3, H.z + Math.cos(a) * 1.3, Math.cos(a), 0, -Math.sin(a), 0.7, i % 2 ? 0xffd27a : 0xffffff, 0.22, 0.07); }
+}
 function engDerriba(dir){   // le has dado en pleno salto: al suelo
   const G = ENG.g; G.est = 'cae'; G.t = 0; G.giro = 0; G.v.set(dir.x * 3, 3, dir.z * 3); ENG.atq = null; engQuitaAtaques(); ENG.parado = 1;
   const q = engV[3].copy(G.p); q.y -= ENG.base;
@@ -321,7 +329,7 @@ function engRielCerca(maxD, soloBajo){   // el punto de raíl más cercano a Tov
 function engRielMonta(R, s){
   ENG.riel = { R, s, giro: 0, chispa: 0 }; ENG.salto = null; state = 'normal'; grounded = true; vy = 0; attackW = 0; staffToBack(); ENG.giroOn = true;
   engRebase(engRielP(R, s, engV[0]).y, true); hero.position.y = 0; play('engMonta'); play('clang');
-  engDijo('monta', colTactil() ? '¡Eso es! SALTAR te lanza a la otra pared. Si te cruzas con él en el salto, lo derribas. RODAR te baja.' : '¡Eso es! SALTA para cruzar a la otra pared. Si te cruzas con él en el salto, lo derribas. RODAR te baja.');
+  engDijo('monta', colTactil() ? '¡Eso es! SALTAR te lanza a la otra pared. Si en el salto pulsas ATACAR cuando pasa cerca, lo derribas. RODAR te baja.' : '¡Eso es! SALTA para cruzar a la otra pared. Si en el salto ATACAS (J) cuando pasa cerca, lo derribas. RODAR te baja.');
 }
 function engRielSale(modo){   // te bajas (o te tiran) del raíl
   const R = ENG.riel; if (!R) return; ENG.riel = null; ENG.rielCd = 0.7;
@@ -349,8 +357,11 @@ function engSaltoTick(pdt){
   engRebase(y, false); H.x = x; H.z = z; H.y = 0; grounded = true; vy = 0;
   heading = Math.atan2(S.dir.x, S.dir.z); hero.rotation.y = heading;
   if (rnd() < 0.6) spawnFx(x, 0.6, z, 0, 0, 0, rnd() < 0.5 ? 0x7ff5ff : 0xffd27a, 0.1, 0.35, 0, -0.5);
-  // ¿te cruzas con él?
-  const G = ENG.g; if ((G.est === 'vuela' || G.est === 'despega') && Math.hypot(G.p.x - x, G.p.z - z) < 2.3 && Math.abs(G.p.y - (y + 0.8)) < 2.7){ engDerriba(S.dir); return; }
+  // ¿le das? Solo con el tajo en el aire (ATACAR) y con él a tiro; tocarlo sin más no hace nada
+  const G = ENG.g, aTiro = (G.est === 'vuela' || G.est === 'despega') && Math.hypot(G.p.x - x, G.p.z - z) < ENG_TAJO.r && Math.abs(G.p.y - (y + 0.8)) < ENG_TAJO.alto;
+  if (S.cd > 0) S.cd -= pdt;
+  if (S.tajo > 0){ S.tajo -= pdt; if (aTiro){ engDerriba(S.dir); return; } }
+  else if (aTiro && rnd() < 0.7){ const q = G.p; spawnFx(q.x + (rnd() - 0.5) * 1.6, q.y - ENG.base + (rnd() - 0.2) * 1.6, q.z + (rnd() - 0.5) * 1.6, 0, 1.2, 0, rnd() < 0.5 ? 0xffd27a : 0xffffff, 0.1, 0.3, 0, -0.5); }   // a tiro: el núcleo chispea
   if (k >= 1){ ENG.salto = null; ENG.riel = { R: S.R2, s: S.s2, giro: S.giro, chispa: 0 }; play('clang'); sparks(x, 0.2, z, 8, 0xffd27a, 3); landT = 0.12; }
 }
 function engRielTick(pdt){
@@ -548,6 +559,8 @@ function engPose(){
     for (const [A, s] of [[P.armL, -1], [P.armR, 1]]){ bl(A.sh.rotation, 'z', 1.45 * s, 1); bl(A.sh.rotation, 'x', -0.2, 1); bl(A.el.rotation, 'x', -0.15, 1); }
     for (const L of [P.legL, P.legR]){ bl(L.hip.rotation, 'x', ENG.salto ? -1.2 : -0.5, 1); bl(L.knee.rotation, 'x', ENG.salto ? 1.8 : 0.8, 1); }
     bl(P.spine.rotation, 'x', ENG.salto ? 0.6 : 0.25, 1);
+    if (ENG.salto && ENG.salto.tajo > 0){ const k = 1 - ENG.salto.tajo / ENG_TAJO.t;   // el tajo: los dos brazos barren por delante
+      for (const [A, s] of [[P.armL, -1], [P.armR, 1]]){ bl(A.sh.rotation, 'x', -1.5, 1); bl(A.sh.rotation, 'z', s * lerp(1.2, -0.4, k), 1); bl(A.el.rotation, 'x', -0.1, 1); } }
   } else if (ENG.giroOn){ ENG.giroOn = false; P.body.rotation.y = 0; }
 }
 
@@ -641,7 +654,7 @@ function engCineDespierta(){
       const th = Math.atan2(H.x, H.z); cam.position.set(Math.sin(th - 0.5) * 8.6, 2.5, Math.cos(th - 0.5) * 8.6); cam.lookAt(H.x * 0.96, 0.9, H.z * 0.96); });   // montado: lo sigue desde dentro del foso
     for (let i = 0; i < 40 && !ENG.riel; i++) await csWait(0.05);
     fase = 'riel'; csCaption('Tovan: ¡Uoh! ¿Esto… me lleva?'); await csWait(1.5);
-    csCaption('Lumen: ¡Rodando te has subido al raíl! Si saltas, cruzas a la otra pared.'); await csWait(2.2);
+    csCaption('Lumen: ¡Rodando te has subido al raíl! Si saltas, cruzas a la otra pared. Y en el aire, ¡atácale cuando pase!'); await csWait(2.6);
     csCaption('');
   }, () => { csCaption(''); hideBossCard(); if (ENG.on) engEmpiezaPelea(); });
 }
@@ -658,7 +671,7 @@ function engEmpiezaPelea(){
   if (ENG.g.est !== 'despega' && ENG.g.est !== 'vuela') Object.assign(ENG.g, { est: 'despega', t: 0, a: aT + Math.PI * 0.6, r: 7, y: 6 });
   bossE = { type: 'engcol', alive: true, hp: 1, maxHp: 1, g: e.g, isBoss: true, spawnT: 0 }; bossBox.hidden = false; engBarra();
   barkT = 0; clearT = 0;
-  if (monta) bark(colTactil() ? '¡Pulsa SALTAR cuando pase cerca y lo derribarás!' : '¡SALTA cuando pase cerca y lo derribarás!');
+  if (monta) bark(colTactil() ? 'SALTAR hacia él y, en el aire, ATACAR cuando lo tengas cerca: así se derriba.' : 'SALTA hacia él y, en el aire, ATACA (J) cuando lo tengas cerca: así se derriba.');
   else bark(colTactil() ? '¡Ha echado a volar! Súbete al raíl: pulsa RODAR junto al piñón brillante de la pared.' : '¡Ha echado a volar! Súbete al raíl: RUEDA (K) junto al piñón brillante de la pared.');
 }
 
@@ -725,7 +738,7 @@ const _doRollEng = doRoll; doRoll = function(){
   _doRollEng();
 };
 const _doJumpEng = doJump; doJump = function(){ if (engJugando() && gameState === 'play' && (ENG.riel || ENG.salto)){ if (ENG.riel && !player.dead) engCruza(); return; } _doJumpEng(); };
-const _doAttackEng = doAttack; doAttack = function(){ if (ENG.on && (ENG.riel || ENG.salto)) return; _doAttackEng(); };
+const _doAttackEng = doAttack; doAttack = function(){ if (ENG.on && (ENG.riel || ENG.salto)){ if (ENG.salto && engJugando() && gameState === 'play' && !player.dead) engTajoAire(); return; } _doAttackEng(); };
 const _doSpecialEng = doSpecial; doSpecial = function(){ if (ENG.on && (ENG.riel || ENG.salto)) return; _doSpecialEng(); };
 const _v3UpdateEng = v3Update;
 v3Update = function(dt, pdt, playing){ _v3UpdateEng(dt, pdt, playing); try { engTick(dt, pdt, playing); } catch (err) { console.error(err); } };

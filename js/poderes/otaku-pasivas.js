@@ -32,11 +32,13 @@ let truckRun = null;
 const truckExtras = [];
 function truckMeshes(n){ while (truckExtras.length < n){ const t = truck.clone(); t.visible = false; scene.add(t); truckExtras.push(t); } return [truck].concat(truckExtras.slice(0, n)); }
 function hideTrucks(){ truck.visible = false; truckExtras.forEach(t => { t.visible = false; }); truckTele.visible = false; }
+// con un jefe en pie, Camión-kun no va a por Tovan (el isekai se llevaba la pelea por delante)
+const truckJefe = () => !!(bossE && bossE.alive) || enemies.some(e => e.alive && e.isBoss);
 function launchTruck(){
   const live = enemies.filter(e => e.alive && e.spawnT <= 0); if (!live.length) return false;
   let best = live[0], bn = -1; for (const e of live){ const k = live.filter(o => Math.hypot(o.g.position.x - e.g.position.x, o.g.position.z - e.g.position.z) < 2.5).length; if (k > bn){ bn = k; best = e; } }
   const a = rnd() * TAU, fx = Math.sin(a), fz = Math.cos(a);
-  const aimP = !isekaiRun && !special && rnd() < (meta.isekaiSeen ? 0.3 : 0.55);
+  const aimP = !isekaiRun && !special && !truckJefe() && rnd() < (meta.isekaiSeen ? 0.3 : 0.55);
   const ox = aimP ? hero.position.x : best.g.position.x, oz = aimP ? hero.position.z : best.g.position.z;
   const lanes = [0]; for (let k = 1; k <= lvl('mirror'); k++) lanes.push(2.6 * k, -2.6 * k);
   const big = bigMul();
@@ -69,7 +71,7 @@ function updateTruck(dt){
         hitEnemy(e, v, true, R.fx * 0.7 + (side > 0 ? R.fz : -R.fz) * 0.7, R.fz * 0.7 + (side > 0 ? -R.fx : R.fx) * 0.7, 12, 3, false, { src: 'truck' }); play('slam'); shake = Math.max(shake, 0.25); } } });
   { const hx = hero.position.x - truck.position.x, hz = hero.position.z - truck.position.z;
     if (!R.near && Math.abs(hx * R.fx + hz * R.fz) < 2 && Math.abs(hx * R.fz - hz * R.fx) < 1.4){ R.near = true;
-      if (R.aimP && !isekaiRun && !special && state !== 'roll' && hero.position.y < 0.8 && gameState === 'play' && !player.dead){ startIsekai(); return; }
+      if (R.aimP && !isekaiRun && !special && !truckJefe() && state !== 'roll' && hero.position.y < 0.8 && gameState === 'play' && !player.dead){ startIsekai(); return; }
       tB.set(hero.position.x, hero.position.y + 2.8, hero.position.z); spawnNumber(tB, '¡Uf, por poco!', 'react', '#ffffff'); } }
   if (d > 26){ hideTrucks(); truckRun = null;
     if (lvl('echo') && !R.back){ discover('truck_echo', 'Camión de ida y vuelta', 'Eco + Camión-kun: vuelve por donde ha venido.');
