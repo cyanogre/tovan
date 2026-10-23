@@ -182,6 +182,10 @@ Cada oleada se puntúa de 1 a 5 estrellas al cerrarse (`js/partida/valoracion.js
 
 No puntúan el tutorial, el Castillo Infinito ni la pelea final. La valoración sale en un sello al cerrar la oleada y encima de las cartas.
 
+## Sin carteles
+
+Mientras se juega no sale texto que no haga falta: ni banners en el centro, ni palabras flotantes («¡Hop!», «¡Crítico!», frases de los enemigos), ni nombres de técnicas o poderes, ni la palabra del combo. La oleada, el encargo y la vida del jefe siguen en el HUD, y los avisos que piden algo (agarrarse al dragón, saltar la onda) salen en pequeño. Fuera de la partida (cartas, menús, cinemáticas) todo sigue igual. Está en `js/interfaz/sin-carteles.js` y `css/sin-carteles.css`.
+
 ## Poderes FOIL
 
 Una rareza por encima de las legendarias, con carta holográfica (`js/poderes/foil.js`, `css/foil.css`). No salen en el reparto: se ganan **salvando el paquete de la horda** (si ya las tienes todas, te dan una legendaria). Cambian los ataques normales: cada golpe deja un trazo y el remate del combo lanza la técnica. Cada una viene de una serie distinta, tiene su estética y abre una forma de jugar. Los trazos son cintas que miran a la cámara, con un shader distinto para cada técnica:
