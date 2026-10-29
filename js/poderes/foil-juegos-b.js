@@ -649,11 +649,11 @@ function prsTotTick(dt){
       if (rnd() < dt * 10) spawnFx(n.g.position.x + (rnd() - 0.5) * 1.6, 0.2, n.g.position.z + (rnd() - 0.5) * 1.6, (rnd() - 0.5) * 3, 1, (rnd() - 0.5) * 3, 0xd8cfc0, 0.14, 0.4, 2, 1.5); }
     T.golpe -= dt;
     if (T.golpe <= 0){ T.golpe = 0.16; play('prsPum');
-      for (const e of T.L) if (e.alive) hitEnemy(e, rdmg(11), rnd() < up.crit, 0, 0, 0, 0.3, false, { src: 'aoe' }); }
+      for (const e of T.L) if (e.alive) hitEnemy(e, foilDano(rdmg(11)), rnd() < up.crit, 0, 0, 0, 0.3, false, { src: 'aoe' }); }
   } else if (!T.fin){ T.fin = true; prsNubesFuera(true);
     flash('#ffffff', 0.6); shake = Math.max(shake, 0.6); hitStop = Math.max(hitStop, 0.1); play('prsFin'); lightFlash(T.px, 2, T.pz, 0xff3040, 3, 14);
     for (const e of T.L){ if (!e.alive) continue; const dx = e.g.position.x - T.px, dz = e.g.position.z - T.pz, l = Math.max(0.01, Math.hypot(dx, dz)); e.prsDer = Math.min(e.prsDer, 0.6);
-      hitEnemy(e, rdmg(62), true, dx / l, dz / l, 7, 1, false, { src: 'aoe' }); }
+      hitEnemy(e, foilDano(rdmg(62)), true, dx / l, dz / l, 7, 1, false, { src: 'aoe' }); }
     foilRotulo('<div class="prsFrase">' + prsRecorte('¡FIN DEL ESPECTÁCULO!') + '</div><small>Te hemos robado el corazón.</small>', 'prsTarjeta', 1.9); }
   if (T.t > 2.5) prsTotFin();
 }
@@ -862,7 +862,7 @@ Object.assign(SFX, {
 });
 
 /* ========== 5 · LLUVIA DE TETRIMINÓS (tet) ========== */
-const TET = { piezas: [], geos: {}, frase: 0, fraseT: -9 };
+const TET = { piezas: [], geos: {}, frase: 0, fraseT: -9, alto: 16 };   // (alto: desde dónde caen; la mutación dorada las suelta más bajo, desde sus portales)
 const TET_L = 0.82, TET_MAX = 12;
 const TET_FORMAS = { I: [[0, 0], [1, 0], [2, 0], [3, 0]], O: [[0, 0], [1, 0], [0, 1], [1, 1]], T: [[0, 0], [1, 0], [2, 0], [1, 1]], S: [[0, 0], [1, 0], [1, 1], [2, 1]],
   Z: [[1, 0], [2, 0], [0, 1], [1, 1]], L: [[0, 0], [1, 0], [2, 0], [2, 1]], J: [[0, 0], [1, 0], [2, 0], [0, 1]] };
@@ -926,7 +926,7 @@ function tetLluvia(f){
         if (!p.cayo){ const k = (t - p.t0) / 0.2;
           if (p.e && p.e.alive && k < 1){ const v = clampArena(tetV0.set(p.e.g.position.x + p.o * Math.cos(p.ry), 0, p.e.g.position.z - p.o * Math.sin(p.ry)), ARENA - 0.6); p.x = v.x; p.z = v.z; p.gh.position.x = p.x; p.gh.position.z = p.z; }   // sigue a su blanco hasta el último momento
           if (k < 0) continue; p.m.visible = true;
-          if (k < 1){ p.m.position.set(p.x, lerp(16, p.yf, k * k), p.z); if (rnd() < 0.6) spawnFx(p.x + (rnd() - 0.5) * 1.2, p.m.position.y + 1, p.z, 0, 4, 0, p.col, 0.06, 0.25, 0, 0); }
+          if (k < 1){ p.m.position.set(p.x, lerp(TET.alto, p.yf, k * k), p.z); if (rnd() < 0.6) spawnFx(p.x + (rnd() - 0.5) * 1.2, p.m.position.y + 1, p.z, 0, 4, 0, p.col, 0.06, 0.25, 0, 0); }
           else { p.cayo = true; p.m.position.set(p.x, p.yf, p.z); p.gh.visible = false; tetCae(p, R); } }
         else if (t > 2.3){ const k = (t - 2.3) / 0.28;   // la línea completada: parpadea en blanco y se deshace
           if (k >= 1){ for (let i = 0; i < 6; i++) spawnFx(p.x + (rnd() - 0.5) * 2, p.yf + (rnd() - 0.5), p.z + (rnd() - 0.5) * 2, (rnd() - 0.5) * 3, 2, (rnd() - 0.5) * 3, i % 2 ? 0xffffff : p.col, 0.08, 0.4, 4, 0); tetSuelta(p); continue; }

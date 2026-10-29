@@ -18,11 +18,14 @@ css/                  estilos, en el orden de la cascada original
 assets/texturas/      texturas y retratos en PNG: 10 hojas por tema (jefes.png + jefes.json…) y las grandes de la playa sueltas
 assets/audio/         canciones de jefes (mp3); si falta alguna, suena la versión sintetizada
 assets/img/           iconos-16px.png (hoja de iconos que usa el juego) e iconos-tovan.png (vista ampliada)
-herramientas/         texturas.py, empaqueta los PNG de assets/texturas para el juego; generar-entorno.py, crea la hoja entorno.png
-.github/workflows/    texturas.yml, ejecuta texturas.py en GitHub cada vez que se suben PNG
+assets/modelos/       modelos 3D en GLB hechos con kiln (ver «Modelos 3D y texturas con loom y kiln»)
+assets/fuentes/       los fuentes de loom (texturas/*.tx.js) y kiln (modelos/*.kx.js)
+herramientas/         texturas.py, empaqueta los PNG de assets/texturas; modelos.py, empaqueta los GLB de assets/modelos; generar-entorno.py, crea la hoja entorno.png
+.github/workflows/    texturas.yml y modelos.yml, vuelven a empaquetar en GitHub cada vez que se suben PNG o GLB
+.claude/skills/       loom-textures y kiln-3d-assets (las dos skills, copiadas) y tovan-assets (cómo se usan aquí)
 js/
-  generado/           texturas.js, creado por herramientas/texturas.py (no se edita a mano)
-  motor/              renderer, carga de texturas (assets.js), shader PS1, resolución
+  generado/           texturas.js y modelos.js, creados por herramientas/texturas.py y modelos.py (no se editan a mano)
+  motor/              renderer, carga de texturas (assets.js) y de modelos (modelos.js), shader PS1, resolución
   nucleo/             utilidades matemáticas, estado global, referencias al DOM
   audio/              efectos y música sintetizados (WebAudio), banda sonora v3, mp3 de jefes
   entrada/            mando, teclado, ratón y táctil
@@ -168,6 +171,15 @@ Con cualquier HUD, en el móvil en vertical la cámara se abre al jugar (antes s
 
 **Jefes altos** (`js/entrada/encuadre-jefe.js`, siempre): si la cabeza de un jefe queda tapada por su barra de vida (le pasaba al gato del final con el móvil en horizontal), la cámara se aleja un poco, baja y mira más arriba hasta que se le ve la cara, y vuelve sola cuando ya no hace falta. En horizontal, la barra del jefe además deja sitio al radar de los mapas grandes.
 
+## Ambiente indie
+
+**Opciones → Ambiente: Indie | Clásico** (`js/mundo/ambiente-indie.js`, `css/ambiente-indie.css`; por defecto, Indie). Encima del look de PlayStation 1, sin tocarlo:
+- **Haces de luz:** rayos de sol que bajan en la dirección de la luz del escenario, con su color, bandas que se mueven despacio y un charco de luz donde tocan el suelo. Van tramados con el mismo patrón de píxeles que el resto del juego y se apagan cerca de la cámara para no tapar. De noche son más tenues y fríos.
+- **Motas de polvo** que flotan y titilan alrededor de Tovan.
+- **Tono:** una fuga de luz cálida que entra por el lado del sol y una viñeta teñida con el color de la niebla.
+
+No sale en los sitios con estética propia (Canal X, el show, el Ryūjin colosal, TOVAN.EXE, el mecanismo del Guardián, las salas especiales y la expansión de dominio). Todo va en tres mallas y cuesta muy poco.
+
 ## Valoración del cliente (premios y castigos)
 
 Cada oleada se puntúa de 1 a 5 estrellas al cerrarse (`js/partida/valoracion.js`, `css/valoracion.css`). Cuenta la vida perdida (más del 8 %, 30 % y 60 % resta una estrella cada umbral), el tiempo frente al tiempo de entrega (10 s + 1,8 s por enemigo; ×1,35 en los mapas grandes; 70 s en las de jefe), el encargo de la oleada (si falla, resta una) y el combo (×25 o más suma una).
@@ -184,7 +196,7 @@ No puntúan el tutorial, el Castillo Infinito ni la pelea final. La valoración 
 
 ## Sin carteles
 
-Mientras se juega no sale texto que no haga falta: ni banners en el centro, ni palabras flotantes («¡Hop!», «¡Crítico!», frases de los enemigos), ni nombres de técnicas o poderes, ni la palabra del combo, ni los contadores y barras de los foil (la barra de la forma, como la de «Moto roja», y la columna de marcadores de la derecha). La oleada, el encargo y la vida del jefe siguen en el HUD, y los avisos que piden algo (agarrarse al dragón, saltar la onda) salen en pequeño. Fuera de la partida (cartas, menús, cinemáticas) todo sigue igual. Está en `js/interfaz/sin-carteles.js` y `css/sin-carteles.css`.
+Mientras se juega no sale texto que no haga falta: ni banners en el centro, ni palabras flotantes («¡Hop!», «¡Crítico!», frases de los enemigos), ni nombres de técnicas o poderes, ni la palabra del combo, ni los contadores y barras de los foil (la barra de la forma, como la de «Moto roja», y la columna de marcadores de la derecha), ni las frases de Lumen que explicaban cada foil la primera vez: los poderes se entienden viéndolos. La oleada, el encargo y la vida del jefe siguen en el HUD, y los avisos que piden algo (agarrarse al dragón, saltar la onda) salen en pequeño. Fuera de la partida (cartas, menús, cinemáticas) todo sigue igual. Está en `js/interfaz/sin-carteles.js` y `css/sin-carteles.css`.
 
 ## Poderes FOIL
 
@@ -201,11 +213,13 @@ Una rareza por encima de las legendarias, con carta holográfica (`js/poderes/fo
 
 Para verlas desde la consola (F12): `taken.waterBreath = 1` (o `foilChidori`, `foilHiken`) y ataca; o directamente `aguaDragon(heading)`, `truenoPrimera(heading)`, `fuegoPuno(heading)`, `FOIL.danza = 12; fuegoRueda(heading)`.
 
-### Los 24 foil nuevos
+Todos los foil pegan un 30 % más que antes (`FOIL_DANO` en `foil.js`): se tiene que notar que son mejores que una legendaria.
 
-Veinticuatro poderes más, inspirados en animes y videojuegos, cada uno con su estética y sus sonidos. La pantalla foil ofrece **3 al azar** de los que aún no tienes, así que no salen siempre los mismos. Los de transformación o montura son **formas**: solo hay una a la vez. Sus nombres, barras y contadores no se enseñan en partida (ver «Sin carteles»). En el colosal, TOVAN.EXE, el show y el Canal X no hay formas ni invocaciones (sale lo normal), y a los jefes nunca se los mata de un golpe ni se los traga nada.
+### Los foil nuevos
 
-Hay un fichero por grupo, más el núcleo común `js/poderes/foil-nucleo.js`. «Pelo dorado» se quitó: sobraba, porque ya hay un poder normal parecido. A cambio salieron los cinco de `foil-extra.js` (abajo).
+Treinta y tres poderes más, inspirados en animes y videojuegos, cada uno con su estética y sus sonidos. La pantalla foil ofrece **3 al azar** de los que aún no tienes, así que no salen siempre los mismos. Los de transformación o montura son **formas**: solo hay una a la vez. Sus nombres, barras y contadores no se enseñan en partida (ver «Sin carteles»). En el colosal, TOVAN.EXE, el show y el Canal X no hay formas ni invocaciones (sale lo normal), y a los jefes nunca se los mata de un golpe ni se los traga nada.
+
+Hay un fichero por grupo, más el núcleo común `js/poderes/foil-nucleo.js`. «Pelo dorado» se quitó: sobraba, porque ya hay un poder normal parecido. A cambio salieron los cinco de `foil-extra.js`, los cuatro épicos y los cinco de ingenio (abajo). Algunos que se pisaban se fusionan (ver «Mutaciones»).
 
 **Anime** (`foil-anime-a.js` y `foil-anime-b.js`):
 
@@ -227,7 +241,7 @@ Hay un fichero por grupo, más el núcleo común `js/poderes/foil-nucleo.js`. «
 |---|---|---|
 | ⭐ **Estrella invencible** | 50 monedas (cada golpe suelta una) | 9 s invencible en arcoíris, atropellando, con el tema de la estrella de fondo; cada 100 monedas, un hongo que cura |
 | 🗡️ **Espada maestra** | Con la vida casi llena | Cada golpe dispara un rayo-espada; el remate es el «Giro huracanado» |
-| 🌸 **Inhalar** | Remate | Aspira y se traga hasta 3 enemigos; el siguiente ataque escupe una estrella |
+| 🌸 **Inhalar** | Remate | Aspira y se traga hasta 3 enemigos (la boca le sale en la cara); el siguiente ataque escupe una estrella |
 | 🟡 **Comecocos** | Píldora cada 10 bajas | 8 s de comecocos sobre una cuadrícula de neón: los enemigos se ponen azules y huyen |
 | 💨 **Bola azul** | Rodar | Bola de púas con ataque teledirigido en cadena; los golpes dan anillos y, si te hieren, se caen |
 | 🦖 **Dinosaurio verde** | Doble salto | Montura de 15 s: lengua que se traga, huevos que rebotan, revoloteo y culetazo |
@@ -248,7 +262,40 @@ El tema de la estrella sigue el análisis armónico del original (150 por minuto
 | 🐴 **Burro de hormigón** | Cada 40 golpes cuerpo a cuerpo | Se abre el cielo con un coro sobre el grupo más grande, cae un burro de piedra gigante, rebota cuatro veces aplastándolo todo y se desmorona |
 | 🔆 **Bola Smash** | Cada 20 s aparece una bola arcoíris | Rómpela de tres golpes (se escapa si tardas) y arderás en arcoíris: el siguiente ataque es el golpe final. Subes, caes en picado, una cúpula de luz lanza a todos por los aires y cada uno revienta en el borde de la pantalla con su explosión de color |
 
-Para probarlos: contraseña `jefes` → «Poder foil» (uno elegido o al azar), o desde la consola `foilDa('foilGear3')` (los demás ids: `foilKyubi`, `foilGetsuga`, `foilOra`, `foilSaitama`, `foilTitan`, `foilMagica`, `foilTaladro`, `foilMoto`, `foilEstrella`, `foilEspada`, `foilKirby`, `foilPacman`, `foilSonic`, `foilDino`, `foilBahamut`, `foilPersona`, `foilDante`, `foilTetris`, `foilDominio`, `foilCalaveras`, `foilKatamari`, `foilBurro`, `foilSmash`).
+**Cuatro épicos** (`foil-epicos.js`):
+
+| Poder | Cómo sale | Qué hace |
+|---|---|---|
+| 🌺 **Mil cerezos** | Soltar el ataque cargado a tope | El arma se deshace en cientos de cuchillas rosas: salen en surtidor, forman ríos que serpentean entre los enemigos cortándolo todo y se cierran en una esfera sobre el más duro, que revienta |
+| 🗝️ **Puerta del tesoro** | Cada 30 de combo | Portales dorados en abanico detrás de Tovan; asoman espadas, lanzas y hachas y salen en ráfaga contra los enemigos |
+| ⚫ **Destello negro** | A veces, al acertar un golpe cuerpo a cuerpo | El espacio se dobla: la imagen se invierte, salen rayos negros con borde rojo y el golpe hace 2,5 veces el daño; luego 6 s «en la zona», con más destellos |
+| 💥 **¡Estallido!** | Al cuarto golpe que te dan | La emoción se ve en el aura; al llegar al tope todo flota (enemigos y piedras), una columna de luz los lanza por los aires y caen de golpe |
+
+**Cinco de ingenio** (`foil-ingenio.js`), cada uno con una mecánica propia que se entiende viéndola:
+
+| Poder | Cómo sale | Qué hace |
+|---|---|---|
+| 📼 **Eco del tiempo** | Remate | Un eco tuyo en cian y magenta sale de donde estabas hace 2,5 s y repite exactamente lo que hiciste, con la misma pose y los mismos golpes, donde los diste. Hasta dos a la vez; al acabar se rompe en cristales |
+| 🕊️ **Bandada de papel** | Cada baja | El enemigo se pliega en una grulla de papel que vuela a tu alrededor (hasta 16). Cada remate lanza unas cuantas en picado; con doce o más salen todas en un remolino que barre la arena |
+| 🎨 **Tinta territorial** | Siempre | Al correr dejas un rastro de tinta. Si lo cierras en un lazo alrededor de los enemigos, se rellena y revienta hacia arriba con todo lo que haya dentro (cuanto más grande, más daño). Cada lazo, de otro color |
+| 🧲 **Polaridad** | Golpes cuerpo a cuerpo | Cargan al enemigo, rojo y azul por turnos (un aura de su color). Los de distinto color se atraen, con un arco eléctrico entre ellos, y se estampan; los del mismo se repelen. El remate tira de todos los cargados hacia el golpe |
+| 🥁 **A ritmo** | Atacar a tiempo | Un aro se cierra a los pies de Tovan a cada golpe de bombo (120 por minuto). Atacar justo entonces suelta una onda y una nota de la escala; machacar el botón rompe la racha. Ocho seguidas: el drop, y el suelo se llena de barras de ecualizador que lo levantan todo al compás |
+
+### Mutaciones
+
+Algunos foil se pisaban: hacían lo mismo con otra piel o se peleaban por el mismo botón. Si tienes los dos, **se fusionan** en uno nuevo con sentido, que mezcla sus dos ideas y es más fuerte (`js/poderes/foil-mutaciones.js`). La fusión se ve (dos espirales de los colores de los padres que se juntan y estallan, sin rótulos), y la carta de cada padre dice con quién muta. Después ya no vuelven a salir.
+
+| Padres | Mutación | Qué hace |
+|---|---|---|
+| 💨 Bola azul + ⭐ Estrella invencible (las dos soltaban algo en cada golpe y te hacían intocable) | 🌟 **Erizo dorado** | Golpes y bajas dan anillos; con 50 te vuelves dorado, con el pelo de punta y un aura de llamas: flotas, nadie te toca, quien te roza sale volando, atacar es un acelerón supersónico que lo atraviesa todo y la bola de pinchos, de oro, encadena hasta diez golpes. Los anillos se van gastando; cuando se acaban, vuelves a ser tú |
+| 🌸 Inhalar + 🌈 Bola cósmica (las dos se tragaban cosas) | 👄 **Bola glotona** | La bola tiene boca y aspira lo que tiene delante; al final no sube al cielo: sale escupida como una estrella que rebota por la arena arrasándolo todo |
+| 🦴 Titán + 🦊 Manto de las nueve colas (las dos te transformaban con el especial) | 🦊 **Titán zorro** | Titán con manto de chakra y nueve colas gigantes: cada manotazo barre a la redonda con las colas y el puñetazo final suelta además la bomba espiral |
+| 🧩 Lluvia de tetriminós + 🗝️ Puerta del tesoro (las dos llovían cosas) | 🏆 **Tetris del tesoro** | Las piezas son de oro y caen de portales dorados; un TETRIS abre además la puerta del tesoro |
+| 🐴 Burro de hormigón + 🐉 Rey dragón (las dos eran una invocación gigante del cielo) | 🐲 **Burro dragón** | El burro llega con alas de piedra (también con el especial), escupe fuego antes de cada bote y al desmoronarse suelta un megafulgor |
+
+«Moto roja» y «Bola azul» también se pisaban (las dos usan RODAR): ahora, aunque el primer rodar sea el acelerón de la bola, rodar dos veces seguidas llama a la moto.
+
+Para probarlos: contraseña `jefes` → «Poder foil» (uno elegido o al azar), o desde la consola `foilDa('foilGear3')` (los demás ids: `foilKyubi`, `foilGetsuga`, `foilOra`, `foilSaitama`, `foilTitan`, `foilMagica`, `foilTaladro`, `foilMoto`, `foilEstrella`, `foilEspada`, `foilKirby`, `foilPacman`, `foilSonic`, `foilDino`, `foilBahamut`, `foilPersona`, `foilDante`, `foilTetris`, `foilDominio`, `foilCalaveras`, `foilKatamari`, `foilBurro`, `foilSmash`, `foilSakura`, `foilBabilonia`, `foilKokusen`, `foilEstallido`, `foilEco`, `foilGrullas`, `foilTinta`, `foilPolaridad`, `foilRitmo`). Dando los dos padres de una mutación, se fusionan solos.
 
 ## El show de Míster Confianza (en 3D)
 
@@ -312,8 +359,8 @@ El primer jefe ya no se acaba al dejarlo a cero (`js/jefes/guardian-engranaje.js
 
 **Cómo se juega:**
 - **Dos raíles en hélice:** uno pegado a la columna (gira con ella) y otro pegado a la pared del foso.
-  - RODAR junto al piñón brillante (o caer encima del raíl) te monta, y lo recorres girando como una peonza.
-  - SALTAR, montado, te lanza en arco hasta el otro raíl, de la columna a la pared o al revés. Al final de un raíl saltas solo.
+  - RODAR junto al piñón brillante (o caer encima del raíl) te monta, y lo recorres girando como una peonza, deprisa.
+  - SALTAR, montado, te lanza en un arco rápido hasta el otro raíl, de la columna a la pared o al revés. Si vuelves a SALTAR mientras vuelas (pasado el primer tercio del arco), al tocar el raíl rebotas en seguida hacia el otro: se puede ir y venir del centro a la pared sin parar, como en Zelda, para esquivar. Al final de un raíl saltas solo.
   - RODAR otra vez te baja.
 - **Derribarlo:** el Guardián vuela entre la columna y la pared, a tu altura. En el salto entre paredes hay que **ATACAR** cuando pasa cerca: el tajo dorado dura un instante y, si lo pilla, lo derriba. Tocarlo sin atacar no hace nada, y si fallas tardas un poco en poder volver a atacar. Cuando lo tienes a tiro, su núcleo chispea.
 - **Rematarlo:** derribado, cae a la esfera de rodillas, con el núcleo al aire y el reloj parado. Hay que bajar y coserlo a golpes antes de que se levante. Al levantarse suelta una onda que hay que saltar.
@@ -324,7 +371,10 @@ El primer jefe ya no se acaba al dejarlo a cero (`js/jefes/guardian-engranaje.js
 - La mirada: un barrido a tu altura.
 - Embestidas, con una línea roja de aviso.
 - La campana: ondas que se saltan.
+- La llamarada: incendia el tramo del raíl por el que vas; hay que saltar al otro.
 - Si te quedas en el suelo, cae en picado sobre ti.
+
+Ataca más a menudo según avanza la pelea y, mientras vas en el raíl, vuela cerca de ti. Las invocaciones (ranas, aliados, bots…) y lo que se recoge se quedan en la esfera del reloj, no flotando a la altura del raíl.
 
 **En el suelo:** las agujas del reloj barren la esfera (hay que saltarlas), y dos chorros de vapor junto a la pared te lanzan hasta su raíl.
 
@@ -527,6 +577,14 @@ En el código, cada textura se pide por su nombre:
   - el retrato del HUD, que se compone a partir de la cara de Tovan.
 - **`TEX_RND`** (en `js/motor/assets.js`) anota cuántos números aleatorios gastaba cada textura cuando se dibujaba por código. Se siguen gastando para que el decorado salga colocado igual que antes. No hace falta tocarlo. Si renombras una textura que aparezca ahí, cambia también su nombre en esa lista, o el decorado se recolocará (sin romper nada).
 
+## Modelos 3D y texturas con loom y kiln
+
+Dos skills de Claude (en `.claude/skills/`, copiadas de [loom](https://github.com/uilianks/loom) y [kiln](https://github.com/uilianks/kiln), con su licencia MIT) para hacer recursos nuevos, y `.claude/skills/tovan-assets/SKILL.md`, que explica cómo encajan aquí:
+- **loom** hace texturas sin costuras con un pequeño programa en JavaScript (`assets/fuentes/texturas/*.tx.js`). Del resultado solo se usa el color (el shader del juego no usa mapas de normales ni de rugosidad), a 128 px, y entra como cualquier otra textura (ver arriba).
+- **kiln** hace modelos low-poly (`assets/fuentes/modelos/*.kx.js`) y los exporta en GLB a `assets/modelos/`. `herramientas/modelos.py` los empaqueta en `js/generado/modelos.js` (mismo motivo que las texturas: con doble clic el navegador no deja leer ficheros sueltos) y el workflow `.github/workflows/modelos.yml` lo hace solo al subirlos. En el juego, `modeloAsset('nombre', { escala, emissive, propios, padre })` devuelve el modelo pintado con el shader PS1 (un modelo por nodo raíz del GLB, una malla por material).
+
+Las dos necesitan Node; el que juega no lo necesita para nada, porque al repositorio se sube ya empaquetado.
+
 ## Partidas guardadas
 
 Se guardan en el `localStorage` del navegador:
@@ -539,6 +597,7 @@ Se guardan en el `localStorage` del navegador:
 - `tovan-fs`: pantalla completa en móvil (Opciones → Pantalla completa).
 - `tovan-hud`: HUD limpio o completo (Opciones → HUD).
 - `tovan-cam`: cámara automática o manual (Opciones → Cámara).
+- `tovan-luz`: ambiente indie o clásico (Opciones → Ambiente).
 - `tovan-tuto`: si ya se hizo el tutorial (`1`) o se ha pedido repetirlo (`0`).
 
 Van ligadas a la dirección desde la que se abre el juego. Si un día lo sirves desde un servidor web (`http://…`), las partidas de `file://` no se verán allí.
