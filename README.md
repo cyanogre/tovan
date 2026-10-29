@@ -231,7 +231,7 @@ Todos los foil pegan un 30 % más que antes (`FOIL_DANO` en `foil.js`): se tiene
 
 Treinta y tres poderes más, inspirados en animes y videojuegos, cada uno con su estética y sus sonidos. La pantalla foil ofrece **3 al azar** de los que aún no tienes, así que no salen siempre los mismos. Los de transformación o montura son **formas**: solo hay una a la vez. Sus nombres, barras y contadores no se enseñan en partida (ver «Sin carteles»). En el colosal, TOVAN.EXE, el show y el Canal X no hay formas ni invocaciones (sale lo normal), y a los jefes nunca se los mata de un golpe ni se los traga nada.
 
-Hay un fichero por grupo, más el núcleo común `js/poderes/foil-nucleo.js`. «Pelo dorado» se quitó: sobraba, porque ya hay un poder normal parecido. A cambio salieron los cinco de `foil-extra.js`, los cuatro épicos y los cinco de ingenio (abajo). Los que chocan entre sí se fusionan (ver «Fusiones»).
+Hay un fichero por grupo, más el núcleo común `js/poderes/foil-nucleo.js`. «Pelo dorado» se quitó: sobraba, porque ya hay un poder normal parecido. A cambio salieron los cinco de `foil-extra.js` y los nueve de cine (abajo). Los que chocan entre sí se fusionan (ver «Fusiones»).
 
 **Anime** (`foil-anime-a.js` y `foil-anime-b.js`):
 
@@ -274,24 +274,19 @@ El tema de la estrella sigue el análisis armónico del original (150 por minuto
 | 🐴 **Burro de hormigón** | Cada 40 golpes cuerpo a cuerpo | Se abre el cielo con un coro sobre el grupo más grande, cae un burro de piedra gigante, rebota cuatro veces aplastándolo todo y se desmorona |
 | 🔆 **Bola Smash** | Cada 20 s aparece una bola arcoíris | Rómpela de tres golpes (se escapa si tardas) y arderás en arcoíris: el siguiente ataque es el golpe final. Subes, caes en picado, una cúpula de luz lanza a todos por los aires y cada uno revienta en el borde de la pantalla con su explosión de color |
 
-**Cuatro épicos** (`foil-epicos.js`):
+**Nueve de cine** (`foil-cine-a.js`, `foil-cine-b.js` y `foil-cine-c.js`), homenajes a películas y series clásicas, sin una palabra en pantalla:
 
 | Poder | Cómo sale | Qué hace |
 |---|---|---|
-| 🌺 **Mil cerezos** | Soltar el ataque cargado a tope | El arma se deshace en cientos de cuchillas rosas: salen en surtidor, forman ríos que serpentean entre los enemigos cortándolo todo y se cierran en una esfera sobre el más duro, que revienta |
-| 🗝️ **Puerta del tesoro** | Cada 30 de combo | Portales dorados en abanico detrás de Tovan; asoman espadas, lanzas y hachas y salen en ráfaga contra los enemigos |
-| ⚫ **Destello negro** | A veces, al acertar un golpe cuerpo a cuerpo | El espacio se dobla: la imagen se invierte, salen rayos negros con borde rojo y el golpe hace 2,5 veces el daño; luego 6 s «en la zona», con más destellos |
-| 💥 **¡Estallido!** | Al cuarto golpe que te dan | La emoción se ve en el aura; al llegar al tope todo flota (enemigos y piedras), una columna de luz los lanza por los aires y caen de golpe |
-
-**Cinco de ingenio** (`foil-ingenio.js`), cada uno con una mecánica propia que se entiende viéndola:
-
-| Poder | Cómo sale | Qué hace |
-|---|---|---|
-| 📼 **Eco del tiempo** | Remate | Un eco tuyo en cian y magenta sale de donde estabas hace 2,5 s y repite exactamente lo que hiciste, con la misma pose y los mismos golpes, donde los diste. Hasta dos a la vez; al acabar se rompe en cristales |
-| 🕊️ **Bandada de papel** | Cada baja | El enemigo se pliega en una grulla de papel que vuela a tu alrededor (hasta 16). Cada remate lanza unas cuantas en picado; con doce o más salen todas en un remolino que barre la arena |
-| 🎨 **Tinta territorial** | Siempre | Al correr dejas un rastro de tinta. Si lo cierras en un lazo alrededor de los enemigos, se rellena y revienta hacia arriba con todo lo que haya dentro (cuanto más grande, más daño). Cada lazo, de otro color |
-| 🧲 **Polaridad** | Golpes cuerpo a cuerpo | Cargan al enemigo, rojo y azul por turnos (un aura de su color). Los de distinto color se atraen, con un arco eléctrico entre ellos, y se estampan; los del mismo se repelen. El remate tira de todos los cargados hacia el golpe |
-| 🥁 **A ritmo** | Atacar a tiempo | Un aro se cierra a los pies de Tovan a cada golpe de bombo (120 por minuto). Atacar justo entonces suelta una onda y una nota de la escala; machacar el botón rompe la racha. Ocho seguidas: el drop, y el suelo se llena de barras de ecualizador que lo levantan todo al compás |
+| 🚗 **88 millas por hora** (Regreso al futuro) | Remate | Caen cinco rayos que se juntan a tu lado, estalla una esfera de luz azul y sale de ella un coche del tiempo de acero a toda velocidad: cruza la arena, arrolla lo que pilla y desaparece en un fogonazo dejando dos surcos de fuego que siguen quemando |
+| 🏍️ **Moto de luz** (Tron) | Al correr | Dejas detrás una pared de neón. Si la cierras en un lazo, el suelo de dentro se vuelve una rejilla de luz y los enemigos de dentro se desintegran en píxeles |
+| 👻 **Cazafantasmas** | Golpes y remate | Los golpes dejan a los enemigos pringados de ectoplasma verde; el remate saca los rayos de protones, que los atrapan y los arrastran hasta una trampa que se abre con un cono de luz y se los traga |
+| 🪩 **Fiebre del sábado noche** | Atacar a tiempo | El suelo a tu alrededor es una pista de baile de colores que se enciende al compás. Atacar a tiempo da una onda y un acorde funky; ocho seguidos bajan una bola de espejos que dispara haces de colores por toda la arena |
+| 🦈 **Tiburón** | Cada 8 bajas | El suelo bajo el grupo más grande se vuelve agua, una aleta da vueltas con el «ta-tán» cada vez más rápido y el tiburón salta con la boca abierta y se los traga |
+| 🕶️ **Tiempo bala** (Matrix) | A veces, al acertar | El tiempo casi se para: llueve código verde, unas balas cruzan despacio dejando ondas en el aire y el golpe hace el triple |
+| 🌑 **Estrella de la Muerte** | Cada 30 de combo | La cámara levanta la vista: sobre la arena aparece la estación espacial, ocho rayos verdes salen de su plato, se juntan en uno y caen sobre el grupo más grande |
+| 🎄 **El otro lado** (Stranger Things) | Al cuarto golpe que recibes | Se encienden y parpadean luces de colores, el cielo se tiñe de rojo con relámpagos, flota ceniza y suena un arpegio de sintetizador; los enemigos se elevan retorciéndose y caen estampados |
+| 🪨 **La roca** (Indiana Jones) | Soltar el ataque cargado a tope | Retumba el suelo, cae polvo y una roca gigante cruza la imagen rodando por donde están los enemigos, rebota en el borde y se hace pedazos |
 
 ### Fusiones
 
@@ -308,7 +303,7 @@ Algunos foil chocan: dos **transformaciones o monturas** (solo cabe una a la vez
 | Ataque especial | Nueve colas, Titán, Rey dragón, Expansión de dominio |
 | Rodar | Bola azul, Moto roja |
 
-Para probarlos: contraseña `jefes` → «Poder foil» (uno elegido o al azar), o desde la consola `foilDa('foilGear3')` (los demás ids: `foilKyubi`, `foilGetsuga`, `foilOra`, `foilSaitama`, `foilTitan`, `foilMagica`, `foilTaladro`, `foilMoto`, `foilEstrella`, `foilEspada`, `foilKirby`, `foilPacman`, `foilSonic`, `foilDino`, `foilBahamut`, `foilPersona`, `foilDante`, `foilTetris`, `foilDominio`, `foilCalaveras`, `foilKatamari`, `foilBurro`, `foilSmash`, `foilSakura`, `foilBabilonia`, `foilKokusen`, `foilEstallido`, `foilEco`, `foilGrullas`, `foilTinta`, `foilPolaridad`, `foilRitmo`). Dando dos que chocan (por ejemplo `foilMoto` y `foilDino`), se fusionan solos.
+Para probarlos: contraseña `jefes` → «Poder foil» (uno elegido o al azar), o desde la consola `foilDa('foilGear3')` (los demás ids: `foilKyubi`, `foilGetsuga`, `foilOra`, `foilSaitama`, `foilTitan`, `foilMagica`, `foilTaladro`, `foilMoto`, `foilEstrella`, `foilEspada`, `foilKirby`, `foilPacman`, `foilSonic`, `foilDino`, `foilBahamut`, `foilPersona`, `foilDante`, `foilTetris`, `foilDominio`, `foilCalaveras`, `foilKatamari`, `foilBurro`, `foilSmash`, `foilDelorean`, `foilTron`, `foilCazafantasmas`, `foilDisco`, `foilTiburon`, `foilMatrix`, `foilEstrellaMuerte`, `foilOtroLado`, `foilRoca`). Dando dos que chocan (por ejemplo `foilMoto` y `foilDino`), se fusionan solos.
 
 ## El show de Míster Confianza (en 3D)
 
