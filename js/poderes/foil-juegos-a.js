@@ -803,7 +803,7 @@ function sncSueltosTick(dt){
 // con anillos, el golpe duele un 25 % menos (y se te caen); en bola, ni te tocan
 const sncHeridaOrig = hurtPlayer;
 hurtPlayer = function(dmg, sx, sz, knock){
-  if (!(lvl('foilSonic') || lvl('mutSuperSonic')) || player.dead || gameState !== 'play') return sncHeridaOrig(dmg, sx, sz, knock);   // (el erizo dorado también pierde anillos)
+  if (!lvl('foilSonic') || player.dead || gameState !== 'play') return sncHeridaOrig(dmg, sx, sz, knock);
   if (SNC.m) return 'none';
   const h0 = player.hp, r = sncHeridaOrig(SNC.anillos > 0 ? dmg * 0.75 : dmg, sx, sz, knock);
   if (player.hp < h0 && SNC.anillos > 0) sncPierde();

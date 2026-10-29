@@ -180,6 +180,17 @@ Con cualquier HUD, en el móvil en vertical la cámara se abre al jugar (antes s
 
 No sale en los sitios con estética propia (Canal X, el show, el Ryūjin colosal, TOVAN.EXE, el mecanismo del Guardián, las salas especiales y la expansión de dominio). Todo va en tres mallas y cuesta muy poco.
 
+## La guitarra eléctrica
+
+El arma «Guitarra eléctrica» del vestidor se toca de verdad (`js/armas/guitarra-rock.js`):
+- **Pose:** al atacar, Tovan se cruza la guitarra delante del cuerpo, con la mano izquierda en el mástil y la derecha rasgueando a cada nota. En el solo (ataque cargado) levanta el mástil y se echa hacia atrás. De la guitarra salen ondas de sonido de colores.
+- **Sonido:** guitarra eléctrica sintetizada de verdad: cada nota es una cuerda pulsada que pasa por un ampli (saturación, ecualización de pantalla, eco y reverb). Acordes de quinta, notas apagadas con la palma, octavas y solos con vibrato.
+- **Riffs:** cada combo toca un riff famoso de rock y metal, y el siguiente combo, otro. Cada golpe toca su trozo al tempo del riff y el remate lo termina. Son Smoke on the Water, Seven Nation Army, Iron Man, Smells Like Teen Spirit, Back in Black, Crazy Train, el Rey de la Montaña en metal y la entrada de Master of Puppets.
+- **Solos:** el ataque cargado toca un solo: Sweet Child O' Mine, Thunderstruck, la Tocata de Bach, el Vuelo del moscardón, el Rey de la Montaña rápido o un tapping.
+- **Con «Multiclones de sombra»:** los dos clones se unen a la banda. Uno toca la batería (bombo, caja y charles al tempo del riff) y el otro el bajo, con una onda en cada clon a su ritmo.
+
+Los riffs son unas pocas notas transcritas de memoria (las webs de tablaturas están bloqueadas desde el contenedor), así que alguno puede no ser exacto. Si el juego se publica o se vende, mejor cambiar los de canciones con derechos por piezas clásicas, que no tienen.
+
 ## Valoración del cliente (premios y castigos)
 
 Cada oleada se puntúa de 1 a 5 estrellas al cerrarse (`js/partida/valoracion.js`, `css/valoracion.css`). Cuenta la vida perdida (más del 8 %, 30 % y 60 % resta una estrella cada umbral), el tiempo frente al tiempo de entrega (10 s + 1,8 s por enemigo; ×1,35 en los mapas grandes; 70 s en las de jefe), el encargo de la oleada (si falla, resta una) y el combo (×25 o más suma una).
@@ -219,7 +230,7 @@ Todos los foil pegan un 30 % más que antes (`FOIL_DANO` en `foil.js`): se tiene
 
 Treinta y tres poderes más, inspirados en animes y videojuegos, cada uno con su estética y sus sonidos. La pantalla foil ofrece **3 al azar** de los que aún no tienes, así que no salen siempre los mismos. Los de transformación o montura son **formas**: solo hay una a la vez. Sus nombres, barras y contadores no se enseñan en partida (ver «Sin carteles»). En el colosal, TOVAN.EXE, el show y el Canal X no hay formas ni invocaciones (sale lo normal), y a los jefes nunca se los mata de un golpe ni se los traga nada.
 
-Hay un fichero por grupo, más el núcleo común `js/poderes/foil-nucleo.js`. «Pelo dorado» se quitó: sobraba, porque ya hay un poder normal parecido. A cambio salieron los cinco de `foil-extra.js`, los cuatro épicos y los cinco de ingenio (abajo). Algunos que se pisaban se fusionan (ver «Mutaciones»).
+Hay un fichero por grupo, más el núcleo común `js/poderes/foil-nucleo.js`. «Pelo dorado» se quitó: sobraba, porque ya hay un poder normal parecido. A cambio salieron los cinco de `foil-extra.js`, los cuatro épicos y los cinco de ingenio (abajo). Los que chocan entre sí se fusionan (ver «Fusiones»).
 
 **Anime** (`foil-anime-a.js` y `foil-anime-b.js`):
 
@@ -281,21 +292,22 @@ El tema de la estrella sigue el análisis armónico del original (150 por minuto
 | 🧲 **Polaridad** | Golpes cuerpo a cuerpo | Cargan al enemigo, rojo y azul por turnos (un aura de su color). Los de distinto color se atraen, con un arco eléctrico entre ellos, y se estampan; los del mismo se repelen. El remate tira de todos los cargados hacia el golpe |
 | 🥁 **A ritmo** | Atacar a tiempo | Un aro se cierra a los pies de Tovan a cada golpe de bombo (120 por minuto). Atacar justo entonces suelta una onda y una nota de la escala; machacar el botón rompe la racha. Ocho seguidas: el drop, y el suelo se llena de barras de ecualizador que lo levantan todo al compás |
 
-### Mutaciones
+### Fusiones
 
-Algunos foil se pisaban: hacían lo mismo con otra piel o se peleaban por el mismo botón. Si tienes los dos, **se fusionan** en uno nuevo con sentido, que mezcla sus dos ideas y es más fuerte (`js/poderes/foil-mutaciones.js`). La fusión se ve (dos espirales de los colores de los padres que se juntan y estallan, sin rótulos), y la carta de cada padre dice con quién muta. Después ya no vuelven a salir.
+Algunos foil chocan: dos **transformaciones o monturas** (solo cabe una a la vez), dos que salen con el **ataque especial** o dos que se pelean por **rodar** (`js/poderes/foil-fusiones.js`). Los demás conviven sin problema. Si coges uno que choca con otro que ya tienes, **los dos desaparecen y nace un poder nuevo**: una mezcla de los dos *temas*, no de los dos poderes.
 
-| Padres | Mutación | Qué hace |
-|---|---|---|
-| 💨 Bola azul + ⭐ Estrella invencible (las dos soltaban algo en cada golpe y te hacían intocable) | 🌟 **Erizo dorado** | Golpes y bajas dan anillos; con 50 te vuelves dorado, con el pelo de punta y un aura de llamas: flotas, nadie te toca, quien te roza sale volando, atacar es un acelerón supersónico que lo atraviesa todo y la bola de pinchos, de oro, encadena hasta diez golpes. Los anillos se van gastando; cuando se acaban, vuelves a ser tú |
-| 🌸 Inhalar + 🌈 Bola cósmica (las dos se tragaban cosas) | 👄 **Bola glotona** | La bola tiene boca y aspira lo que tiene delante; al final no sube al cielo: sale escupida como una estrella que rebota por la arena arrasándolo todo |
-| 🦴 Titán + 🦊 Manto de las nueve colas (las dos te transformaban con el especial) | 🦊 **Titán zorro** | Titán con manto de chakra y nueve colas gigantes: cada manotazo barre a la redonda con las colas y el puñetazo final suelta además la bomba espiral |
-| 🧩 Lluvia de tetriminós + 🗝️ Puerta del tesoro (las dos llovían cosas) | 🏆 **Tetris del tesoro** | Las piezas son de oro y caen de portales dorados; un TETRIS abre además la puerta del tesoro |
-| 🐴 Burro de hormigón + 🐉 Rey dragón (las dos eran una invocación gigante del cielo) | 🐲 **Burro dragón** | El burro llega con alas de piedra (también con el especial), escupe fuego antes de cada bote y al desmoronarse suelta un megafulgor |
+- **Cuerpo y alma:** uno de los dos pone el cuerpo (su objeto: la bola de pinchos, la moto, el dragón, el huevo…) y el otro el alma (sus colores, su aura, su estela, su sonido y un adjetivo). El cuerpo sale teñido del color del alma. Así salen cosas como «Moto jurásica», «Dragón supersónico» o «Zorro de nueve colas dracónico».
+- **Cómo pega:** se elige al azar, entre las que le van a ese cuerpo, una de seis formas: transformación (aura y cuerpos que orbitan y salen disparados), cometa (te haces el cuerpo gigante y arrollas), invocación (cae del cielo un cuerpo enorme), lluvia, rayo o torbellino. Cambia de una partida a otra.
+- **Cuándo sale:** con lo que chocaba. Si chocaban por el ataque especial, con el especial; si por rodar, rodando dos veces; si eran dos formas, sola cada 25 golpes (mientras se carga, unos cuerpos pequeños giran sobre la cabeza de Tovan).
+- **Una por partida:** lo que chocaría con la fusión ya no sale en el reparto, y la carta de un foil que chocaría con uno que ya tienes lo avisa.
 
-«Moto roja» y «Bola azul» también se pisaban (las dos usan RODAR): ahora, aunque el primer rodar sea el acelerón de la bola, rodar dos veces seguidas llama a la moto.
+| Chocan por | Foil |
+|---|---|
+| Transformación o montura | Nueve colas, Titán, Transformación mágica, Moto roja, Estrella invencible, Comecocos, Dinosaurio, Estilo SSS, Expansión de dominio, Bola cósmica, Bola Smash |
+| Ataque especial | Nueve colas, Titán, Rey dragón, Expansión de dominio |
+| Rodar | Bola azul, Moto roja |
 
-Para probarlos: contraseña `jefes` → «Poder foil» (uno elegido o al azar), o desde la consola `foilDa('foilGear3')` (los demás ids: `foilKyubi`, `foilGetsuga`, `foilOra`, `foilSaitama`, `foilTitan`, `foilMagica`, `foilTaladro`, `foilMoto`, `foilEstrella`, `foilEspada`, `foilKirby`, `foilPacman`, `foilSonic`, `foilDino`, `foilBahamut`, `foilPersona`, `foilDante`, `foilTetris`, `foilDominio`, `foilCalaveras`, `foilKatamari`, `foilBurro`, `foilSmash`, `foilSakura`, `foilBabilonia`, `foilKokusen`, `foilEstallido`, `foilEco`, `foilGrullas`, `foilTinta`, `foilPolaridad`, `foilRitmo`). Dando los dos padres de una mutación, se fusionan solos.
+Para probarlos: contraseña `jefes` → «Poder foil» (uno elegido o al azar), o desde la consola `foilDa('foilGear3')` (los demás ids: `foilKyubi`, `foilGetsuga`, `foilOra`, `foilSaitama`, `foilTitan`, `foilMagica`, `foilTaladro`, `foilMoto`, `foilEstrella`, `foilEspada`, `foilKirby`, `foilPacman`, `foilSonic`, `foilDino`, `foilBahamut`, `foilPersona`, `foilDante`, `foilTetris`, `foilDominio`, `foilCalaveras`, `foilKatamari`, `foilBurro`, `foilSmash`, `foilSakura`, `foilBabilonia`, `foilKokusen`, `foilEstallido`, `foilEco`, `foilGrullas`, `foilTinta`, `foilPolaridad`, `foilRitmo`). Dando dos que chocan (por ejemplo `foilMoto` y `foilDino`), se fusionan solos.
 
 ## El show de Míster Confianza (en 3D)
 
