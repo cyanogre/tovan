@@ -1,0 +1,5 @@
+/* Ambiente indie (js/mundo/ambiente-indie.js): fuga de luz del lado del sol y viñeta teñida con la niebla */
+#luzTono{position:fixed;inset:0;pointer-events:none;display:none;
+  background:radial-gradient(circle at var(--lx,18%) var(--ly,-12%),rgba(var(--luz,255,230,190),.22) 0,rgba(var(--luz,255,230,190),.08) 28%,rgba(var(--luz,255,230,190),0) 60%),
+    radial-gradient(ellipse at center,rgba(var(--sombra,20,10,40),0) 52%,rgba(var(--sombra,20,10,40),.32) 100%)}
+body.luzOn #luzTono{display:block}

@@ -29,8 +29,8 @@
    ====================================================================== */
 const ENG_SC = 2.4, ENG_EJE_R = 1.5, ENG_EJE_TOP = 12.6, ENG_MURO_R = 13.8, ENG_ARENA = 13.2, ENG_CORE = 1.12;   // ENG_CORE: altura del núcleo en el modelo (× escala)
 const ENG_RIELES = [
-  { id: 'columna', r: 2.4, y0: 0.3, y1: 11.2, a0: 0, vueltas: 2.6, gira: true, v: 8.5 },
-  { id: 'pared', r: 12.8, y0: 0.3, y1: 11.2, a0: Math.PI, vueltas: 0.9, gira: false, v: 9.5 }];
+  { id: 'columna', r: 2.4, y0: 0.3, y1: 11.2, a0: 0, vueltas: 2.6, gira: true, v: 11 },
+  { id: 'pared', r: 12.8, y0: 0.3, y1: 11.2, a0: Math.PI, vueltas: 0.9, gira: false, v: 12.5 }];   // (más rápidos que al principio: que se vaya y venga de pared a pared)
 for (const R of ENG_RIELES) R.L = Math.hypot(R.vueltas * TAU * R.r, R.y1 - R.y0);
 const ENG_AGUJAS = [{ L: 8.6, w: 0.13, ancho: 0.55, alto: 0.5 }, { L: 12.6, w: 0.42, ancho: 0.4, alto: 0.42 }];   // horaria y minutero
 const ENG_VAPOR = [0.19, 0.3], ENG_RONDAS = 3;
@@ -132,10 +132,15 @@ function engConstruye(){
   // la columna (la punta en y = 0 del grupo), con su raíl, y el raíl de la pared
   const eje = ENG.eje = new THREE.Group(); W.add(eje);
   { const tmp = new THREE.Group();
-    mesh(scaleUV(C(ENG_EJE_R, ENG_EJE_R, 30, 16), 4, 8), M.piedra, 0, -15, 0, tmp);
-    for (let i = 0; i < 8; i++){ const a = i / 8 * TAU; mesh(B(0.3, 30, 0.3), M.bronce, Math.sin(a) * ENG_EJE_R, -15, Math.cos(a) * ENG_EJE_R, tmp).rotation.y = a; }
+    // (la piedra y las barras acaban dentro de la tapa: antes sus caras de arriba coincidían con la de la tapa y parpadeaban)
+    mesh(scaleUV(C(ENG_EJE_R, ENG_EJE_R, 29.3, 16), 4, 8), M.piedra, 0, -15.35, 0, tmp);
+    for (let i = 0; i < 8; i++){ const a = i / 8 * TAU; mesh(B(0.3, 29.3, 0.3), M.bronce, Math.sin(a) * ENG_EJE_R, -15.35, Math.cos(a) * ENG_EJE_R, tmp).rotation.y = a; }
     for (let k = 0; k < 6; k++) mesh(new THREE.TorusGeometry(ENG_EJE_R + 0.08, 0.12, 4, 20), M.oro, 0, -1.2 - k * 3.4, 0, tmp).rotation.x = Math.PI / 2;
     const tapa = mesh(C(ENG_EJE_R + 0.9, ENG_EJE_R + 0.3, 0.6, 18), M.oro, 0, -0.3, 0, tmp);
+    // remate: disco de bronce con dientes y un buje dorado (separados 1-2 cm de la tapa: nada de caras en el mismo plano)
+    mesh(C(ENG_EJE_R + 0.45, ENG_EJE_R + 0.55, 0.12, 18), M.bronce, 0, 0.07, 0, tmp);
+    for (let i = 0; i < 12; i++){ const a = i / 12 * TAU; mesh(B(0.32, 0.16, 0.34), M.bronce, Math.sin(a) * (ENG_EJE_R + 0.62), 0.09, Math.cos(a) * (ENG_EJE_R + 0.62), tmp).rotation.y = a; }
+    mesh(C(0.55, 0.7, 0.3, 12), M.oro, 0, 0.27, 0, tmp); mesh(C(0.22, 0.22, 0.12, 8), M.oscuro, 0, 0.47, 0, tmp);
     mpFusiona(tmp, eje); }
   ENG.rielCol = new THREE.Group(); eje.add(ENG.rielCol); ENG.rielCol.position.y = -ENG_EJE_TOP; engRielMalla(ENG_RIELES[0], M, ENG.rielCol);
   ENG.rielPar = new THREE.Group(); W.add(ENG.rielPar); engRielMalla(ENG_RIELES[1], M, ENG.rielPar);
@@ -205,6 +210,7 @@ function engDesmonta(){
   document.body.classList.remove('engOn'); engSonLoop(false);
 }
 function engQuitaAtaques(){
+  if (ENG.atq && ENG.atq.c){ ENG.atq.c.forEach(tintaSuelta); ENG.atq.c = null; }
   ENG.atq = null; for (const p of ENG.piedras){ p.on = false; p.m.visible = p.tele.visible = false; }
   ENG.mirada.visible = false; ENG.rayoOjo.visible = false; ENG.linea.visible = false; for (const A of ENG.aros){ A.on = false; A.m.visible = false; } ENG.marca.visible = false; ENG.onda.visible = false;
 }
@@ -248,7 +254,10 @@ function engGuardian(dt){
   else if (G.est === 'vuela'){
     if ((G.cambio -= dt) <= 0){ G.cambio = 2.2 + rnd() * 2.2; G.rObj = 5.2 + rnd() * 3.6; if (rnd() < 0.5) G.aw = -G.aw; G.aw = Math.sign(G.aw || 1) * (0.32 + 0.12 * ENG.rondas + rnd() * 0.18); }
     const yObj = clamp((ENG.riel || ENG.salto ? f : 3) + 1.4 + Math.sin(G.t * 0.7) * 1.8, 2.6, 10.2);
-    G.a += G.aw * dt * ENG.vel; G.r += (G.rObj - G.r) * (1 - Math.exp(-dt * 1.2)); G.y += (yObj - G.y) * (1 - Math.exp(-dt * 0.9));
+    if ((ENG.riel || ENG.salto) && !(ENG.atq && ENG.atq.mueve)){   // montado: ronda por delante de ti, entre las dos paredes (cada salto puede cruzarse con él)
+      const obj = Math.atan2(H.x, H.z) + Math.sign(G.aw || 1) * 0.5, da = engAng(obj - G.a), w = 0.9 + 0.25 * ENG.rondas; G.a += clamp(da, -w * dt, w * dt) * ENG.vel; }
+    else G.a += G.aw * dt * ENG.vel;
+    G.r += (G.rObj - G.r) * (1 - Math.exp(-dt * 1.2)); G.y += (yObj - G.y) * (1 - Math.exp(-dt * 0.9));
     if (!(ENG.atq && ENG.atq.mueve)) G.p.set(Math.sin(G.a) * G.r, G.y + Math.sin(G.t * 2.2) * 0.25, Math.cos(G.a) * G.r);
   } else if (G.est === 'cae'){
     G.v.y -= 20 * dt; G.p.addScaledVector(G.v, dt); G.giro += dt * 5;
@@ -297,7 +306,6 @@ function engDerriba(dir){   // le has dado en pleno salto: al suelo
   // Tovan rebota y cae a la esfera
   const H = hero.position, f = engPies(); ENG.salto = null; ENG.riel = null; ENG.rielCd = 0.9; engRebase(0, true); hero.position.y = f; grounded = false; vy = 5;
   player.kx = -dir.x * 4; player.kz = -dir.z * 4; player.inv = Math.max(player.inv, 0.6);
-  engDijo('derriba', '¡Al suelo! ¡Baja y cóselo a golpes antes de que se levante!');
 }
 function engAterriza(){
   const G = ENG.g, x = G.p.x, z = G.p.z; G.est = 'derribado'; G.t = 0; ENG.parado = 1;
@@ -309,8 +317,6 @@ function engLevanta(ronda){   // se levanta (onda que hay que saltar) y vuelve a
   G.est = 'levanta'; G.t = 0; G.y = 6.5; ENG.parado = 0; play('dragonRoar'); play('engCampana');
   ENG.onda.visible = true; ENG.onda.userData = { r: 1.5, x: G.p.x, z: G.p.z, hit: false };
   ENG.atqCd = 2.4;
-  if (ronda) engDijo('ronda' + ENG.rondas, ENG.rondas >= ENG_RONDAS - 1 ? '¡Una vez más y se acaba! ¡Al raíl!' : '¡Se levanta! ¡Otra vez al raíl, y salta cuando pase!');
-  else engDijo('escapa', '¡Se ha levantado! Hay que derribarlo otra vez.');
 }
 
 /* ---------- Física: el suelo, los raíles y los saltos entre paredes ---------- */
@@ -347,8 +353,8 @@ function engCruza(baja){   // SALTAR montado: un arco hasta el otro raíl (al fi
   const R = ENG.riel; if (!R) return;
   const from = engRielP(R.R, R.s, new V3()), { R2, s2 } = engCruzaDestino(R.R, R.s, baja), to = engRielP(R2, s2, engV[1]);
   const d = from.distanceTo(to);
-  ENG.salto = { from, R2, s2, t: 0, T: 0.7 + d / 26, pico: 1.8 + Math.max(0, to.y - from.y) * 0.5 + d * 0.06, dir: new V3(to.x - from.x, 0, to.z - from.z).normalize(), giro: R.giro };
-  ENG.riel = null; play('engSalto'); play('jump'); puff(4, 0.8);
+  ENG.salto = { from, R2, s2, t: 0, T: 0.42 + d / 40, pico: 1.2 + Math.max(0, to.y - from.y) * 0.45 + d * 0.04, dir: new V3(to.x - from.x, 0, to.z - from.z).normalize(), giro: R.giro, rebote: false };
+  ENG.riel = null; play('engSalto'); play('jump'); puff(4, 0.8); ENG.kick = 1;   // (la cámara se aleja un pelín: sensación de impulso)
 }
 function engSaltoTick(pdt){
   const S = ENG.salto, H = hero.position; S.t += pdt; S.giro += pdt * 26;
@@ -357,12 +363,14 @@ function engSaltoTick(pdt){
   engRebase(y, false); H.x = x; H.z = z; H.y = 0; grounded = true; vy = 0;
   heading = Math.atan2(S.dir.x, S.dir.z); hero.rotation.y = heading;
   if (rnd() < 0.6) spawnFx(x, 0.6, z, 0, 0, 0, rnd() < 0.5 ? 0x7ff5ff : 0xffd27a, 0.1, 0.35, 0, -0.5);
+  if (pdt > 0) streak7(x, 0.7 + (rnd() - 0.5) * 0.6, z, -S.dir.x, 0, -S.dir.z, 1.4 + rnd(), rnd() < 0.5 ? 0xffe7b0 : 0xffffff, 0.16, 0.035);   // estela del salto
   // ¿le das? Solo con el tajo en el aire (ATACAR) y con él a tiro; tocarlo sin más no hace nada
   const G = ENG.g, aTiro = (G.est === 'vuela' || G.est === 'despega') && Math.hypot(G.p.x - x, G.p.z - z) < ENG_TAJO.r && Math.abs(G.p.y - (y + 0.8)) < ENG_TAJO.alto;
   if (S.cd > 0) S.cd -= pdt;
   if (S.tajo > 0){ S.tajo -= pdt; if (aTiro){ engDerriba(S.dir); return; } }
   else if (aTiro && rnd() < 0.7){ const q = G.p; spawnFx(q.x + (rnd() - 0.5) * 1.6, q.y - ENG.base + (rnd() - 0.2) * 1.6, q.z + (rnd() - 0.5) * 1.6, 0, 1.2, 0, rnd() < 0.5 ? 0xffd27a : 0xffffff, 0.1, 0.3, 0, -0.5); }   // a tiro: el núcleo chispea
-  if (k >= 1){ ENG.salto = null; ENG.riel = { R: S.R2, s: S.s2, giro: S.giro, chispa: 0 }; play('clang'); sparks(x, 0.2, z, 8, 0xffd27a, 3); landT = 0.12; }
+  if (k >= 1){ ENG.salto = null; ENG.riel = { R: S.R2, s: S.s2, giro: S.giro, chispa: 0 }; play('clang'); sparks(x, 0.2, z, 8, 0xffd27a, 3); landT = 0.12;
+    if (S.rebote && !player.dead){ ringFx(x, z, 0xffe7b0, 0.2, 1.4, 0.25, 0.1); engCruza(); } }   // saltar al final del salto: rebota en cuanto toca el raíl y vuelve
 }
 function engRielTick(pdt){
   const R = ENG.riel, H = hero.position;
@@ -416,7 +424,7 @@ function engRondaHecha(e){   // se ha llevado un tercio: se levanta (o, el terce
 }
 
 /* ---------- Ataques ---------- */
-const engEspera = () => Math.max(1.6, 3.1 - 0.45 * ENG.rondas) + rnd() * 1.2;
+const engEspera = () => Math.max(0.9, 2.1 - 0.35 * ENG.rondas) + rnd() * 0.8;
 function engPredice(t){   // dónde estará Tovan dentro de t segundos (en el raíl, si va montado)
   const R = ENG.riel, H = hero.position;
   if (R) return engRielP(R.R, Math.min(0.98, R.s + t * R.R.v / R.R.L), new V3());
@@ -427,17 +435,18 @@ function engElige(){
   const enRiel = !!(ENG.riel || ENG.salto);
   let t;
   if (!enRiel && rnd() < 0.55) t = 'aplasta';
-  else { const ops = (enRiel ? ['rocas', 'mirada', 'embestida', ...(ENG.rondas >= 1 ? ['campanada'] : [])] : ['rocas', 'mirada']).filter(o => o !== ENG.ultimo); t = ops[Math.floor(rnd() * ops.length)]; }
+  else { const ops = (enRiel ? ['rocas', 'mirada', 'embestida', 'llamarada', 'llamarada', ...(ENG.rondas >= 1 ? ['campanada'] : [])] : ['rocas', 'mirada']).filter(o => o !== ENG.ultimo); t = ops[Math.floor(rnd() * ops.length)]; }
   ENG.ultimo = t; const A = ENG.atq = { tipo: t, t: 0, n: 0 };
   if (t === 'rocas'){ A.total = 3 + (ENG.rondas >= 2 ? 1 : 0); play('bruteWarn'); }
   else if (t === 'mirada'){ const H = hero.position; A.y = engPies() + 0.42; A.dir = rnd() < 0.5 ? -1 : 1; A.a0 = Math.atan2(H.x, H.z) - A.dir * 1.15; A.a = A.a0; A.hit = false;
-    ENG.mirada.visible = true; ENG.mirada.userData.haz.visible = ENG.mirada.userData.nucleo.visible = false; ENG.mirada.userData.aviso.visible = true; play('chargeStart');
-    engDijo('mirada', '¡Va a barrer con la mirada a tu altura! Salta a la otra pared.'); }
-  else if (t === 'campanada'){ A.y = engPies() + 0.3; play('engCampana'); for (const R of ENG.aros){ R.on = false; R.m.visible = false; } engDijo('campana', '¡La campana! Salta cuando llegue la onda.'); }
-  else if (t === 'embestida'){ A.mueve = true; A.de = G.p.clone(); A.a = engPredice(1.25); A.a.y += 0.8; A.hit = false; ENG.linea.visible = true; play('bruteWarn'); play('chargeStart');
-    engDijo('embiste', '¡Va a embestirte! Cambia de pared antes de que llegue.'); }
+    ENG.mirada.visible = true; ENG.mirada.userData.haz.visible = ENG.mirada.userData.nucleo.visible = false; ENG.mirada.userData.aviso.visible = true; play('chargeStart'); }
+  else if (t === 'llamarada'){   // escupe fuego en tu raíl, por delante de ti, y el frente corre hacia ti: a la otra pared
+    const R = ENG.riel || (ENG.salto && { R: ENG.salto.R2, s: ENG.salto.s2 }); A.R = R.R; A.s0 = Math.min(0.97, R.s + 0.24); A.sf = A.s0; A.hit = false;
+    A.c = [tintaCoge(LLAMA, 0, 'fuego'), tintaCoge(LLAMA_VIVA, 0, 'fuego')]; play('chargeStart'); play('engLanza'); }
+  else if (t === 'campanada'){ A.y = engPies() + 0.3; play('engCampana'); for (const R of ENG.aros){ R.on = false; R.m.visible = false; } }
+  else if (t === 'embestida'){ A.mueve = true; A.de = G.p.clone(); A.a = engPredice(1.25); A.a.y += 0.8; A.hit = false; ENG.linea.visible = true; play('bruteWarn'); play('chargeStart'); }
   else if (t === 'aplasta'){ A.mueve = true; const H = hero.position; A.x = H.x; A.z = H.z; const rr = Math.hypot(A.x, A.z); if (rr < 3.5){ A.x *= 3.5 / Math.max(0.01, rr); A.z *= 3.5 / Math.max(0.01, rr); }
-    A.de = G.p.clone(); ENG.marca.visible = true; play('bruteWarn'); engDijo('aplasta', '¡En el suelo eres un blanco fácil! Súbete a un raíl: rueda junto al piñón brillante.'); }
+    A.de = G.p.clone(); ENG.marca.visible = true; play('bruteWarn'); }
 }
 function engAtaqueTick(dt){
   ENG.clangT -= dt;
@@ -461,6 +470,15 @@ function engAtaqueTick(dt){
           const r = hurtPlayer(Math.round(13 * ENG.e.dm), H.x - Math.sin(ah + A.dir * 0.3) * 2, H.z - Math.cos(ah + A.dir * 0.3) * 2, 5);
           if (r === 'hit'){ A.hit = true; sparks(H.x, 0.6, H.z, 8, 0xff7a3a, 3); engRielSale('golpe'); } }
         if (Math.abs(engAng(A.a - A.a0)) > 2.4){ M.visible = false; ENG.rayoOjo.visible = false; engFinAtq(); } }
+    } else if (A.tipo === 'llamarada'){
+      const L = A.R.L, vs = 15 / L, P_ = (s, v) => { engRielP(A.R, s, v); v.y += 0.35 - ENG.base; return v; };
+      if (A.t > 0.55) A.sf = Math.max(0, A.sf - vs * dt);   // (el primer medio segundo arde en el sitio: el aviso)
+      const fin = clamp((A.t - 2.3) / 0.5, 0, 1), cola = Math.max(A.sf, A.s0 - 0.12 - Math.max(0, A.t - 0.55) * vs * 0.55);
+      tintaPinta(A.c[0], P_, A.sf, Math.max(A.sf + 0.002, cola), k => 1.4 * (0.5 + 0.5 * Math.sin(Math.PI * k)) * (1 - fin)); tintaPinta(A.c[1], P_, A.sf, Math.max(A.sf + 0.002, cola), k => 0.7 * (1 - fin));
+      if (dt > 0 && rnd() < 0.7){ const q = P_(A.sf, engV[2]); spawnFx(q.x, q.y + 0.3, q.z, (rnd() - 0.5) * 2, 2 + rnd() * 2, (rnd() - 0.5) * 2, rnd() < 0.5 ? 0xffa020 : 0xffe060, 0.12, 0.4, -1, 0.5); }
+      const R = ENG.riel; if (!A.hit && R && R.R === A.R && R.s >= A.sf - 0.6 / L && R.s <= cola + 0.4 / L && A.t > 0.55){ A.hit = true;
+        const r = hurtPlayer(Math.round(14 * ENG.e.dm), H.x, H.z, 5); if (r === 'hit') engRielSale('golpe'); }
+      if (fin >= 1){ A.c.forEach(tintaSuelta); A.c = null; engFinAtq(); }
     } else if (A.tipo === 'campanada'){
       ENG.aros.forEach((R, i) => { const t0 = 0.9 + i * 0.75;
         if (!R.on && A.t >= t0 && A.t < t0 + 0.1){ R.on = true; R.r = ENG_EJE_R + 0.2; R.hit = false; R.m.visible = true; if (i) play('engCampana'); shake = Math.max(shake, 0.25); }
@@ -516,7 +534,7 @@ function engPeligros(dt){
     if (ENG.parado > 0 || !suelo || f > A.alto + 0.12 || player.dead || rho < 1.6 || rho > A.L + 0.4) return;
     const d = engAng(ah - a);
     if (Math.abs(d) * rho < A.ancho / 2 + 0.38){ const t = Math.sign(A.w) || 1, r = hurtPlayer(Math.round(12 * ENG.e.dm), H.x - Math.cos(a) * t, H.z + Math.sin(a) * t, 7);
-      if (r === 'hit'){ play('clang'); sparks(H.x, 0.5, H.z, 8, 0xffd27a, 3); engDijo('agujas', '¡Las agujas del reloj! Sáltalas cuando pasen.'); } }
+      if (r === 'hit'){ play('clang'); sparks(H.x, 0.5, H.z, 8, 0xffd27a, 3); } }
     else if (i === 1 && f < 0.3 && d * Math.sign(A.w) < 0 && Math.abs(d) * rho < 4 && Math.abs(d) * rho > 3.4 && (g.userData.avisoT || 0) < ENG.t){ g.userData.avisoT = ENG.t + 1; play('bruteWarn'); }
   });
   for (const V of ENG.vapores){ V.t += dt; const k = V.t % 5.2;
@@ -528,7 +546,7 @@ function engPeligros(dt){
     if (rnd() < 0.7) spawnFx(x + (rnd() - 0.5) * 1.2, -ENG.base + 1 + rnd() * 4, z + (rnd() - 0.5) * 1.2, 0, 5 + rnd() * 3, 0, 0xffffff, 0.3, 0.6, -2, 1.5);
     if (!V.lanzo && suelo && f < 0.5 && Math.hypot(H.x - x, H.z - z) < 1.3 && !player.dead){   // te lanza hasta el raíl de la pared
       V.lanzo = true; grounded = false; vy = 14; const d = Math.max(0.001, Math.hypot(x, z)); player.kx = x / d * 4.5; player.kz = z / d * 4.5; ENG.rielCd = 0.3;
-      play('engLanza'); puffAt(H.x, H.z, 10, 1.4, 0xffffff); engDijo('vapor', '¡El vapor te lanza hasta el raíl de la pared!'); }
+      play('engLanza'); puffAt(H.x, H.z, 10, 1.4, 0xffffff); }
   }
 }
 
@@ -541,7 +559,7 @@ function engCamYaw(dt){
 function engCamara(cam){
   if (!ENG.montado || cs.active || lcut) return;
   const G = ENG.g.p, gy = G.y - ENG.base;
-  { const o = engV[0].subVectors(cam.position, camTarget), ab = ENG.g.est === 'derribado'; o.y *= ab ? 1.25 : 0.8; o.multiplyScalar(ab ? 1.05 : 1.15); cam.position.copy(camTarget).add(o);
+  { const o = engV[0].subVectors(cam.position, camTarget), ab = ENG.g.est === 'derribado'; o.y *= ab ? 1.25 : 0.8; o.multiplyScalar((ab ? 1.05 : 1.15) * (1 + 0.1 * (ENG.kick || 0))); cam.position.copy(camTarget).add(o);
     const k = ENG.g.est === 'derribado' ? 0.25 : 0.32, tx = lerp(camTarget.x, G.x, k), ty = lerp(camTarget.y + 1.2, gy, k), tz = lerp(camTarget.z, G.z, k);
     cam.lookAt(tx, ty, tz); cam.updateMatrixWorld(); }
   // la columna se desvanece si se pone entre la cámara y Tovan
@@ -576,9 +594,8 @@ function engTick(dt, pdt, playing){
     ENG.son.riel.g.gain.setTargetAtTime(on && (ENG.riel || ENG.salto) ? 0.07 : 0, t, 0.06); }
   if (!(playing && engJugando())) return;
   clearT = 0; engBarra();
-  ENG.rielCd -= pdt; engFisica(pdt); if (!engJugando()) return;
+  ENG.rielCd -= pdt; ENG.kick = (ENG.kick || 0) * Math.exp(-pdt * 3); engFisica(pdt); if (!engJugando()) return;
   engPeligros(pdt); engAtaqueTick(pdt); engCamYaw(pdt);
-  if (!ENG.riel && !ENG.salto && ENG.g.est === 'vuela' && engRielCerca(2.2, true)) engDijo('pinon', colTactil() ? '¡Ahí empieza un raíl! Pulsa RODAR para montarte.' : '¡Ahí empieza un raíl! RUEDA (K) para montarte.');
 }
 
 /* ---------- La segunda vida empieza: se da cuerda y el suelo se abre ---------- */
@@ -737,12 +754,22 @@ const _doRollEng = doRoll; doRoll = function(){
     if (grounded){ const c = engRielCerca(1.5, true); if (c){ engRielMonta(c.R, c.s); return; } } }
   _doRollEng();
 };
-const _doJumpEng = doJump; doJump = function(){ if (engJugando() && gameState === 'play' && (ENG.riel || ENG.salto)){ if (ENG.riel && !player.dead) engCruza(); return; } _doJumpEng(); };
+const _doJumpEng = doJump; doJump = function(){ if (engJugando() && gameState === 'play' && (ENG.riel || ENG.salto)){ if (ENG.riel && !player.dead) engCruza(); else if (ENG.salto && ENG.salto.t > ENG.salto.T * 0.35) ENG.salto.rebote = true; return; } _doJumpEng(); };
 const _doAttackEng = doAttack; doAttack = function(){ if (ENG.on && (ENG.riel || ENG.salto)){ if (ENG.salto && engJugando() && gameState === 'play' && !player.dead) engTajoAire(); return; } _doAttackEng(); };
 const _doSpecialEng = doSpecial; doSpecial = function(){ if (ENG.on && (ENG.riel || ENG.salto)) return; _doSpecialEng(); };
+/* ---------- Lo que va por el suelo se queda en la esfera ----------
+   Tovan va a y = 0 y lo que baja es el mundo: sin esto, las invocaciones (ranas, aliados capturados,
+   maquetas, hollín, el perro) y lo que se deja en el suelo (peladuras, paquetes, caramelos, recogidas)
+   subían con él por los raíles. Justo antes de pintar se bajan ENG.base y al empezar el fotograma
+   siguiente se devuelven, así la lógica de cada poder no se entera. */
+const engSueloObjs = () => [...P6.frogs.map(f => f.g), ...P6.allies.flatMap(a => [a.g, a.ring]), ...P6.bots.map(b => b.g), ...P6.soots.map(q => q.m), ...P6.dogs.map(d => d.g),
+  ...P5.peels.map(q => q.g), ...P5.parcels.map(q => q.g), ...P5.candies.map(q => q.m), ...pickups.map(q => q.m)];
+let engBajados = null;
+function engSubeSuelo(){ if (!engBajados) return; for (const [o, d] of engBajados) o.position.y += d; engBajados = null; }
+function engBajaSuelo(){ engSubeSuelo(); if (!ENG.montado || ENG.base < 0.01) return; const d = ENG.base; engBajados = []; for (const o of engSueloObjs()) if (o){ o.position.y -= d; engBajados.push([o, d]); } }
 const _v3UpdateEng = v3Update;
-v3Update = function(dt, pdt, playing){ _v3UpdateEng(dt, pdt, playing); try { engTick(dt, pdt, playing); } catch (err) { console.error(err); } };
-const _csCameraEng = csCamera; csCamera = function(cam){ _csCameraEng(cam); try { engCamara(cam); } catch (err) { console.error(err); } };
+v3Update = function(dt, pdt, playing){ engSubeSuelo(); _v3UpdateEng(dt, pdt, playing); try { engTick(dt, pdt, playing); } catch (err) { console.error(err); } };
+const _csCameraEng = csCamera; csCamera = function(cam){ _csCameraEng(cam); try { engCamara(cam); engBajaSuelo(); } catch (err) { console.error(err); } };
 const _legendPoseEng = legendPose; legendPose = function(){ _legendPoseEng(); try { engPose(); } catch (err) { console.error(err); } };
 const _clearWorldEng = clearWorld; clearWorld = function(){ engAborta(); _clearWorldEng(); };
 const _toTitleEng = toTitle; toTitle = function(){ engAborta(); _toTitleEng(); };

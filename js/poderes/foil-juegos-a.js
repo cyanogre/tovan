@@ -402,7 +402,8 @@ function kbyMarcador(){
   const el = foilMarcador('kbyPanza', 'kbyMarca'), txt = String(KBY.lleno); el.hidden = !KBY.lleno || !strEnJuego(); if (txt === KBY.marca) return; KBY.marca = txt;
   el.innerHTML = `<b>¡LLENO!</b>${[0, 1, 2].map(i => `<i class="${i < KBY.lleno ? 'kbyOn' : ''}"></i>`).join('')}`;
 }
-function kbyBocaPos(v){ P.neck.getWorldPosition(v); const f = KBY.asp ? KBY.asp.f : heading; v.x += Math.sin(f) * 0.4; v.z += Math.cos(f) * 0.4; v.y -= 0.08; return v; }
+// en la boca de Tovan (coordenadas de la cabeza: P.neck es su base; antes iba en el cuello, a la altura del pecho)
+function kbyBocaPos(v){ P.neck.updateWorldMatrix(true, false); return P.neck.localToWorld(v.set(0, -0.11, 0.27)); }
 
 /* ---------- Aspirar (el remate) ---------- */
 function kbyAspira(f){
@@ -424,7 +425,7 @@ function kbyAspiraTick(dt){
     const dx = Bc.x - x, dy = Bc.y - y, dz = Bc.z - z, l = Math.max(0.01, Math.hypot(dx, dy, dz));
     if (i) streak7(x, y, z, dx, dy, dz, 0.8, rnd() < 0.5 ? 0xffffff : 0xffb8dc, 0.22, 0.035, 12);
     else pa(x, y, z, dx / l * 8, dy / l * 8, dz / l * 8, rnd() < 0.5 ? 0xff8ac8 : 0xffffff, 0.22, Math.min(0.5, l / 8), 0, 0, 0.2, SH7.star); }
-  KBY.boca.visible = true; KBY.boca.position.copy(Bc); KBY.boca.scale.setScalar(0.42 * (1 + Math.sin(A.t * 30) * 0.08));
+  KBY.boca.visible = true; KBY.boca.position.copy(Bc); KBY.boca.scale.setScalar(0.36 * (1 + Math.sin(A.t * 30) * 0.08));
   const pegaJefes = (A.jefeT += dt) >= 0.3; if (pegaJefes) A.jefeT = 0;
   for (const e of enemies){ if (!e.alive || e.spawnT > 0 || e.reach === false) continue;
     const n = enCono(O, e, f, 5.6, 0.9); if (!n) continue;
@@ -725,7 +726,7 @@ function sncEmpieza(modo, e){
 function sncSegmento(M, e){ M.obj = e; M.seg = 0; M.S.copy(hero.position); M.fase = 'va'; M.segDur = clamp(Math.hypot(e.g.position.x - M.S.x, e.g.position.z - M.S.z) / 24, 0.1, 0.32); }
 function sncPega(M, e){
   const H = hero.position, T = e.g.position, dx = T.x - M.S.x, dz = T.z - M.S.z, l = Math.max(0.01, Math.hypot(dx, dz)), c = rnd() < up.crit;
-  hitEnemy(e, Math.round(rdmg(26) * (c ? critMul() : 1)), c, dx / l, dz / l, 3, 4, true, { src: 'melee' });
+  hitEnemy(e, foilDano(rdmg(26) * (c ? critMul() : 1)), c, dx / l, dz / l, 3, 4, true, { src: 'melee' });
   M.n++; M.golpes.set(e, (M.golpes.get(e) || 0) + 1); M.ult = e; hitStop = Math.max(hitStop, 0.05);
   play('sncGolpe'); gring(T.x, H.y, T.z, 0x4a9cff, 0.2, 1.4, 0.25); burst7(PA7, T.x, H.y, T.z, 10, [0x9fe0ff, 0xffffff, 0x2a6bff], 5, 0.25, 0.3, 0, 2, 0.3, SH7.dia);
   const sig = M.n < 5 ? sncSiguiente(M) : null;
@@ -745,7 +746,7 @@ function sncTick(dt){
     const k = M.t / 0.4; if (k >= 1){ sncAcaba(); return; }
     const v = 12 * (1 - 0.6 * k) * dt; H.x += Math.sin(M.f) * v; H.z += Math.cos(M.f) * v; H.y = 0;
     for (const e of foilEnemigos(H, 0.9)) if (!M.ya.has(e)){ M.ya.add(e); const dx = e.g.position.x - H.x, dz = e.g.position.z - H.z, l = Math.max(0.01, Math.hypot(dx, dz));
-      hitEnemy(e, rdmg(16), rnd() < up.crit, dx / l, dz / l, 6, 3, true, { src: 'melee' }); play('sncGolpe'); sparks(e.g.position.x, 0.8, e.g.position.z, 6, 0x9fe0ff, 4); }
+      hitEnemy(e, foilDano(rdmg(16)), rnd() < up.crit, dx / l, dz / l, 6, 3, true, { src: 'melee' }); play('sncGolpe'); sparks(e.g.position.x, 0.8, e.g.position.z, 6, 0x9fe0ff, 4); }
   } else if (M.fase === 'va'){
     const e = M.obj; if (!e || !e.alive || e.dying > 0){ const sig = sncSiguiente(M); if (sig) sncSegmento(M, sig); else { M.fase = 'cae'; M.vy = 2; } return; }
     M.seg += dt; const k = Math.min(1, M.seg / M.segDur), T = e.g.position, ty = Math.min(1.6, (e.numY || 1.5) * 0.55);
@@ -802,7 +803,7 @@ function sncSueltosTick(dt){
 // con anillos, el golpe duele un 25 % menos (y se te caen); en bola, ni te tocan
 const sncHeridaOrig = hurtPlayer;
 hurtPlayer = function(dmg, sx, sz, knock){
-  if (!lvl('foilSonic') || player.dead || gameState !== 'play') return sncHeridaOrig(dmg, sx, sz, knock);
+  if (!(lvl('foilSonic') || lvl('mutSuperSonic')) || player.dead || gameState !== 'play') return sncHeridaOrig(dmg, sx, sz, knock);   // (el erizo dorado también pierde anillos)
   if (SNC.m) return 'none';
   const h0 = player.hp, r = sncHeridaOrig(SNC.anillos > 0 ? dmg * 0.75 : dmg, sx, sz, knock);
   if (player.hp < h0 && SNC.anillos > 0) sncPierde();

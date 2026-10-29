@@ -179,10 +179,12 @@ function foilTick(dt){
     if (!vivo){ for (const c of f.cintas || []) tintaSuelta(c); if (f.fin) f.fin(); foilFx.splice(i, 1); } }
 }
 const _fV = new V3(), _fW = new V3();
+// todo lo que pegan los foil pega un 30 % más que un poder normal (que se note que son mejores)
+const FOIL_DANO = 1.3, foilDano = v => Math.max(1, Math.round(v * FOIL_DANO));
 function foilGolpea(e, dmg, nx, nz, knock, el, power, yaHit){
   if (!e.alive || e.spawnT > 0 || e.reach === false || (yaHit && yaHit.has(e))) return false;
   if (yaHit) yaHit.add(e);
-  return hitEnemy(e, dmg, rnd() < up.crit, nx, nz, knock, 2, false, { src: 'aoe', el, power });
+  return hitEnemy(e, foilDano(dmg), rnd() < up.crit, nx, nz, knock, 2, false, { src: 'aoe', el, power });
 }
 const foilGrito = (txt, col) => { tA.set(hero.position.x, hero.position.y + 2.7, hero.position.z); spawnNumber(tA, txt, 'react', col); };
 // Arco de tinta alrededor de Tovan (el tajo de cada golpe normal)

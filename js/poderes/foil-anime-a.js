@@ -565,7 +565,7 @@ function oraRafagaTick(dt){
   if (m.t < ORA_RUSH){
     if (m.t >= m.hitT){ m.hitT += 0.075; let pega = false;
       for (const e of enemies){ if (!e.alive || e.spawnT > 0 || e.reach === false) continue; const n = enCono(P, e, m.f, 3.1, 0.85); if (!n) continue;
-        if (hitEnemy(e, rdmg(2.8), rnd() < up.crit, n[0], n[1], 0.4, 0.3, false, { src: 'aoe' })) pega = true; }
+        if (hitEnemy(e, foilDano(rdmg(2.8)), rnd() < up.crit, n[0], n[1], 0.4, 0.3, false, { src: 'aoe' })) pega = true; }
       if (pega) play('hit'); }
     for (let i = 0; i < 2; i++){ const F = ORA.fists.find(q => q.userData.t >= 1); if (!F) break;
       const lat = (rnd() - 0.5) * 1.5, up_ = 1.3 + (rnd() - 0.5) * 0.9, fw = 0.5 + rnd() * 0.7;
