@@ -183,11 +183,12 @@ No sale en los sitios con estética propia (Canal X, el show, el Ryūjin colosal
 ## La guitarra eléctrica
 
 El arma «Guitarra eléctrica» del vestidor se toca de verdad (`js/armas/guitarra-rock.js`):
-- **Pose:** al atacar, Tovan se cruza la guitarra delante del cuerpo, con la mano izquierda en el mástil y la derecha rasgueando a cada nota. En el solo (ataque cargado) levanta el mástil y se echa hacia atrás. De la guitarra salen ondas de sonido de colores.
-- **Sonido:** guitarra eléctrica sintetizada de verdad: cada nota es una cuerda pulsada que pasa por un ampli (saturación, ecualización de pantalla, eco y reverb). Acordes de quinta, notas apagadas con la palma, octavas y solos con vibrato.
-- **Riffs:** cada combo toca un riff famoso de rock y metal, y el siguiente combo, otro. Cada golpe toca su trozo al tempo del riff y el remate lo termina. Son Smoke on the Water, Seven Nation Army, Iron Man, Smells Like Teen Spirit, Back in Black, Crazy Train, el Rey de la Montaña en metal y la entrada de Master of Puppets.
-- **Solos:** el ataque cargado toca un solo: Sweet Child O' Mine, Thunderstruck, la Tocata de Bach, el Vuelo del moscardón, el Rey de la Montaña rápido o un tapping.
-- **Con «Multiclones de sombra»:** los dos clones se unen a la banda. Uno toca la batería (bombo, caja y charles al tempo del riff) y el otro el bajo, con una onda en cada clon a su ritmo.
+- **Golpes normales:** la guitarra sigue siendo un arma en la mano, como siempre. Cada golpe que acierta suena a un acorde corto de guitarra eléctrica y el remate, a uno grande que se deja sonar.
+- **Ataque cargado:** solo aquí la toca. Tovan se cruza la guitarra delante del cuerpo, con la mano izquierda en el mástil y la derecha rasgueando a cada nota, y toca entero un riff famoso o un solo, uno distinto cada vez. Sigue tocando aunque el movimiento acabe; atacar, rodar o caer lo corta. En los solos levanta el mástil y se echa hacia atrás. De la guitarra salen ondas de sonido de colores.
+- **Sonido:** guitarra eléctrica sintetizada de verdad: cada nota es una cuerda pulsada que pasa por un ampli (saturación, ecualización de pantalla, eco y reverb).
+- **Riffs:** Smoke on the Water, Seven Nation Army, Iron Man, Smells Like Teen Spirit, Back in Black, Crazy Train, el Rey de la Montaña en metal y la entrada de Master of Puppets.
+- **Solos:** Sweet Child O' Mine, Thunderstruck, la Tocata de Bach, el Vuelo del moscardón, el Rey de la Montaña rápido y un tapping.
+- **Con «Multiclones de sombra»:** en el riff del ataque cargado, los dos clones se unen a la banda. Uno toca la batería (bombo, caja y charles al tempo del riff) y el otro el bajo, con una onda en cada clon a su ritmo.
 
 Los riffs son unas pocas notas transcritas de memoria (las webs de tablaturas están bloqueadas desde el contenedor), así que alguno puede no ser exacto. Si el juego se publica o se vende, mejor cambiar los de canciones con derechos por piezas clásicas, que no tienen.
 
