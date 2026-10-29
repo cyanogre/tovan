@@ -6,15 +6,17 @@
      sobremuestreo, ecualización de pantalla 4×12, un poco de eco y la
      reverb del juego). Acordes de quinta (raíz, quinta, octava), notas
      apagadas con la palma, octavador y solos con vibrato.
-   · Toca riffs famosos: cada combo es un riff. Cada golpe (gtrA, gtrB…)
-     toca el trozo que cabe en su golpe, al tempo del riff; el remate
-     (gtrC) toca lo que queda hasta el final. El combo siguiente, otro
-     riff (en orden barajado). El cargado (Solo de guitarra) toca un solo.
-   · Se toca de verdad: mientras dura el movimiento, la guitarra pasa del
-     puño al cuerpo (ROCK.porta, hija de P.spine), la mano izquierda de
-     Tovan (P.armR) en el mástil y la derecha (P.armL) rasgueando a cada
-     nota; en el solo, mástil arriba y espalda atrás. De la guitarra salen
-     ondas de sonido de colores. Nada de texto.
+   · Los golpes normales siguen siendo con la guitarra en la mano, como
+     arma: cada golpe que acierta suena a un acorde corto y el remate, a
+     uno grande que se deja sonar.
+   · Solo el ataque cargado (Solo de guitarra) la toca: Tovan se la cruza
+     delante del cuerpo (ROCK.porta, hija de P.spine), con la mano
+     izquierda (P.armR) en el mástil y la derecha (P.armL) rasgueando a
+     cada nota, y toca entero un riff famoso o un solo (uno distinto cada
+     vez, barajados), al tempo del riff. Sigue tocando hasta acabarlo
+     aunque el movimiento termine; atacar, rodar o caer lo corta. Cargando,
+     ya la tiene lista (trémolo). De la guitarra salen ondas de sonido de
+     colores. Nada de texto.
    Las notas son MIDI (60 = Do central); duraciones en tiempos.
    Tipos: p = acorde de quinta, m = apagada con la palma, o = con octava
    abajo, n = nota sola, l = nota de solo (vibrato si es larga).
@@ -38,8 +40,7 @@ const ROCK_SOLOS = [
   { bpm: 150, n: [[76, 0.25, 'l'], [71, 0.25, 'l'], [67, 0.25, 'l'], [71, 0.25, 'l'], [76, 0.25, 'l'], [71, 0.25, 'l'], [67, 0.25, 'l'], [71, 0.25, 'l'], [77, 0.25, 'l'], [72, 0.25, 'l'], [69, 0.25, 'l'], [72, 0.25, 'l'], [79, 0.25, 'l'], [74, 0.25, 'l'], [71, 0.25, 'l'], [74, 0.25, 'l'], [88, 2, 'l']] }   // tapping en mi menor (propio)
 ];
 const ROCK_COLS = [0xff4a8a, 0x4ad8ff, 0xffe04a, 0x7dff8a, 0xc88aff];
-const ROCK_MOV = new Set(['gtrA', 'gtrB', 'gtrC', 'chGuitar', 'flurry', 'dash']);
-const ROCK = { amp: null, cuerdas: {}, sonando: [], riff: null, pos: 0, ult: -9, bolsa: [], bolsaS: [], col: 0, w: 0, t0: 0, ras: 0, rasObj: 1, solo: false, porta: null, notas: [], gen: 0 };
+const ROCK = { amp: null, cuerdas: {}, sonando: [], riff: null, pos: 0, ult: -9, bolsa: [], bolsaS: [], col: 0, w: 0, t0: 0, ras: 0, rasObj: 1, solo: false, porta: null, notas: [], gen: 0, hasta: 0 };
 
 /* ---------- El sonido ---------- */
 // el ampli: pasa-altos → ganancia → saturación → pantalla → salida (y un poco de eco y reverb)
@@ -111,7 +112,13 @@ function rockTrozo(ventana, R){
     t += d; i++; if (!ventana && t > 3.2) break; }
   if (lvl('clones') && notas.length) try { rockBanda(now, beat, b0, t, notas, gen, !!R); } catch (err) { console.error(err); }
   if (!R){ ROCK.pos = i; if (i >= lista.length) ROCK.riff = null; }
-  ROCK.ult = time;
+  ROCK.ult = time; return t;
+}
+// corta el riff (lo que no ha sonado, fuera; lo que suena, apagado) y suelta la guitarra
+function rockCorta(){
+  if (!ROCK.hasta) return; ROCK.hasta = 0; ROCK.gen++; if (!actx) return; const now = actx.currentTime;
+  for (const q of ROCK.notas) if (q.t > now){ try { q.src.stop(); } catch (e) {} } ROCK.notas = [];
+  for (const s_ of ROCK.sonando){ try { s_.g.gain.cancelScheduledValues(now); s_.g.gain.setTargetAtTime(0.0001, now, 0.03); } catch (e) {} } ROCK.sonando = [];
 }
 // a cada nota: onda de sonido delante de la guitarra y un rasgueo de la mano derecha
 function rockOnda(nt, k){
@@ -158,25 +165,22 @@ function rockClonOnda(i, col){
 }
 
 /* ---------- Los movimientos ---------- */
+const ROCK_TODOS = ROCK_RIFFS.concat(ROCK_SOLOS);
 const rock_startMove = startMove;
 startMove = function(name, idx){
+  if (name !== 'chGuitar') rockCorta();   // (cualquier otro movimiento corta el riff)
   rock_startMove(name, idx);
-  if (curW() !== 'guitar' || !ROCK_MOV.has(name)) return;
-  try {
-    initAudio(); if (!actx) return;
-    if (name === 'chGuitar'){ ROCK.solo = true; rockTrozo(0, rockSaca(ROCK_SOLOS, ROCK.bolsaS)); return; }
-    ROCK.solo = false;
-    if (name === 'gtrA' || !ROCK.riff || time - ROCK.ult > 1.6){ ROCK.riff = rockSaca(ROCK_RIFFS, ROCK.bolsa); ROCK.pos = 0; }
-    rockTrozo(name === 'gtrC' ? 0 : name === 'flurry' ? 0.7 : 0.46);
-  } catch (err) { console.error(err); }
+  if (curW() !== 'guitar' || name !== 'chGuitar') return;
+  try { initAudio(); if (!actx) return; const R = rockSaca(ROCK_TODOS, ROCK.bolsa); ROCK.solo = ROCK_SOLOS.includes(R); ROCK.riff = null;
+    const T = rockTrozo(0, R) || 0; ROCK.hasta = time + T + 0.3; } catch (err) { console.error(err); }
 };
-// el remate ya no suena a sierra: su acorde es el final del riff (la onda sigue igual)
-MV.gtrC.fire = () => { const hx = hero.position.x, hz = hero.position.z, f = hero.rotation.y; sonicCone(hx, hz, f, 4.6, 0.5, 34, 6, 0xff4a8a); };
-for (const n of ['gtrA', 'gtrB', 'gtrC', 'chGuitar']) MV[n].trail = [2, 2.1];   // (la estela del arma iría por el aire: la guitarra está en el cuerpo)
+MV.chGuitar.trail = [2, 2.1];   // (la estela del arma iría por el aire: la guitarra está en el cuerpo)
+// los golpes normales: un acorde corto al acertar y uno grande que se deja sonar en el remate (ya no a sierra)
+const ROCK_GOLPE = [40, 43, 45, 47, 38];
 Object.assign(SFX, {
-  strum: () => {},   // (el rasgueo ya lo toca el riff)
+  strum: () => { if (!actx || ROCK.hasta) return; const t = actx.currentTime + 0.005; rockNota([ROCK_GOLPE[ROCK.col++ % ROCK_GOLPE.length], 1, 'p'], t, t + 0.2); },
   chordSolo: () => {},
-  chord: () => { if (!actx) return; const R = ROCK.riff || ROCK_RIFFS[0], nt = R.n[Math.min(ROCK.pos, R.n.length - 1)]; rockNota([nt[0], 1, 'p'], actx.currentTime + 0.01, 0); }   // («Otra, otra»: power chords de propina)
+  chord: () => { if (!actx) return; rockNota([Math.random() < 0.5 ? 40 : 45, 1, 'p'], actx.currentTime + 0.01, 0); }
 });
 
 /* ---------- La pose: tocarla de verdad ---------- */
@@ -189,13 +193,14 @@ function rockPorta(){
 function rockPose(){
   const G = WEAPONS.guitar; if (!G) return;
   const dt = Math.min(0.1, Math.max(0, time - ROCK.t0)); ROCK.t0 = time;
-  const toca = curW() === 'guitar' && staffInHand && !player.dead && ((state === 'attack' && curMove && ROCK_MOV.has(curMove.name)) || state === 'charge') && !lcut;
+  if (ROCK.hasta && (time > ROCK.hasta || player.dead || state === 'roll' || state === 'dead' || curW() !== 'guitar' || gameState !== 'play' && gameState !== 'paused')) rockCorta();
+  const toca = curW() === 'guitar' && !player.dead && !lcut && ((state === 'attack' && curMove && curMove.name === 'chGuitar') || (state === 'charge' && staffInHand) || (ROCK.hasta > 0 && state !== 'attack'));
   ROCK.w += ((toca ? 1 : 0) - ROCK.w) * (1 - Math.exp(-dt * 18)); if (!toca && ROCK.w < 0.03) ROCK.w = 0;
   const por = rockPorta();
   if (ROCK.w <= 0){ if (G.parent === por){ staff.add(G); G.position.set(0, 0, 0); G.rotation.set(0, 0, 0); } if (ROCK.lampara){ ROCK.lampara = false; lamp.visible = true; } return; }
   if (G.parent !== por){ por.add(G); G.position.set(0, 0, 0); G.rotation.set(0, 0, 0); }
   if (lamp.visible){ lamp.visible = false; ROCK.lampara = true; }   // (la linterna del bastón quedaba suelta en la mano)
-  const w = ROCK.w, solo = ROCK.solo && state === 'attack' && curMove && curMove.name === 'chGuitar', cargando = state === 'charge';
+  const w = ROCK.w, solo = ROCK.solo && ROCK.hasta > 0, cargando = state === 'charge';
   ROCK.ras += (0 - ROCK.ras) * (1 - Math.exp(-dt * 14));   // el rasgueo vuelve solo
   if (cargando && (ROCK.trem = (ROCK.trem || 0) + dt) > 0.07){ ROCK.trem = 0; ROCK.ras = ROCK.rasObj = -ROCK.rasObj; }   // cargando: trémolo
   const Q = ROCK_POSE; por.position.fromArray(Q.pos); por.rotation.set(Q.rot[0], Q.rot[1], solo ? Q.solo : Q.rot[2]); por.scale.setScalar(Q.esc);
