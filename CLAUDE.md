@@ -158,7 +158,7 @@ Juego 3D roguelike por oleadas (three.js r128 por CDN, fuente Pixelify Sans de G
     - Burro de hormigón (`wrm`, 40 golpes cuerpo a cuerpo vía `dano`): un `foilFx` con fases `luz` → `cae` → `bota` (×4) → `rompe`; reutiliza `titCrater`. El haz de luz se atenúa con la cámara dentro.
     - Bola Smash (`smb`): la bola es un objeto del mundo en `tick`; los golpes cuentan en `golpe`/`remate` a menos de 1,8 m sin mirar el rumbo (el golpe se gira solo hacia el enemigo más cercano). Con `SMB.lleno`, un envoltorio de `doAttack` (el más externo) lanza la forma del golpe final. Los lanzados no salen hacia la cámara y revientan (`smbKO`) al llegar al borde de la pantalla, con el tamaño según la distancia.
     - Los remates de los que no son fuertes usan `xtrRemata` (vida × 1,3 + 5), no `e.hp + 999`, que pintaba números enormes. Nada sale en texto.
-  - Inhalar (Kirby): la boca sale de `kbyBocaPos(v)` = `P.neck.localToWorld(0, -0,11, 0,27)` (la cara), no del pecho.
+  - Inhalar (Kirby): aspirando y escupiendo, el gancho `post` cambia `M.face.uniforms.uMap` por `kbyCaraTex` (la cara de parpadeo con la boca abierta y los mofletes pintados píxel a píxel con `assetCanvas`); ya no hay sprite de boca. El viento y lo tragado van a `kbyBocaPos(v)` = `P.neck.localToWorld(0, -0,11, 0,27)`.
   - Estrella invencible: `strArp` toca un compás del tema de la estrella cada 0,8 s (150 por minuto en 2/2, según la Super Mario Wiki), alternando Re m7 y Do maj7 (melodía en la séptima y la fundamental, bajo en fundamental y quinta). La transcripción exacta no se pudo descargar (las webs de partituras están bloqueadas desde el contenedor).
   - Envoltorios propios fuera del núcleo:
     - `doAttack`/`doRoll`/`doJump`/`doSpecial`: los bloqueos durante las escenas.

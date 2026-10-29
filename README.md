@@ -253,7 +253,7 @@ Hay un fichero por grupo, más el núcleo común `js/poderes/foil-nucleo.js`. «
 |---|---|---|
 | ⭐ **Estrella invencible** | 50 monedas (cada golpe suelta una) | 9 s invencible en arcoíris, atropellando, con el tema de la estrella de fondo; cada 100 monedas, un hongo que cura |
 | 🗡️ **Espada maestra** | Con la vida casi llena | Cada golpe dispara un rayo-espada; el remate es el «Giro huracanado» |
-| 🌸 **Inhalar** | Remate | Aspira y se traga hasta 3 enemigos (la boca le sale en la cara); el siguiente ataque escupe una estrella |
+| 🌸 **Inhalar** | Remate | Tovan cierra los ojos, abre la boca de par en par y aspira; se traga hasta 3 enemigos; el siguiente ataque escupe una estrella |
 | 🟡 **Comecocos** | Píldora cada 10 bajas | 8 s de comecocos sobre una cuadrícula de neón: los enemigos se ponen azules y huyen |
 | 💨 **Bola azul** | Rodar | Bola de púas con ataque teledirigido en cadena; los golpes dan anillos y, si te hieren, se caen |
 | 🦖 **Dinosaurio verde** | Doble salto | Montura de 15 s: lengua que se traga, huevos que rebotan, revoloteo y culetazo |

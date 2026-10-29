@@ -402,6 +402,15 @@ function kbyMarcador(){
   const el = foilMarcador('kbyPanza', 'kbyMarca'), txt = String(KBY.lleno); el.hidden = !KBY.lleno || !strEnJuego(); if (txt === KBY.marca) return; KBY.marca = txt;
   el.innerHTML = `<b>¡LLENO!</b>${[0, 1, 2].map(i => `<i class="${i < KBY.lleno ? 'kbyOn' : ''}"></i>`).join('')}`;
 }
+// la cara de Tovan aspirando: ojos apretados (la de parpadeo) y su propia boca abierta de par en par, pintada píxel a píxel
+let kbyCaraTex = null;
+kbyCaraTex = new THREE.CanvasTexture(assetCanvas('jugador/tovan-cara-parpadeo', c => { const g = c.getContext('2d'); if (g && g.fillRect){
+    const px = (x, y, col) => { g.fillStyle = col; g.fillRect(x, y, 1, 1); };
+    for (let y = 19; y < 32; y++) for (let x = 8; x < 24; x++){ const dx = (x + 0.5 - 16) / 5.2, dy = (y + 0.5 - 25.5) / 4.6, d = dx * dx + dy * dy;
+      if (d < 1) px(x, y, d > 0.62 ? '#7a2a2a' : (dy > 0.25 && Math.abs(dx) < 0.55) ? '#ff6a8a' : '#2a0610'); }
+    for (const x of [6, 7, 24, 25]) for (const y of [21, 22]) px(x, y, '#f48a8a');   // mofletes hinchados
+  } if (kbyCaraTex) kbyCaraTex.needsUpdate = true; }));
+kbyCaraTex.magFilter = THREE.NearestFilter; kbyCaraTex.minFilter = THREE.NearestFilter; kbyCaraTex.generateMipmaps = false; kbyCaraTex.wrapS = kbyCaraTex.wrapT = THREE.RepeatWrapping;
 // en la boca de Tovan (coordenadas de la cabeza: P.neck es su base; antes iba en el cuello, a la altura del pecho)
 function kbyBocaPos(v){ P.neck.updateWorldMatrix(true, false); return P.neck.localToWorld(v.set(0, -0.11, 0.27)); }
 
@@ -410,7 +419,6 @@ function kbyAspira(f){
   if (KBY.asp || !foilEscenario()) return;   // (en los escenarios propios, nada de mover a nadie)
   const cs3 = [0, 1, 2, 3].map(() => { const c = tintaCoge(KBY_VIENTO, 0, 'kby'); c.mat.blending = THREE.AdditiveBlending; return c; });
   KBY.asp = { t: 0, f, cs: cs3, presas: 0, dur: 1.15, jefeT: 0 };
-  if (!KBY.boca){ KBY.boca = new THREE.Sprite(kbyBocaMat); KBY.boca.renderOrder = 7; scene.add(KBY.boca); }
   foilVel('kby', 0.12); play('kbyAspira'); foilGrito('¡Aspira!', '#ff9ad0');
 }
 function kbyAspiraTick(dt){
@@ -425,7 +433,7 @@ function kbyAspiraTick(dt){
     const dx = Bc.x - x, dy = Bc.y - y, dz = Bc.z - z, l = Math.max(0.01, Math.hypot(dx, dy, dz));
     if (i) streak7(x, y, z, dx, dy, dz, 0.8, rnd() < 0.5 ? 0xffffff : 0xffb8dc, 0.22, 0.035, 12);
     else pa(x, y, z, dx / l * 8, dy / l * 8, dz / l * 8, rnd() < 0.5 ? 0xff8ac8 : 0xffffff, 0.22, Math.min(0.5, l / 8), 0, 0, 0.2, SH7.star); }
-  KBY.boca.visible = true; KBY.boca.position.copy(Bc); KBY.boca.scale.setScalar(0.36 * (1 + Math.sin(A.t * 30) * 0.08));
+  if (rnd() < 0.5) pa(Bc.x, Bc.y, Bc.z, (rnd() - 0.5) * 0.3, (rnd() - 0.5) * 0.3, (rnd() - 0.5) * 0.3, 0xffffff, 0.06, 0.15, 0, 0, 0, SH7.dot);   // (la propia boca de Tovan es la que se abre: ver post)
   const pegaJefes = (A.jefeT += dt) >= 0.3; if (pegaJefes) A.jefeT = 0;
   for (const e of enemies){ if (!e.alive || e.spawnT > 0 || e.reach === false) continue;
     const n = enCono(O, e, f, 5.6, 0.9); if (!n) continue;
@@ -487,7 +495,8 @@ foilPoder({ id: 'foilKirby', ic: '🌸', name: 'Inhalar', tags: ['otaku'],
     if (KBY.asp){ bl(P.spine.rotation, 'x', -0.3, 0.7); bl(P.neck.rotation, 'x', -0.3, 0.7); for (const [A, s] of [[P.armL, -1], [P.armR, 1]]){ bl(A.sh.rotation, 'z', 1.05 * s, 0.7); bl(A.sh.rotation, 'x', 0.35, 0.7); } }
     else if (KBY.escupeT > 0){ bl(P.spine.rotation, 'x', 0.35, 0.8); bl(P.neck.rotation, 'x', 0.25, 0.8); }
   },
-  post(){   // hinchado: el torso (y la cabeza) se redondean, con un bamboleo
+  post(){   // aspirando o escupiendo, la cara con la boca abierta; hinchado: el torso (y la cabeza) se redondean, con un bamboleo
+    if ((KBY.asp || KBY.escupeT > 0) && !cs.active && kbyCaraTex) M.face.uniforms.uMap.value = kbyCaraTex;
     const obj = KBY.lleno ? 1 : 0; KBY.inf += (obj - KBY.inf) * 0.2;
     if (!obj && KBY.inf < 0.004){ if (KBY.inf){ KBY.inf = 0; P.spine.scale.set(1, 1, 1); } return; }
     const w = KBY.inf, b = Math.sin(time * 9) * 0.03 * w; P.spine.scale.set(1 + 0.5 * w + b, 1 + 0.2 * w - b, 1 + 0.5 * w + b);
