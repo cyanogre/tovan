@@ -147,11 +147,10 @@ function vehMatsMoto(){ if (VEH_MAT) return VEH_MAT;
   const vc = (e, o = {}) => makeMat(0xffffff, Object.assign({ vc: true, emissive: e }, o));
   VEH_MAT = { laca: vc(0.36), cuero: vc(0.18), goma: vc(0.06), cromo: vc(0.5), tapa: vc(0.3), negro: makeMat(0x141418), mate: vc(0.12),
     cristal: new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.42, depthWrite: false, side: THREE.DoubleSide }), canto: makeMat(0xdceaf8, { emissive: 0.7 }), visera: makeMat(0x0c0c10, { emissive: 0.15 }),
-    faro: makeMat(0xfff6dc, { emissive: 1 }), neon: makeMat(0x48c8ff, { emissive: 1 }), piloto: makeMat(0xff2a34, { emissive: 1 }), oro: vc(0.4),
+    faro: makeMat(0xfff6dc, { emissive: 1 }), piloto: makeMat(0xff2a34, { emissive: 1 }), oro: vc(0.4),
     ladoD: vc(0.3, { map: vehPintaLado(true) }), ladoI: vc(0.3, { map: vehPintaLado(false) }), tapaD: vc(0.3, { map: vehPintaTapa(true) }), tapaI: vc(0.3, { map: vehPintaTapa(false) }) };
   return VEH_MAT; }
-const VEH_BRAZO = vehPieza([[-1.0, 0.25, 0.47, 0.03], [-0.84, 0.24, 0.46, 0.03], [-0.66, 0.2, 0.46, 0.03], [-0.5, 0.17, 0.45, 0.03]], { n: 3.2, pin: 0.1, A: { L: 0.06, modo: 'centro' }, D: { L: 0.06, modo: 'centro' } });
-const VEH_TAPA_T = { r: 0.27, x0: 0.125, x1: 0.215, domo: 0.03 }, VEH_GOMA_T = 1.3;   // la tapa de la rueda de atrás: fija en el brazo, casi tan grande como la rueda (tambor de x0 a x1 y cúpula baja); su neumático es VEH_GOMA_T veces más ancho
+const VEH_BRAZO = vehPieza([[-1.13, 0.27, 0.45, 0.042], [-0.96, 0.22, 0.5, 0.05], [-0.8, 0.26, 0.56, 0.055], [-0.62, 0.32, 0.64, 0.055], [-0.44, 0.36, 0.7, 0.05]], { n: 3.2, pin: 0.1, A: { L: 0.13, modo: 'centro' }, D: { L: 0.08, modo: 'centro' } }), VEH_BRAZO_X = 0.25;   // grande y alargado, en diagonal: sale alto de detrás del asiento y acaba redondo pasado el eje
 function vehMoto(){
   const M = vehMatsMoto(), laca = vehLaca(VEH_ROJO, VEH_ROJO_BR, VEH_ROJO_CI), cuero = vehLaca([0.42, 0.26, 0.15], [0.78, 0.6, 0.46], [0.5, 0.36, 0.28], 0.6), grisM = vehLaca([0.2, 0.2, 0.23], [0.55, 0.55, 0.6], [0.3, 0.3, 0.34], 0.7);
   const ZR = VEH_MOTO.zr, ZF = VEH_MOTO.zf, RY = VEH_RUEDA.r;
@@ -201,29 +200,25 @@ function vehMoto(){
     const pt = p(new THREE.TorusGeometry(0.05, 0.009, 5, 16), M.negro, 0.205 * s, 0.43, -0.12); pt.rotation.y = Math.PI / 2; p(B(0.004, 0.012, 0.09), M.negro, 0.205 * s, 0.43, -0.12);
     // manillar: tetones negros bajo la cúpula
     vehColorea(p(roundedBoxGeo(0.08, 0.05, 0.13, 0.4), M.mate, 0.15 * s, 0.97, 0.07), grisM);
-    // brazo de la rueda de atrás: una tabla ancha de la caja del reposapiés a la tapa de la rueda
-    const brazo = vehSup(VEH_BRAZO, -1.0, -0.5, -Math.PI / 2, Math.PI * 1.5, 16, 20, { pinta: laca }); brazo.translate(VEH_TAPA_T.x1 * s, 0, 0); p(brazo, M.laca);
-    p(B(0.004, 0.2, 0.008), M.negro, (VEH_TAPA_T.x1 + 0.031) * s, 0.33, -0.7);
-    // la tapa de atrás no gira: tambor, cúpula baja con el aro de neón y los dos botones
-    const T = VEH_TAPA_T, rs = (T.r * T.r + T.domo * T.domo) / (2 * T.domo), tb = new THREE.CylinderGeometry(T.r, T.r, T.x1 - T.x0, 36, 1, true); tb.rotateZ(Math.PI / 2);
-    vehColorea(p(tb, M.tapa, (T.x0 + T.x1) / 2 * s, RY, ZR), laca);
-    const dm = new THREE.SphereGeometry(rs, 36, 7, 0, TAU, 0, Math.asin(T.r / rs)); dm.rotateZ(-s * Math.PI / 2); dm.translate(s * (T.x1 + T.domo - rs), 0, 0); vehColorea(p(dm, M.tapa, 0, RY, ZR), vehCupula(VEH_ROJO, VEH_ROJO_BR));
-    const ne = p(new THREE.TorusGeometry(T.r + 0.002, 0.011, 5, 40), M.neon, (T.x1 + 0.002) * s, RY, ZR); ne.rotation.y = Math.PI / 2;
-    vehColorea(p(tapon(s).scale(1.15, 1.15, 1.15), M.laca, (T.x1 + T.domo - 0.003) * s, RY + 0.05, ZR + 0.03), vehCupula(VEH_ROJO, VEH_ROJO_BR));
-    vehColorea(p(tapon(s).scale(0.4, 0.4, 0.4), M.laca, (T.x1 + T.domo - 0.008) * s, RY - 0.15, ZR + 0.1), vehCupula(VEH_ROJO, VEH_ROJO_BR)); }
+    // brazo de la rueda de atrás: baja en diagonal desde debajo del colín hasta el eje, con un tapón rojo y otro cromado encima del buje
+    const brazo = vehSup(VEH_BRAZO, -1.13, -0.44, -Math.PI / 2, Math.PI * 1.5, 20, 24, { pinta: laca }); brazo.translate(VEH_BRAZO_X * s, 0, 0); p(brazo, M.laca);
+    p(B(0.004, 0.3, 0.008), M.negro, (VEH_BRAZO_X + 0.057) * s, 0.445, -0.72);
+    vehColorea(p(tapon(s).scale(1.6, 1.6, 1.6), M.laca, (VEH_BRAZO_X + 0.048) * s, RY, ZR), vehCupula(VEH_ROJO, VEH_ROJO_BR));
+    vehColorea(p(tapon(s).scale(0.6, 0.6, 0.6), M.cromo, (VEH_BRAZO_X + 0.088) * s, RY, ZR), vehCupula([0.62, 0.64, 0.7], [1.25, 1.25, 1.3])); }
   vehColorea(p(roundedBoxGeo(0.2, 0.025, 0.025, 0.4), M.oro, 0, 0.99, 0.13), vehLaca([0.8, 0.6, 0.2], [1.2, 1.1, 0.7], [1, 0.85, 0.5]));
   const cuerpo = new THREE.Group(); mpFusiona(src, cuerpo); piv.add(cuerpo); piv.add(cris);
-  // ruedas: neumático gordo; la de delante con tapacubos rojos abombados con pegatinas y aro de neón (la tapa de atrás va en el brazo)
+  // ruedas: neumático gordo y tapacubos rojos abombados (el de delante con pegatinas; el de atrás con botones)
   const R = VEH_RUEDA, perfil = [[0.215, -0.125], [0.27, -0.142], [0.318, -0.138], [0.345, -0.118], [0.358, -0.075], [0.362, 0], [0.358, 0.075], [0.345, 0.118], [0.318, 0.138], [0.27, 0.142], [0.215, 0.125]].map(([r, y]) => new THREE.Vector2(r, y * R.ancho / 0.29));
   const goma = new THREE.LatheGeometry(perfil, 36); goma.rotateZ(Math.PI / 2);
   const rs = (R.disco * R.disco + R.domo * R.domo) / (2 * R.domo), th = Math.asin(R.disco / rs), xBase = R.ancho / 2 - 0.035;
   const cupula = (s, extra = 0) => { const q = new THREE.SphereGeometry(rs + extra, 32, 7, 0, TAU, 0, th); q.rotateZ(-s * Math.PI / 2); q.translate(s * (xBase + R.domo - rs), 0, 0); return q; };
   const ruedas = [ZR, ZF].map((z, i) => { const w = new THREE.Group(), ws = new THREE.Group(); w.position.set(0, RY, z - ZR); piv.add(w);
-    vehColorea(mesh(i ? goma : goma.clone().scale(VEH_GOMA_T, 1, 1), M.goma, 0, 0, 0, ws), vehGoma);
-    if (i === 1) for (const s of [-1, 1]){ vehColorea(mesh(cupula(s), M.tapa, 0, 0, 0, ws), vehCupula(VEH_ROJO, VEH_ROJO_BR));
-      const ar = mesh(new THREE.TorusGeometry(0.214, 0.01, 5, 32), M.neon, s * 0.128, 0, 0, ws); ar.rotation.y = Math.PI / 2;
-      const d = cupula(s, 0.004), pa = d.attributes.position, uv = d.attributes.uv; for (let k = 0; k < pa.count; k++) uv.setXY(k, 0.5 + s * pa.getZ(k) / (2 * R.disco) * -1, 0.5 + pa.getY(k) / (2 * R.disco));
-      vehColorea(mesh(d, s > 0 ? M.tapaD : M.tapaI, 0, 0, 0, ws), vehCupula([1, 1, 1], [1.4, 1.4, 1.4])); }
+    vehColorea(mesh(goma, M.goma, 0, 0, 0, ws), vehGoma);
+    for (const s of [-1, 1]){ vehColorea(mesh(cupula(s), M.tapa, 0, 0, 0, ws), vehCupula(VEH_ROJO, VEH_ROJO_BR));
+      const ar = mesh(new THREE.TorusGeometry(R.disco + 0.004, 0.012, 5, 32), M.negro, s * xBase, 0, 0, ws); ar.rotation.y = Math.PI / 2;
+      if (i === 1){ const d = cupula(s, 0.004), pa = d.attributes.position, uv = d.attributes.uv; for (let k = 0; k < pa.count; k++) uv.setXY(k, 0.5 + s * pa.getZ(k) / (2 * R.disco) * -1, 0.5 + pa.getY(k) / (2 * R.disco));
+        vehColorea(mesh(d, s > 0 ? M.tapaD : M.tapaI, 0, 0, 0, ws), vehCupula([1, 1, 1], [1.4, 1.4, 1.4])); }
+      else for (let k = 0; k < 4; k++){ const a = k / 4 * TAU + 0.4, b = mesh(new THREE.SphereGeometry(0.03, 10, 5, 0, TAU, 0, 1.2), M.tapa, s * (xBase + R.domo - 0.012), Math.sin(a) * 0.14, Math.cos(a) * 0.14, ws); b.rotation.z = -s * Math.PI / 2; vehColorea(b, vehCupula(VEH_ROJO, VEH_ROJO_BR)); } }
     mpFusiona(ws, w); return w; });
   vehLuz(piv, 0, 0.66, 1.25 - ZR, 0xfff2c8, 0.9);
   for (const s of [-1, 1]) vehLuz(piv, 0.11 * s, 0.84, -0.88 - ZR, 0xff3040, 0.35);
