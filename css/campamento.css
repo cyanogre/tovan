@@ -1,0 +1,12 @@
+/* Campamento (js/mundo/campamento.js): el aviso de los sitios que se usan y el HUD fuera */
+#hubAviso{position:fixed;left:0;top:0;z-index:12;pointer-events:none;display:flex;align-items:center;gap:6px;padding:4px 9px 4px 5px;font-family:inherit;font-size:13px;font-weight:600;line-height:1;
+  color:#fff;background:rgba(8,6,24,.72);border:2px solid rgba(255,255,255,.7);border-radius:6px;box-shadow:3px 3px 0 rgba(0,0,0,.45);white-space:nowrap;text-shadow:1px 1px 0 #000}
+#hubAviso[hidden]{display:none!important}
+#hubAviso kbd{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 4px;background:#ffd970;color:#1a1020;border-radius:4px;font-family:inherit;font-size:13px;font-weight:700;text-shadow:none}
+#hubAviso.solo{padding-left:9px}
+#hubAviso.solo kbd{display:none}
+@media (pointer:coarse){ #hubAviso{padding-left:9px} #hubAviso kbd{display:none} }
+body.hubOn #hud, body.hubOn #waveBox, body.hubOn #bossBox{display:none!important}
+body #pad button.hubUsa{font-size:11px!important;letter-spacing:0!important;padding:0!important}
+/* en vertical, el vestidor del campamento va abajo del todo: arriba queda Tovan */
+@media (max-aspect-ratio:1/1){ body.hubOn #wardScr{justify-content:flex-end} body.hubOn #wardScr > .panel{margin-top:auto!important;margin-bottom:0!important} }

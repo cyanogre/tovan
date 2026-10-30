@@ -215,6 +215,17 @@ Cada oleada se puntúa de 1 a 5 estrellas al cerrarse (`js/partida/valoracion.js
 
 No puntúan el tutorial, el Castillo Infinito ni la pelea final. La valoración sale en un sello al cerrar la oleada y encima de las cartas.
 
+## El campamento (la zona de inicio)
+
+Entre partida y partida, Tovan está en un campamento en las ruinas (`js/mundo/campamento.js`, `css/campamento.css`), como en los roguelikes de ahora:
+
+- **Al caer**, en la pantalla de fin de partida el botón es **«Revivir»**: Lumen recompone a Tovan con fragmentos de monstruo sobre el altar del centro (los fragmentos vuelan en espiral, destello, Tovan aparece tumbado, brillando, y se levanta de un brinco). Se salta con J, Espacio o tocando la pantalla.
+- **Desde el título**, «Empezar» lleva al campamento. La primera partida de todas (con la introducción) sigue empezando directamente.
+- **Se anda por él** como en la partida. Al acercarse a un sitio sale un aviso pequeño y se usa atacando (J, o el botón de atacar, que en el móvil cambia de nombre): el **armario es el vestidor** (ya no está en los menús; mientras eliges, la cámara enseña a Tovan al lado del panel), el altar del cristal es el **santuario**, el tablón son los **logros** y el caballete los **finales**.
+- **Para jugar**, se cruza el arco del norte.
+- **El decorado crece con lo que desbloqueas**: los sombreros y las caras se ven en un estante con cabezas de maniquí, los efectos y cuerpos son chucherías encima, las armas cuelgan del armero, cada jefe derrotado tiene su busto (los que faltan están tapados con una tela), cada mejora del santuario es un cristal, cada logro una nota en el tablón, cada final un cuadro, cada título un banderín y cada partida una raya de tiza en la pizarra.
+- Hay una hoguera con troncos para sentarse: ahí irán los personajes con los que hablar para avanzar en la historia (lo siguiente).
+
 ## Sin carteles
 
 Mientras se juega no sale texto que no haga falta: ni banners en el centro, ni palabras flotantes («¡Hop!», «¡Crítico!», frases de los enemigos), ni nombres de técnicas o poderes, ni la palabra del combo, ni los contadores y barras de los foil (la barra de la forma, como la de «Moto roja», y la columna de marcadores de la derecha), ni las frases de Lumen que explicaban cada foil la primera vez: los poderes se entienden viéndolos. La oleada, el encargo y la vida del jefe siguen en el HUD, y los avisos que piden algo (agarrarse al dragón, saltar la onda) salen en pequeño. Fuera de la partida (cartas, menús, cinemáticas) todo sigue igual. Está en `js/interfaz/sin-carteles.js` y `css/sin-carteles.css`.
