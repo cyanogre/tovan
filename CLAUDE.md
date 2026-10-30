@@ -219,6 +219,7 @@ Juego 3D roguelike por oleadas (three.js r128 por CDN, fuente Pixelify Sans de G
   - Los mp3 de jefes están en `assets/audio/`. Las voces de Lumen, en `assets/audio/lumen/` (ver «Voz de Lumen»). Los carga `track()` con `AUDIO_DIR` (en `js/audio/canciones-jefes.js`); si falta un mp3, suena la canción sintetizada.
   - La hoja de iconos `assets/img/iconos-16px.png` (16×16, 16 columnas) la usa `.px13` en `css/iconos-pixel.css`. `js/interfaz/iconos-pixel.js` sustituye solo los emojis del DOM por esos iconos.
   - `assets/img/iconos-tovan.png` es solo una vista ampliada de la hoja; el código no la usa.
+  - `assets/fuentes/retratos/`: pruebas de retratos de los diálogos hechas con IA por el usuario (`prueba-ia-01.webp`: Lumen, Tovan, Tovan contento, Gato, Míster Confianza y el teléfono) y la referencia que se le pasó (`referencia-pixel-boca.png`: los retratos de 32 px del juego a ×16, con boca cerrada arriba y abierta abajo; las bocas que no existían en el juego las dibujó Claude). El código aún no las usa: los retratos siguen siendo `retratos/*` de `retratos.png` y la cara de Tovan (`drawTovan`).
 
 ## Convenciones
 - Identificadores en inglés; comentarios y textos del juego en español.
