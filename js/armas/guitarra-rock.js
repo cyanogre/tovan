@@ -55,7 +55,7 @@ function rockAmp(){
   const presencia = c.createBiquadFilter(); presencia.type = 'peaking'; presencia.frequency.value = 2000; presencia.Q.value = 1; presencia.gain.value = 1.5;
   const pantalla = c.createBiquadFilter(); pantalla.type = 'lowpass'; pantalla.frequency.value = 3600; pantalla.Q.value = 0.8;
   const pantalla2 = c.createBiquadFilter(); pantalla2.type = 'lowpass'; pantalla2.frequency.value = 4200; pantalla2.Q.value = 0.6;   // (dos: el altavoz cae en picado por arriba)
-  const out = c.createGain(); out.gain.value = 0.2;
+  const out = c.createGain(); out.gain.value = 0.036;   // (medido: con 0,2 el riff iba a −15 dB, 22 dB por encima de los demás efectos)
   const eco = c.createDelay(1), ecoR = c.createGain(), ecoS = c.createGain(); eco.delayTime.value = 0.29; ecoR.gain.value = 0.28; ecoS.gain.value = 0.16;
   A.in.connect(hp); hp.connect(drive); drive.connect(sat); sat.connect(medios); medios.connect(presencia); presencia.connect(pantalla); pantalla.connect(pantalla2); pantalla2.connect(out); out.connect(sfxBus);
   out.connect(ecoS); ecoS.connect(eco); eco.connect(ecoR); ecoR.connect(eco); eco.connect(sfxBus);
@@ -136,12 +136,12 @@ function rockBajo(){
   if (ROCK.bajo && ROCK.bajo.ctx === actx) return ROCK.bajo;
   const c = actx, B = { ctx: c, in: c.createGain() }, lp = c.createBiquadFilter(), sat = c.createWaveShaper(), out = c.createGain(), N = 1024, cv = new Float32Array(N);
   for (let i = 0; i < N; i++){ const x = i / (N - 1) * 2 - 1; cv[i] = Math.tanh(1.6 * x); }   // (un poco de gruñido, sin la distorsión de la guitarra)
-  lp.type = 'lowpass'; lp.frequency.value = 900; lp.Q.value = 0.9; sat.curve = cv; out.gain.value = 0.42;
+  lp.type = 'lowpass'; lp.frequency.value = 900; lp.Q.value = 0.9; sat.curve = cv; out.gain.value = 0.075;
   B.in.connect(sat); sat.connect(lp); lp.connect(out); out.connect(sfxBus); return (ROCK.bajo = B);
 }
-function rockBombo(t){ const w = t - actx.currentTime; tone({ type: 'sine', f0: 130, f1: 42, dur: 0.22, vol: 0.4, when: w, rv: 0.05 }); noise({ dur: 0.02, vol: 0.12, f0: 3000, type: 'highpass', when: w, rv: 0 }); }
-function rockCaja(t){ const w = t - actx.currentTime; noise({ dur: 0.16, vol: 0.32, f0: 1900, q: 0.7, when: w, rv: 0.25 }); tone({ type: 'triangle', f0: 200, f1: 150, dur: 0.09, vol: 0.18, when: w, rv: 0.1 }); }
-function rockCharles(t, abierto){ noise({ dur: abierto ? 0.18 : 0.04, vol: 0.07, f0: 8000, type: 'highpass', when: t - actx.currentTime, rv: 0.05 }); }
+function rockBombo(t){ const w = t - actx.currentTime; tone({ type: 'sine', f0: 130, f1: 42, dur: 0.22, vol: 0.14, when: w, rv: 0.05 }); noise({ dur: 0.02, vol: 0.045, f0: 3000, type: 'highpass', when: w, rv: 0 }); }
+function rockCaja(t){ const w = t - actx.currentTime; noise({ dur: 0.16, vol: 0.11, f0: 1900, q: 0.7, when: w, rv: 0.25 }); tone({ type: 'triangle', f0: 200, f1: 150, dur: 0.09, vol: 0.065, when: w, rv: 0.1 }); }
+function rockCharles(t, abierto){ noise({ dur: abierto ? 0.18 : 0.04, vol: 0.03, f0: 8000, type: 'highpass', when: t - actx.currentTime, rv: 0.05 }); }
 function rockBanda(now, beat, b0, T, notas, gen, solo){
   // batería en la rejilla de corcheas del riff: bombo en 1 y 3 (y en los acordes), caja en 2 y 4, charles en todas
   const desde = Math.ceil(b0 * 2 - 1e-6), hasta = b0 * 2 + T / beat * 2;

@@ -319,7 +319,7 @@ function colElige(){
     .filter(o => o !== COL.ultimo); t = ops[Math.floor(rnd() * ops.length)]; }
   COL.ultimo = t; const A = COL.atq = { tipo: t, t: 0, n: 0, s: rnd() < 0.5 ? -1 : 1 };
   if (t === 'sacude'){ play('dragonRoar'); COL.boca = 0.7; COL.temblor = 0.15; colAviso('¡AGÁRRATE!');
-    if (!COL.dijoAgarre){ COL.dijoAgarre = true; barkT = 0; bark(colTactil() ? '¡Se va a sacudir! ¡Mantén pulsado AGARRA (el botón de rodar)!' : '¡Se va a sacudir! ¡Mantén K o Shift para agarrarte!'); } }
+    if (!COL.dijoAgarre){ COL.dijoAgarre = true; lumenTip('col_agarre', colTactil() ? '¡Se va a sacudir! ¡Mantén pulsado AGARRA (el botón de rodar)!' : '¡Se va a sacudir! ¡Mantén K o Shift para agarrarte!'); } }
   else if (t === 'rafaga'){ play('colRafaga'); colAviso('¡RÁFAGA!'); barkOnce('colRafaga', '¡Viento de cara! Agárrate en las ráfagas o te manda a la cola.'); }
   else if (t === 'violenta'){ play('dragonRoar'); COL.boca = 0.9; COL.temblor = 0.3; colAviso('¡AGÁRRATE FUERTE!'); barkOnce('colViolenta', '¡Esta vez se sacude con todo! Si no te agarras, te tira por los aires.'); }
   else if (t === 'vertical'){ play('dragonRoar'); COL.boca = 0.7; colAviso('¡SUBE EN VERTICAL!'); barkOnce('colVertical', '¡Se pone en vertical! Agárrate o resbalas hasta la cola… y fuera.'); }
@@ -797,7 +797,7 @@ function colEmpiezaLomo(){
   COL.fase = 'lomo'; COL.atq = null; COL.atqCd = 5.5; COL.primero = 'sacude';
   COL.sellos = COL_SELLOS.map(z => colSello(z, false)); COL.perla = null;
   bossE = { type: 'ryucol', alive: true, hp: 1, maxHp: 1, g: COL.cab, isBoss: true, spawnT: 0 }; bossBox.hidden = false; colBarra();
-  barkT = 0; bark('¡Las escamas que brillan son sus sellos! ¡Rómpelos!'); clearT = 0;
+  lumenTip('col_sellos', '¡Las escamas que brillan son sus sellos! ¡Rómpelos!'); clearT = 0;
 }
 
 /* ---------- Remate: la perla, el dragón se deshace en jade y Tovan cae al santuario ---------- */

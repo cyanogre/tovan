@@ -43,7 +43,7 @@ const engAng = a => Math.atan2(Math.sin(a), Math.cos(a));
 const engEjeTop = () => ENG_EJE_TOP - (1 - smooth(ENG.sube)) * 16 - ENG.cae * ENG.cae * 4;
 const engPies = () => ENG.base + hero.position.y;   // altura absoluta de los pies de Tovan
 const engJugando = () => ENG.on && ENG.fase === 'pelea';
-const engDijo = (k, txt) => { if (ENG.dijo[k]) return; ENG.dijo[k] = true; barkT = 0; bark(txt); };
+const engDijo = (k, txt) => { if (ENG.dijo[k]) return; ENG.dijo[k] = true; lumenTip('eng_' + k, txt); };
 function engRielP(R, s, v){ const a = R.a0 + s * R.vueltas * TAU + (R.gira ? ENG.ejeA : 0); return v.set(Math.sin(a) * R.r, lerp(R.y0, R.y1, s), Math.cos(a) * R.r); }
 
 /* ---------- Sonido: tictac, rumor de engranajes, campana, raíl ---------- */
@@ -687,9 +687,9 @@ function engEmpiezaPelea(){
   ENG.fase = 'pelea'; ENG.atq = null; ENG.atqCd = 4; ENG.nucleo = engNucleo();
   if (ENG.g.est !== 'despega' && ENG.g.est !== 'vuela') Object.assign(ENG.g, { est: 'despega', t: 0, a: aT + Math.PI * 0.6, r: 7, y: 6 });
   bossE = { type: 'engcol', alive: true, hp: 1, maxHp: 1, g: e.g, isBoss: true, spawnT: 0 }; bossBox.hidden = false; engBarra();
-  barkT = 0; clearT = 0;
-  if (monta) bark(colTactil() ? 'SALTAR hacia él y, en el aire, ATACAR cuando lo tengas cerca: así se derriba.' : 'SALTA hacia él y, en el aire, ATACA (J) cuando lo tengas cerca: así se derriba.');
-  else bark(colTactil() ? '¡Ha echado a volar! Súbete al raíl: pulsa RODAR junto al piñón brillante de la pared.' : '¡Ha echado a volar! Súbete al raíl: RUEDA (K) junto al piñón brillante de la pared.');
+  clearT = 0;
+  if (monta) lumenTip('eng_derriba', colTactil() ? 'SALTAR hacia él y, en el aire, ATACAR cuando lo tengas cerca: así se derriba.' : 'SALTA hacia él y, en el aire, ATACA (J) cuando lo tengas cerca: así se derriba.');
+  else lumenTip('eng_riel', colTactil() ? '¡Ha echado a volar! Súbete al raíl: pulsa RODAR junto al piñón brillante de la pared.' : '¡Ha echado a volar! Súbete al raíl: RUEDA (K) junto al piñón brillante de la pared.');
 }
 
 /* ---------- Remate: el núcleo se rompe, el reloj se para y se desmorona ---------- */

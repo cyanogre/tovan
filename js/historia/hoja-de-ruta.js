@@ -95,7 +95,7 @@ startWave = function(n){
     if (k === 0){
       const visto = meta.seen['ruta_' + ch]; meta.seen['ruta_' + ch] = true; saveMeta();
       if (n === 1){ bannerEl.hidden = true; bannerT = 0; rutaTarjeta(0, R.corto); }   // la tarjeta hace de rótulo de la 1.ª oleada
-      later(0.9, () => { if (gameState === 'play' && !(typeof tutoActivo === 'function' && tutoActivo())) bark(visto ? R.corto : R.inicio); });
+      later(0.9, () => { if (gameState === 'play' && !(typeof tutoActivo === 'function' && tutoActivo())){ if (!visto) bark(R.inicio); else lumenComenta('capitulo' + ch, 0.8); } });   // después, una frase del capítulo (lumen-frases.js)
     } else if (k === 2 && !meta.seen['ruta_m' + ch]){ meta.seen['ruta_m' + ch] = true; saveMeta(); later(0.9, () => { if (gameState === 'play') bark(R.medio); }); }
   } catch (err) { console.error(err); }
 };
@@ -111,7 +111,7 @@ onWaveDone = function(){
   if (pendingWin || finalBeaten || special || !ruta.pend) return _onWaveDoneRuta();
   const n = ruta.pend, k = 'trozo_' + n; ruta.pend = 0; trozoMuestra(n);
   if (!meta.seen || !meta.seen[k]) sayOnce(k, STORY[k], onWaveDone);
-  else { barkT = 0; bark(TROZO_CORTO[n - 1]); clearT = 2.4; }   // el bucle principal vuelve a llamar a onWaveDone al acabar clearT
+  else clearT = (lumenTip('trozoC_' + n, TROZO_CORTO[n - 1]) || lumenComenta('trozo', 0.9)) ? 2.4 : 0.6;   // el bucle principal vuelve a llamar a onWaveDone al acabar clearT (el corto, una vez; luego, del tema)
 };
 // En cada viaje, la tarjeta del capítulo enseña la ruta con la parada nueva
 const chapRuta = document.createElement('div'); chapRuta.className = 'cruta'; chapEl.appendChild(chapRuta);

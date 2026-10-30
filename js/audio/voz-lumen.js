@@ -7,8 +7,8 @@
 // compresor y volumen juntos) y sin el permiso de reproducción de cada <audio> en el móvil. Con file:// (Chrome no deja
 // leer los mp3 sueltos) va con un <audio> con el volumen bajado. VOZ_VOL sale de medirlo: los mp3 rondan −19 dB de media
 // y la música de batalla −43 dB; antes la voz iba a volumen 1, fuera del mezclador, y tapaba todo.
-const VOZ_DIR = AUDIO_DIR + 'lumen/', VOZ_VOL = 0.25, VOZ_WEB = /^https?:$/.test(location.protocol), VOZ_MAX = 14;
-const VOZ = { a: null, on: false, cache: {}, buf: new Map(), pide: new Map(), src: null, g: null, b: null, t0: 0, off: 0, ficha: 0, parada: null, ritmo: 0 };
+const VOZ_DIR = AUDIO_DIR + 'lumen/', VOZ_VOL = 0.16, VOZ_WEB = /^https?:$/.test(location.protocol), VOZ_MAX = 14;
+const VOZ = { a: null, on: false, cache: {}, buf: new Map(), pide: new Map(), src: null, g: null, b: null, t0: 0, off: 0, ficha: 0, parada: null, ritmo: 0, deBark: false };
 function vozId(t){ let h = 0x811c9dc5; for (let i = 0; i < t.length; i++){ h ^= t.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return ('0000000' + h.toString(16)).slice(-8); }
 const vozTx = t => typeof tx13 === 'function' ? tx13(t) : t;
 /* ---------- WebAudio (en la web) ---------- */
@@ -37,7 +37,7 @@ function vozEl(id){
     VOZ.cache[id] = a; }
   return VOZ.cache[id];
 }
-function vozCalla(){ VOZ.ficha++; vozSuelta(true); VOZ.parada = null; VOZ.ritmo = 0; if (VOZ.a){ try { VOZ.a.pause(); } catch (err) {} } VOZ.a = null; if (VOZ.on){ VOZ.on = false; applyMusVol(); } }
+function vozCalla(){ VOZ.ficha++; vozSuelta(true); VOZ.parada = null; VOZ.ritmo = 0; VOZ.deBark = false; if (VOZ.a){ try { VOZ.a.pause(); } catch (err) {} } VOZ.a = null; if (VOZ.on){ VOZ.on = false; applyMusVol(); } }
 // Devuelve la duración si la frase tiene voz (0 si no)
 function vozDice(t){
   vozCalla(); if (typeof t !== 'string' || !sfxOn) return 0;
@@ -74,9 +74,11 @@ const _playVoz = play; play = function(name){ if (name === 'talkL' && VOZ.on) re
 const _barkVoz = bark;
 bark = function(text){
   _barkVoz(text); const t = vozTx(text);
-  if (barkT === 3.4 && barkText.textContent === t){ const d = vozDice(t); if (d){ barkT = Math.max(barkT, d + 0.9); barkHabla = 0; } }
+  if (barkT === 3.4 && barkText.textContent === t){ const d = vozDice(t); if (d){ barkT = Math.max(barkT, d + 0.9); barkHabla = 0; VOZ.deBark = true; } }
 };
-const _updateBarkVoz = updateBark; updateBark = function(dt){ if (gameState === 'paused' && VOZ.on) return; _updateBarkVoz(dt); };
+// Mientras suena la voz de un comentario, el globo no se acaba: así ningún comentario nuevo (al matar, al hacer combo…) la corta.
+// En la web la frase tarda un poco en cargarse y el globo empezaba a contar antes de que sonara: caducaba con la voz aún hablando.
+const _updateBarkVoz = updateBark; updateBark = function(dt){ if (gameState === 'paused' && VOZ.on) return; if (VOZ.on && VOZ.deBark) barkT = Math.max(barkT, 0.75); _updateBarkVoz(dt); };
 
 /* ---------- Pausa, silencio y música ---------- */
 // La música baja un poco mientras habla; en pausa se calla (y sigue al volver); sin efectos, muda

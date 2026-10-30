@@ -47,7 +47,7 @@ startWave = function(n){
   if (meta.cos.hat === 'teapot') player.meter = Math.min(100, player.meter + 20);
   if (danceNext){ danceNext = false; danceBuffT = 10; tA.set(hero.position.x, hero.position.y + 2.6, hero.position.z); spawnNumber(tA, '¡A tope!', 'react', '#ff8ad8'); }
   if (ml('shieldS')) lumenShield = true;
-  if ((n === 2 || n === 4 || n === 7) && (meta.tipMoves || 0) < 6){ meta.tipMoves = (meta.tipMoves || 0) + 1; saveMeta();
+  if ((n === 2 || n === 4 || n === 7) && (meta.tipMoves || 0) < 3){ meta.tipMoves = (meta.tipMoves || 0) + 1; saveMeta();
     const tip = n === 2 ? 'Truco: mantén atacar para cargar un golpe. Cada arma tiene el suyo.' : n === 4 ? 'Si atacas en el aire caes en picado. Cuanto más alto, más duele.' : 'Ataca, ataca, espera un pelín y ataca: ráfaga. Y si atacas mientras ruedas, estocada.';
     later(2.2, () => bark(tip)); }
 };
