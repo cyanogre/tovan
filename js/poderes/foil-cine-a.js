@@ -24,24 +24,9 @@ const DLR = { coche: null, cd: 0 };
 const DLR_RAYO = [0xffffff, 0x8ad8ff, 0x3a6aff, 0];
 const DLR_ESFERA = foilSprite(foilLienzo(64, 64, g => { const gr = g.createRadialGradient(32, 32, 2, 32, 32, 31); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.35, 'rgba(160,220,255,0.85)'); gr.addColorStop(0.7, 'rgba(60,120,255,0.35)'); gr.addColorStop(1, 'rgba(20,40,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); }), true);
 // el coche: cuña de acero, rejillas negras atrás, faros, pilotos, bobinas azules y el reactor de basura
-function dlrModelo(){
+function dlrModelo(){   // el coche está en js/poderes/vehiculos.js
   if (DLR.coche) return DLR.coche;
-  const acero = makeMat(0xb8bcc6, { emissive: 0.2 }), negro = makeMat(0x1a1a20), cristal = makeMat(0x24384a, { emissive: 0.35 }), faro = makeMat(0xffffff, { emissive: 1 }), piloto = makeMat(0xff2a2a, { emissive: 1 }),
-    azul = makeMat(0x8ad8ff, { emissive: 1 }), flujo = makeMat(0xffd84a, { emissive: 1 }), blanco = makeMat(0xf0f0f0, { emissive: 0.3 });
-  const src = new THREE.Group();
-  mesh(B(1.5, 0.36, 3.4), acero, 0, 0.42, 0, src); mesh(B(1.54, 0.1, 3.44), negro, 0, 0.27, 0, src);
-  const capo = mesh(B(1.46, 0.12, 1.15), acero, 0, 0.62, 1.05, src); capo.rotation.x = 0.13;
-  mesh(B(1.3, 0.42, 1.25), acero, 0, 0.8, -0.2, src);
-  const parab = mesh(B(1.2, 0.05, 0.6), cristal, 0, 0.82, 0.55, src); parab.rotation.x = -0.75;
-  mesh(B(1.34, 0.22, 0.85), cristal, 0, 0.88, -0.2, src);
-  mesh(B(1.46, 0.22, 1.0), acero, 0, 0.64, -1.25, src);
-  for (let i = 0; i < 6; i++) mesh(B(1.3, 0.04, 0.08), negro, 0, 0.77, -0.82 - i * 0.15, src);
-  for (const s of [-1, 1]){ mesh(B(0.34, 0.1, 0.05), faro, s * 0.5, 0.44, 1.72, src); mesh(C(0.08, 0.08, 0.45, 8), azul, s * 0.45, 0.52, -1.82, src).rotation.x = Math.PI / 2;
-    for (const z of [-1.1, 1.1]){ const r = mesh(C(0.33, 0.33, 0.24, 10), negro, s * 0.72, 0.33, z, src); r.rotation.z = Math.PI / 2; } }
-  mesh(B(1.32, 0.1, 0.05), piloto, 0, 0.5, -1.72, src);
-  mesh(C(0.12, 0.15, 0.26, 8), blanco, 0.38, 0.87, -1.45, src); mesh(B(0.2, 0.26, 0.05), flujo, 0, 0.86, -0.75, src);
-  mesh(B(1.36, 0.04, 3.2), azul, 0, 0.2, 0, src);   // las bobinas de debajo, encendidas
-  const g = new THREE.Group(); mpFusiona(src, g); g.visible = false; scene.add(g); return (DLR.coche = g);
+  const g = vehDelorean(); g.visible = false; scene.add(g); return (DLR.coche = g);
 }
 // los surcos de fuego: dos tiras en el suelo con llamas que corren
 const DLR_FUEGO_VS = 'attribute float aK; varying vec2 vU; varying float vK; void main(){ vU = uv; vK = aK; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }';
