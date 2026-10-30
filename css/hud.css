@@ -23,8 +23,12 @@
 
 /* Menú configuración */
 #menu{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:12px;font-size:14px;padding:4px;z-index:80}
-#menu ul{list-style:none;margin:4px 0 0;padding:0;min-width:230px}
+#menu ul{list-style:none;margin:4px 0 0;padding:0;min-width:230px;
+  /* en el móvil (sobre todo en horizontal) la lista no cabía y no se podía bajar: llega hasta el borde de abajo y se desplaza */
+  max-height:calc(100vh - 64px);max-height:calc(100dvh - 64px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+  overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
 #menu.closed ul{display:none}
+#menu.opcMas ul{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 30px),transparent)}
 #menu button{all:unset;display:flex;gap:8px;align-items:center;width:100%;padding:3px 6px;cursor:pointer;border-radius:3px;box-sizing:border-box}
 #menu button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 #menu .cur{visibility:hidden;color:var(--accent);width:.9em;flex:none}
