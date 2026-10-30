@@ -82,3 +82,14 @@ buildHTML = function(){ const h = _buildHTML13m(); if (!isMob13()) return h;
   let first = true;
   return h.replace(re, () => { if (!first) return ''; first = false; return `<div class="rx unk">??? ×${n} <span>combina elementos para descubrirlas</span></div>`; });
 };
+
+/* ---------- Opciones: la lista se desplaza (en el móvil en horizontal no cabe) ---------- */
+// mientras quede algo por debajo, el pie de la lista se funde (#menu.opcMas): si no, parecía que se acababa ahí
+const opcLista13 = document.getElementById('menuList'), opcMenu13 = document.getElementById('menu');
+function opcMas13(){ opcMenu13.classList.toggle('opcMas', opcLista13.scrollTop + opcLista13.clientHeight < opcLista13.scrollHeight - 2); }
+opcLista13.addEventListener('scroll', opcMas13, { passive: true }); addEventListener('resize', opcMas13);
+// (al abrirlo con su cabecera también se ponen al día los valores: antes solo lo hacía el botón «Opciones»)
+let opcAbierto13 = false;
+new MutationObserver(() => { const ab = !opcMenu13.classList.contains('closed'); if (ab && !opcAbierto13 && typeof refreshMenu === 'function') refreshMenu(); opcAbierto13 = ab; opcMas13(); })
+  .observe(opcMenu13, { attributes: true, attributeFilter: ['class'] });
+new MutationObserver(opcMas13).observe(opcLista13, { childList: true });

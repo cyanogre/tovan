@@ -231,6 +231,10 @@ Entre partida y partida, Tovan está en un campamento en las ruinas (`js/mundo/c
 
 Las texturas ya no se deforman ni tiemblan al mover la cámara (`js/ajustes/imagen-estable.js`). Los dos efectos de la PlayStation 1 que lo hacían, el mapeo afín (en los polígonos grandes, como el suelo de la intro o la esfera de la torre del Guardián, la textura se doblaba) y el temblor de vértices, vienen apagados. Quien quiera el look de antes puede encenderlos en **Opciones → Texturas afines / Temblor de vértices**, y se queda guardado.
 
+Todas las opciones de imagen se recuerdan al volver a abrir el juego: también la **resolución**, el **color de 15 bits** y las **líneas CRT**, que antes volvían a lo de serie. Si se cambian en la playa del mundo real o en el Canal X (que tocan la imagen por su cuenta), al salir se queda lo elegido.
+
+En el móvil, la lista de Opciones llega hasta el borde de abajo y se desplaza con el dedo (en horizontal no cabía y no se podía bajar); mientras queda algo por ver, el pie de la lista se funde.
+
 ## Sin carteles
 
 Mientras se juega no sale texto que no haga falta: ni banners en el centro, ni palabras flotantes («¡Hop!», «¡Crítico!», frases de los enemigos), ni nombres de técnicas o poderes, ni la palabra del combo, ni los contadores y barras de los foil (la barra de la forma, como la de «Moto roja», y la columna de marcadores de la derecha), ni las frases de Lumen que explicaban cada foil la primera vez: los poderes se entienden viéndolos. La oleada, el encargo y la vida del jefe siguen en el HUD, y los avisos que piden algo (agarrarse al dragón, saltar la onda) salen en pequeño. Fuera de la partida (cartas, menús, cinemáticas) todo sigue igual. Está en `js/interfaz/sin-carteles.js` y `css/sin-carteles.css`.
@@ -635,6 +639,7 @@ Se guardan en el `localStorage` del navegador:
 - `tovan-hud`: HUD limpio o completo (Opciones → HUD).
 - `tovan-cam`: cámara automática o manual (Opciones → Cámara).
 - `tovan-luz`: ambiente indie o clásico (Opciones → Ambiente).
+- `tovan-ps1`: opciones de imagen (resolución, temblor de vértices, texturas afines, color de 15 bits y líneas CRT).
 - `tovan-tuto`: si ya se hizo el tutorial (`1`) o se ha pedido repetirlo (`0`).
 
 Van ligadas a la dirección desde la que se abre el juego. Si un día lo sirves desde un servidor web (`http://…`), las partidas de `file://` no se verán allí.
