@@ -3,3 +3,4 @@ assets/fuentes/**/out/
 node_modules/
 # Modelo de Whisper para partir las voces de Lumen (herramientas/partir-voces.py)
 herramientas/.whisper/
+__pycache__/
