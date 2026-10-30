@@ -394,6 +394,8 @@ Para ir directo: contraseña `jefes` → Guardián de las Ruinas → «Directo a
 
 **Vehículos.** La moto roja es la de Kaneda: carenado en cuña con cúpula grande y pegatinas, tapacubos rojos abombados, neumáticos muy gordos, asiento marrón con respaldo y colín por paneles; Tovan va tumbado sobre el depósito. Camión-kun es un camión de cabina japonés (blanco con franja azul, caja de aluminio ondulado, espejos de brazo largo) y el de *88 millas por hora*, un coche de acero cepillado con puertas de ala de gaviota, bobinas y luz azul por debajo. La pintura brilla porque el reflejo va pintado en los vértices (el estilo PS1 no tiene brillos).
 
+**Perro gigante.** Es Sadaharu (*Gintama*): un perrazo blanco y peludo esculpido de una pieza (sin bolas pegadas), con orejas de punta rosas por dentro, ojillos negros y boca con lengua y colmillos. Sale del suelo detrás del enemigo más duro, mirando a cámara, le muerde la cabeza, lo zarandea con chorros de sangre de tebeo y se vuelve a hundir moviendo la cola.
+
 **Camión-kun** (el poder) no va a por Tovan mientras haya un jefe en pie: sigue atropellando enemigos (y al jefe le quita un 8 %), pero no te manda al isekai en plena pelea.
 
 Al dejar a Ryūjin (oleada 10) a cero, no muere: brilla, toca la bocina como Camión-kun, atropella a Tovan y crece hasta el «tamaño mudanza». La pelea sigue en el cielo, a lomos del dragón, al estilo *Shadow of the Colossus* (`js/jefes/ryujin-colosal.js`, `css/ryujin-colosal.css`). Sale siempre que el dragón cae en una partida normal; no sale en el Canal X, en el castillo ni en los marcianitos.

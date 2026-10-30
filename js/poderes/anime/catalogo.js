@@ -88,15 +88,6 @@ function mkFrog(){ const g = new THREE.Group(); scene.add(g);
   mesh(B(0.32, 0.14, 0.035), A6K.gorro, 0, 0.42, -0.2, g);   // faldón de la nuca
   const es = mesh(frogStarGeo, A6K.estrellaR, 0, 0.56, 0.172, g); es.scale.setScalar(0.06); es.rotation.x = -0.62;
   const tg = mesh(B(0.04, 0.02, 1), A6.tongue, 0, 0.35, 0.2, g); tg.geometry.translate(0, 0, 0.5); tg.scale.z = 0.01; g.userData.tg = tg; g.scale.setScalar(1.4); return g; }
-function mkDog(){ const g = new THREE.Group(); scene.add(g); const head = new THREE.Group(); g.add(head);
-  const h = mesh(new THREE.IcosahedronGeometry(0.95, 1), A6.dog, 0, 0, 0, head); h.scale.set(1.15, 1, 1.05);
-  const sn = mesh(new THREE.IcosahedronGeometry(0.45, 1), A6.dog, 0, -0.25, 0.85, head); sn.scale.set(1, 0.75, 1);
-  mesh(new THREE.IcosahedronGeometry(0.13, 0), A6.eyeK, 0, -0.05, 1.28, head);
-  for (const s of [-1, 1]){ mesh(new THREE.IcosahedronGeometry(0.1, 0), A6.eyeK, 0.4 * s, 0.25, 0.85, head); const e = mesh(new THREE.ConeGeometry(0.25, 0.5, 5), A6.dog, 0.65 * s, 0.85, -0.1, head); e.rotation.z = -0.5 * s;
-    const ei = mesh(new THREE.ConeGeometry(0.14, 0.32, 5), A6.dogIn, 0.65 * s, 0.82, 0.02, head); ei.rotation.z = -0.5 * s; }
-  const jaw = new THREE.Group(); jaw.position.set(0, -0.5, 0.45); head.add(jaw); mesh(B(0.75, 0.12, 0.7), A6.dogM, 0, 0, 0.25, jaw); const lo = mesh(new THREE.IcosahedronGeometry(0.4, 1), A6.dog, 0, -0.12, 0.3, jaw); lo.scale.set(1, 0.4, 1);
-  for (let i = 0; i < 4; i++){ const t = mesh(new THREE.ConeGeometry(0.05, 0.14, 4), A6.eyeW, -0.24 + i * 0.16, 0.08, 0.5, jaw); }
-  g.userData = { head, jaw }; return g; }
 function mkBot(){ const g = new THREE.Group(); scene.add(g);
   const legs = [-1, 1].map(s => { const L = mesh(B(0.12, 0.3, 0.14), A6.rW, 0.09 * s, 0.15, 0, g); mesh(B(0.14, 0.06, 0.2), A6.rB, 0.09 * s, 0.02, 0.02, g); return L; });
   mesh(B(0.32, 0.16, 0.2), A6.rG, 0, 0.36, 0, g); mesh(B(0.38, 0.26, 0.26), A6.rW, 0, 0.56, 0, g); mesh(B(0.3, 0.14, 0.04), A6.rB, 0, 0.6, 0.14, g); mesh(B(0.08, 0.06, 0.04), A6.rR, 0, 0.47, 0.14, g);

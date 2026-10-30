@@ -82,15 +82,10 @@ function updAnime(dt, pdt, playing){
   // cartas
   if (lvl('cards') && any){ P6.cardT -= pdt; if (P6.cardT <= 0){ P6.cardT = Math.max(4, 11 - 3 * S10('cards')); playCard(); } }
   if (P6.cardJump && grounded){ P6.cardJump = false; explode(hx, hz, 2.8, 0xff8ac8, 45, { kind: 'impact', knock: 6 }); }
-  // perro gigante
+  // perro gigante (Sadaharu: modelo y animación en js/poderes/sadaharu.js)
   if (lvl('bigdog') && any){ P6.dogT -= pdt; if (P6.dogT <= 0){ let best = null; for (const e of enemies) if (e.alive && e.spawnT <= 0 && e.reach !== false && (!best || e.hp > best.hp)) best = e;
-      if (best){ P6.dogT = Math.max(4, 10 - 2.5 * S10('bigdog')); const g = mkDog(), x = best.g.position.x, z = best.g.position.z; g.position.set(x, -2.5, z); g.rotation.y = angTo(x, z, hx, hz) + Math.PI;
-        P6.dogs.push({ g, e: best, x, z, t: 0, bit: false }); play('roar'); } else P6.dogT = 1; } }
-  for (let i = P6.dogs.length - 1; i >= 0; i--){ const D = P6.dogs[i]; D.t += edt; const U = D.g.userData;
-    D.g.position.y = D.t < 0.35 ? lerp(-2.5, 0.6, D.t / 0.35) : D.t < 1.1 ? 0.6 : lerp(0.6, -2.6, (D.t - 1.1) / 0.4); U.jaw.rotation.x = D.t < 0.45 ? 0.7 : D.t < 0.6 ? lerp(0.7, -0.05, (D.t - 0.45) / 0.15) : -0.05;
-    if (!D.bit && D.t >= 0.55){ D.bit = true; shake = Math.max(shake, 0.3); play('slam'); tA.set(D.x, 3, D.z); spawnNumber(tA, '¡ÑAM!', 'react', '#ffffff');
-      if (D.e.alive){ hitEnemy(D.e, rdmg(90), true, 0, 0, 0, 4, false, { src: 'aoe' }); if (D.e.alive) stunE(D.e, 1.5); } puffAt(D.x, D.z, 10, 2, 0xf6f2ea); }
-    if (D.t > 1.6){ scene.remove(D.g); P6.dogs.splice(i, 1); } }
+      if (best){ P6.dogT = Math.max(4, 10 - 2.5 * S10('bigdog')); perroSale(best); } else P6.dogT = 1; } }
+  perroTick(edt);
   // ranas
   if (lvl('frogs') && any){ P6.frogT -= pdt; if (P6.frogT <= 0){ P6.frogT = Math.max(5, 10 - 2 * S10('frogs')); for (let k = 0; k < 2 + lvl('frogs'); k++){ const g = mkFrog(), a = rnd() * TAU; g.position.set(hx + Math.cos(a) * 0.8, 0, hz + Math.sin(a) * 0.8); P6.frogs.push({ g, t: 6, hop: 0, tgt: null, st: 'hop', lick: 0 }); } play('squeak'); tA.set(hx, hero.position.y + 2.6, hz); spawnNumber(tA, '¡Gero gero!', 'react', '#6ad84a'); } }
   for (let i = P6.frogs.length - 1; i >= 0; i--){ const F = P6.frogs[i]; F.t -= edt; const p = F.g.position, tg = F.g.userData.tg;
