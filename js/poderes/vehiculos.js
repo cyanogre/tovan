@@ -150,6 +150,7 @@ function vehMatsMoto(){ if (VEH_MAT) return VEH_MAT;
     faro: makeMat(0xfff6dc, { emissive: 1 }), piloto: makeMat(0xff2a34, { emissive: 1 }), oro: vc(0.4),
     ladoD: vc(0.3, { map: vehPintaLado(true) }), ladoI: vc(0.3, { map: vehPintaLado(false) }), tapaD: vc(0.3, { map: vehPintaTapa(true) }), tapaI: vc(0.3, { map: vehPintaTapa(false) }) };
   return VEH_MAT; }
+const VEH_BRAZO = vehPieza([[-1.02, 0.29, 0.43, 0.03], [-0.86, 0.28, 0.42, 0.033], [-0.64, 0.22, 0.39, 0.036], [-0.5, 0.2, 0.37, 0.034]], { n: 3.2, pin: 0.1, A: { L: 0.07, modo: 'centro' }, D: { L: 0.06, modo: 'centro' } });
 function vehMoto(){
   const M = vehMatsMoto(), laca = vehLaca(VEH_ROJO, VEH_ROJO_BR, VEH_ROJO_CI), cuero = vehLaca([0.42, 0.26, 0.15], [0.78, 0.6, 0.46], [0.5, 0.36, 0.28], 0.6), grisM = vehLaca([0.2, 0.2, 0.23], [0.55, 0.55, 0.6], [0.3, 0.3, 0.34], 0.7);
   const ZR = VEH_MOTO.zr, ZF = VEH_MOTO.zf, RY = VEH_RUEDA.r;
@@ -167,6 +168,10 @@ function vehMoto(){
   for (const [a0, a1] of [[-0.42, 0.62], [Math.PI + 0.42, Math.PI - 0.62]]){ const s = Math.sign(a1 - a0), m = 0.05;
     p(vehSup(Cc, -1.2, -0.66, a0 - s * m, a1 + s * m, 14, 12, { off: () => 0.007, pinta: junta }), M.laca);
     p(vehSup(Cc, -1.17, -0.69, a0, a1, 14, 12, { off: () => 0.016, pinta: laca }), M.laca); }
+  // guardabarros de atrás: un arco de laca que abraza la rueda por arriba y por detrás, como en la réplica (antes la rueda quedaba suelta bajo el colín)
+  const arco = (f0, f1, Rc, hw, ht, L) => ({ z0: f0, z1: f1, P: (f, a, v) => { const u = Math.max(0, (f0 + L - f) / L, (f - f1 + L) / L), k = Math.pow(Math.max(0, 1 - u * u), 0.4), c = Math.cos(a), sn = Math.sin(a);
+      const x = hw * k * Math.sign(c) * Math.pow(Math.abs(c), 0.5), r = Rc + ht * k * Math.sign(sn) * Math.pow(Math.abs(sn), 0.5); return v.set(x, RY + r * Math.sin(f), ZR + r * Math.cos(f)); } });
+  p(vehSup(arco(0.45, 3.6, 0.425, 0.21, 0.038, 0.22), 0.45, 3.6, -Math.PI / 2, Math.PI * 1.5, 44, 32, { cos: 0.3, pinta: laca }), M.laca);
   // cajas bajas a los lados de la quilla (los reposapiés), de una pieza que la abraza
   const Cj = vehPieza([[-0.64, 0.07, 0.34, 0.27], [-0.4, 0.06, 0.36, 0.29], [-0.08, 0.08, 0.3, 0.26]], { n: 4, pin: 0.15, A: { L: 0.1, modo: 'centro' }, D: { L: 0.12, modo: 'centro' } });
   p(vehSup(Cj, -0.64, -0.08, -Math.PI / 2, Math.PI * 1.5, 14, 36, { cos: 0.6, pinta: laca }), M.laca);
@@ -194,7 +199,11 @@ function vehMoto(){
       const a = p(new THREE.TorusGeometry(0.072, 0.012, 6, 20), M.negro, 0.285 * s, y, z); a.rotation.y = Math.PI / 2; }
     const pt = p(new THREE.TorusGeometry(0.05, 0.009, 5, 16), M.negro, 0.205 * s, 0.43, -0.12); pt.rotation.y = Math.PI / 2; p(B(0.004, 0.012, 0.09), M.negro, 0.205 * s, 0.43, -0.12);
     // manillar: tetones negros bajo la cúpula
-    vehColorea(p(roundedBoxGeo(0.08, 0.05, 0.13, 0.4), M.mate, 0.15 * s, 0.97, 0.07), grisM); }
+    vehColorea(p(roundedBoxGeo(0.08, 0.05, 0.13, 0.4), M.mate, 0.15 * s, 0.97, 0.07), grisM);
+    // brazo de la rueda de atrás: de la caja del reposapiés al eje, con un tapón rojo y otro cromado encima del buje
+    const brazo = vehSup(VEH_BRAZO, -1.02, -0.5, -Math.PI / 2, Math.PI * 1.5, 16, 20, { pinta: laca }); brazo.translate(0.232 * s, 0, 0); p(brazo, M.laca);
+    vehColorea(p(tapon(s).scale(1.35, 1.35, 1.35), M.laca, 0.262 * s, RY, ZR), vehCupula(VEH_ROJO, VEH_ROJO_BR));
+    vehColorea(p(tapon(s).scale(0.55, 0.55, 0.55), M.cromo, 0.29 * s, RY, ZR), vehCupula([0.62, 0.64, 0.7], [1.25, 1.25, 1.3])); }
   vehColorea(p(roundedBoxGeo(0.2, 0.025, 0.025, 0.4), M.oro, 0, 0.99, 0.13), vehLaca([0.8, 0.6, 0.2], [1.2, 1.1, 0.7], [1, 0.85, 0.5]));
   const cuerpo = new THREE.Group(); mpFusiona(src, cuerpo); piv.add(cuerpo); piv.add(cris);
   // ruedas: neumático gordo y tapacubos rojos abombados (el de delante con pegatinas; el de atrás con botones)
