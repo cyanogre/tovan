@@ -1,3 +1,5 @@
 # Salidas de loom y kiln (se suben los fuentes y lo que se copia a assets/)
 assets/fuentes/**/out/
 node_modules/
+# Modelo de Whisper para partir las voces de Lumen (herramientas/partir-voces.py)
+herramientas/.whisper/

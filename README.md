@@ -192,6 +192,15 @@ El arma «Guitarra eléctrica» del vestidor se toca de verdad (`js/armas/guitar
 
 Los riffs son unas pocas notas transcritas de memoria (las webs de tablaturas están bloqueadas desde el contenedor), así que alguno puede no ser exacto. Si el juego se publica o se vende, mejor cambiar los de canciones con derechos por piezas clásicas, que no tienen.
 
+## La voz de Lumen
+
+Lumen habla de verdad: diálogos, avisos y chascarrillos están doblados con la voz de Sara Martín (ElevenLabs, modelo `eleven_v4`, que entiende etiquetas de emoción como `[sarcastic]`, `[laughs]`, `[whispers]` o `[shouting]`). Cada frase es un mp3 en `assets/audio/lumen/` cuyo nombre sale del texto que se ve en pantalla (`js/audio/voz-lumen.js`). Suena si los efectos están activados; la música baja un poco mientras habla, se para en pausa y se corta al pasar de línea. Las frases sin mp3 siguen con el «bla bla» de antes.
+
+- `assets/fuentes/voces/lumen.json`: cada frase con el prompt con el que se generó.
+- `py -3 herramientas/voces.py` rehace `js/generado/voces.js` (qué frases tienen voz y cuánto duran) y avisa de las que faltan. GitHub lo hace solo al subir mp3 nuevos.
+- Si se cambia el texto de una frase de Lumen, se queda sin voz hasta que se genere otra vez.
+- De momento hay **83 de 261 frases**: se acabaron los créditos gratuitos del mes de ElevenLabs. Las que faltan (unos 16.000 créditos) se generan con `py -3 herramientas/partir-voces.py lotes <carpeta>` (prepara los prompts) y `… partir <lote> <audio>` (corta el audio de cada lote en frases; ver el propio script).
+
 ## Valoración del cliente (premios y castigos)
 
 Cada oleada se puntúa de 1 a 5 estrellas al cerrarse (`js/partida/valoracion.js`, `css/valoracion.css`). Cuenta la vida perdida (más del 8 %, 30 % y 60 % resta una estrella cada umbral), el tiempo frente al tiempo de entrega (10 s + 1,8 s por enemigo; ×1,35 en los mapas grandes; 70 s en las de jefe), el encargo de la oleada (si falla, resta una) y el combo (×25 o más suma una).

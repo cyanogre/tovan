@@ -1,0 +1,34 @@
+# Regenera js/generado/voces.js cuando cambian los mp3 de assets/audio/lumen (la voz de Lumen) o los textos de
+# assets/fuentes/voces, para que nadie tenga que acordarse (ver herramientas/voces.py). Si ya estaba al día, no hace nada.
+name: Voces
+
+on:
+  push:
+    branches: ['**']
+    paths: ['assets/audio/lumen/**', 'assets/fuentes/voces/**', 'herramientas/voces.py', 'js/generado/voces.js']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: voces-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  empaquetar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Medir las voces
+        run: python3 herramientas/voces.py
+      - name: Subir voces.js si ha cambiado
+        run: |
+          git add js/generado/voces.js
+          if git diff --cached --quiet; then echo 'voces.js ya estaba al día.'; exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Regenera js/generado/voces.js a partir de assets/audio/lumen'
+          git push
