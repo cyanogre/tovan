@@ -341,7 +341,7 @@ function tmxPelea(){
   grounded = true; vy = 0; state = 'normal'; player.inv = Math.max(player.inv, 1); TMX.camOk = false; tmxProcesosCrea(); TMX.caraObj = 0.7;
   TMX.fase = 'pelea'; TMX.cd = 2.2; TMX.primero = 'mirada';
   bossE = { type: 'tovanmax', alive: true, hp: 1, maxHp: 1, g: TER.g, isBoss: true, spawnT: 0, bossName: 'TOVAN.EXE' }; bossBox.hidden = false; tmxBarra();
-  barkT = 0; bark(terTactil() ? '¡Rompe los procesos! Cuando su mano barra el hombro, ¡rueda!' : '¡Rompe los procesos! Cuando su mano barra el hombro, ¡rueda con K!'); clearT = 0;
+  lumenTip('tmx_procesos', terTactil() ? '¡Rompe los procesos! Cuando su mano barra el hombro, ¡rueda!' : '¡Rompe los procesos! Cuando su mano barra el hombro, ¡rueda con K!'); clearT = 0;
 }
 
 /* ---------- Final: forzar cierre, se deshace y caemos entre las nubes ---------- */

@@ -284,7 +284,7 @@ const TER_ATQ = {
       if (t > 0.55 && t < 1.55){ const k = (t - 0.55) / 1.0; G.set(lerp(a.o.x, a.d.x, k), Math.sin(Math.PI * k) * 10, lerp(a.o.z, a.d.z, k)); if (!a.sube){ a.sube = true; play('jump'); puffAt(a.o.x, a.o.z, 12, 3); } }
       if (t >= 1.55 && !a.hecho){ a.hecho = true; G.set(a.d.x, 0, a.d.z); terGolpe(a.d.x, a.d.z, 3.6, 14); terImpacto(a.d.x, a.d.z, 3.6); terOnda(a.d.x, a.d.z, 3.2);
         play('boom'); play('terPaso'); play('bossSlam'); flash('#ff2ae0', 0.3); shake = Math.max(shake, 1.0); hitStop = 0.06; }
-      if (t > 2.0 && !a.dijo && !TER.trepa){ a.dijo = true; barkT = 0; bark('¡Ahora! ¡Está de rodillas: agárrate a su pierna!'); } },
+      if (t > 2.0 && !a.dijo && !TER.trepa){ a.dijo = true; lumenTip('ter_rodillas', '¡Ahora! ¡Está de rodillas: agárrate a su pierna!'); } },
     pose(a, R){ const t = a.t; if (t < 0.55) TER_POSES.agacha(R, smooth(t / 0.4)); else if (t < 1.55) TER_POSES.salto(R, Math.min(1, (t - 0.55) / 0.2) * Math.min(1, (1.55 - t) / 0.12 + 0.3));
       else TER_POSES.rodilla(R, Math.min(1, (t - 1.55) / 0.1) * (t > 5.2 ? 1 - smooth((t - 5.2) / 0.8) : 1)); } },
   gatling: { dur: 5.2,
@@ -414,7 +414,7 @@ function terAgarra(c){
   TER.trepa = { ruta: c.ruta, s: c.s, fz: 0 }; if (state === 'charge') chOrb.visible = false;
   state = 'normal'; attackW = 0; staffToBack(); grounded = true; vy = 0; player.kx = player.kz = 0; TER.cae = 0; TER.alza = 0; TER.carga = 0; TER.sacT = Math.max(TER.sacT, 2.8);
   play('colAgarre'); puffAt(hero.position.x, hero.position.z, 4, 0.8, 0x6a3a7a);
-  if (!TER.dijo.trepa){ TER.dijo.trepa = 1; barkT = 0; bark(terTactil() ? '¡Eso! Sube con el joystick. Si tiembla, ¡mantén AGARRA!' : '¡Eso! Sube con W. Si tiembla, ¡mantén K!'); }
+  if (!TER.dijo.trepa){ TER.dijo.trepa = 1; lumenTip('ter_trepa', terTactil() ? '¡Eso! Sube con el joystick. Si tiembla, ¡mantén AGARRA!' : '¡Eso! Sube con W. Si tiembla, ¡mantén K!'); }
 }
 function terSuelta(motivo){
   const T = TER.trepa; if (!T) return; TER.trepa = null; TER.alza = 0; TER.carga = 0; TER.sac = null; colAviso(null); colAgarreEl.hidden = true;
@@ -524,7 +524,7 @@ function terUI(pdt){
     colAgarreEl.hidden = true;
     const c = grounded ? terAgarrable(1.9) : null; terBotonAgarra(!!c);
     if (c) txt = tac ? '<b>Agarra</b> ¡trépale!' : '<b>K</b> ¡agárrate!';
-    else { TER.sueloT += pdt; if (TER.sueloT > 9 && !TER.dijo.pierna){ TER.dijo.pierna = 1; barkT = 0; bark('¡Por detrás! Acércate a su talón y agárrate a la pierna.'); } }
+    else { TER.sueloT += pdt; if (TER.sueloT > 9 && !TER.dijo.pierna){ TER.dijo.pierna = 1; lumenTip('ter_pierna', '¡Por detrás! Acércate a su talón y agárrate a la pierna.'); } }
   }
   terPista(txt);
 }
@@ -651,7 +651,7 @@ function terEmpiezaPelea(){
   grounded = true; vy = 0; state = 'normal'; player.inv = Math.max(player.inv, 1); TER.camOk = false;
   TER.fase = 'pelea'; TER.cd = 1.6; TER.sacT = 5;
   bossE = { type: 'tovanerr', alive: true, hp: 1, maxHp: 1, g: TER.g, isBoss: true, spawnT: 0, bossName: 'TOVAN.EXE' }; bossBox.hidden = false; terBarra();
-  barkT = 0; bark(terTactil() ? '¡Agárrate a su pierna (AGARRA) y apuñala lo que brille (Ataque)!' : '¡Agárrate a su pierna con K y apuñala lo que brille con J!'); clearT = 0;
+  lumenTip('ter_pelea', terTactil() ? '¡Agárrate a su pierna (AGARRA) y apuñala lo que brille (Ataque)!' : '¡Agárrate a su pierna con K y apuñala lo que brille con J!'); clearT = 0;
 }
 
 /* ---------- Final: deja de funcionar, se deshace en cubos y volvemos al mapa ---------- */
@@ -719,7 +719,7 @@ killEnemy = function(e){
 const terPelea = () => TER.on && TER.fase === 'pelea' && gameState === 'play';
 const _doAttackTer = doAttack;
 doAttack = function(...a){ if (terPelea()){ if (TER.trepa){ if (TER.alza <= 0 && TER.punalCd <= 0 && TER.punalT <= 0 && !(TER.sac && TER.sac.t >= TER.sac.aviso)){ TER.alza = 0.001; TER.carga = 0; TER.cargaSon = false; staffToHand(); } return; }
-  const G = TER.g.position; if (Math.hypot(G.x - hero.position.x, G.z - hero.position.z) < 5 && !TER.dijo.cosquillas){ TER.dijo.cosquillas = 1; barkT = 0; bark('¡Desde abajo no le haces ni cosquillas! ¡Trépale!'); } }
+  const G = TER.g.position; if (Math.hypot(G.x - hero.position.x, G.z - hero.position.z) < 5 && !TER.dijo.cosquillas){ TER.dijo.cosquillas = 1; lumenTip('ter_cosquillas', '¡Desde abajo no le haces ni cosquillas! ¡Trépale!'); } }
   return _doAttackTer(...a); };
 const _doRollTer = doRoll;
 doRoll = function(...a){ if (terPelea() && !player.dead){ if (TER.trepa) return; if (grounded && TER.agarreCd <= 0){ const c = terAgarrable(1.9); if (c){ terAgarra(c); return; } } } return _doRollTer(...a); };

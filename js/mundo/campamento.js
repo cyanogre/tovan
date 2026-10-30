@@ -360,11 +360,15 @@ function hubBrillo(k){   // Tovan recién hecho brilla y se apaga
   HERO_MATS.forEach((m, i) => { m.uniforms.uEmissive.value = HUB.brillo[i] + (1 - HUB.brillo[i]) * k; });
 }
 function hubBrilloFin(){ if (!HUB.brillo) return; HERO_MATS.forEach((m, i) => { m.uniforms.uEmissive.value = HUB.brillo[i]; }); HUB.brillo = null; }
+// Lumen: la primera vez explica el campamento; luego, a veces, una frase del momento (js/historia/lumen-frases.js)
+const HUB_EXPLICA = 'Bienvenido al campamento. Aquí te recompongo cuando caes. El armario es tu vestidor, el cristal es el santuario y el arco del norte lleva a las ruinas.';
+function hubLumen(tema){ if (!lumenTip('camp_primera', HUB_EXPLICA)) lumenComenta(tema, tema === 'campRevive' ? 0.85 : 0.6); }
 function hubSalta(){   // se salta la escena: Tovan de pie y a jugar
   if (gameState !== 'hubCine') return;
   for (const f of HUB.frags) f.m.visible = false; hubBrilloFin();
   state = 'normal'; deadT = 0; P.body.rotation.set(0, 0, 0); hero.visible = true; vy = 0; grounded = true; hero.position.y = 0;
-  fadeEl.style.opacity = '0'; HUB.fase = null; HUB.forma = HUB.latido = HUB.brinco = false; HUB.camQuiere = false; gameState = 'play'; play('confirm');
+  const era = HUB.fase; fadeEl.style.opacity = '0'; HUB.fase = null; HUB.forma = HUB.latido = HUB.brinco = false; HUB.camQuiere = false; gameState = 'play'; play('confirm');
+  hubLumen(era === 'revive' ? 'campRevive' : 'campLlega');
 }
 function hubReviveTick(dt){
   const t = HUB.t += dt, F = HUB_REV, t1 = F.frag, t2 = t1 + F.forma, t3 = t2 + F.despierta;
@@ -382,12 +386,12 @@ function hubReviveTick(dt){
   if (t >= t2){ if (state === 'dead'){ state = 'normal'; deadT = 0; }
     const k = clamp((t - t2) / 0.6, 0, 1); P.body.rotation.x = -1.45 * (1 - (1 - Math.pow(1 - k, 3)));
     if (t >= t2 + 0.62 && !HUB.brinco){ HUB.brinco = true; vy = 5.2; grounded = false; play('jump'); } }
-  if (t >= t3){ HUB.forma = HUB.latido = HUB.brinco = false; hubBrilloFin(); P.body.rotation.x = 0; HUB.fase = null; HUB.camQuiere = false; gameState = 'play'; }
+  if (t >= t3){ HUB.forma = HUB.latido = HUB.brinco = false; hubBrilloFin(); P.body.rotation.x = 0; HUB.fase = null; HUB.camQuiere = false; gameState = 'play'; hubLumen('campRevive'); }
 }
 function hubLlegaTick(dt){
   const t = HUB.t += dt; fadeEl.style.opacity = String(clamp(1 - t / 0.6, 0, 1));
   if (t >= 0.15 && !HUB.forma){ HUB.forma = true; ringFx(0, 0, 0x8ff6ff, 0.3, 2.4, 0.5); sparks(0, 0.5, 0, 10, 0x8ff6ff, 2.5); }
-  if (t >= 0.6){ HUB.forma = false; HUB.fase = null; gameState = 'play'; }
+  if (t >= 0.6){ HUB.forma = false; HUB.fase = null; gameState = 'play'; hubLumen('campLlega'); }
 }
 
 /* ---------- Usar los sitios ---------- */

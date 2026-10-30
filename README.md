@@ -194,12 +194,13 @@ Los riffs son unas pocas notas transcritas de memoria (las webs de tablaturas es
 
 ## La voz de Lumen
 
-Lumen habla de verdad: diálogos, avisos y chascarrillos están doblados con la voz de Sara Martín (ElevenLabs, modelo `eleven_v4`, que entiende etiquetas de emoción como `[sarcastic]`, `[laughs]`, `[whispers]` o `[shouting]`). Cada frase es un mp3 en `assets/audio/lumen/` cuyo nombre sale del texto que se ve en pantalla (`js/audio/voz-lumen.js`). Suena si los efectos están activados, con un volumen medido para que quede un poco por encima de la música y los golpes (antes iba a tope y lo tapaba todo); la música baja un poco mientras habla y la voz se para en pausa y sigue al volver. En los diálogos, el texto se escribe al ritmo de la voz, para no cortarla al tocar para seguir. En la web suena por el mismo mezclador que la música (en el móvil ya no depende del permiso de cada audio); abriendo el `index.html` con doble clic, con un audio normal. Las frases sin mp3 siguen con el «bla bla» de antes.
+Lumen habla de verdad: diálogos, avisos y chascarrillos están doblados con la voz de Sara Martín (ElevenLabs, modelo `eleven_v4`, que entiende etiquetas de emoción como `[sarcastic]`, `[laughs]`, `[whispers]` o `[shouting]`). Cada frase es un mp3 en `assets/audio/lumen/` cuyo nombre sale del texto que se ve en pantalla (`js/audio/voz-lumen.js`). Suena si los efectos están activados, con un volumen medido para que quede un poco por encima de la música y los golpes (antes iba a tope y lo tapaba todo); la música baja un poco mientras habla y la voz se para en pausa y sigue al volver. Un comentario nuevo espera a que acabe la frase: ya no la corta al atacar o tocar la pantalla. En los diálogos, el texto se escribe al ritmo de la voz, para no cortarla al tocar para seguir. En la web suena por el mismo mezclador que la música (en el móvil ya no depende del permiso de cada audio); abriendo el `index.html` con doble clic, con un audio normal. Las frases sin mp3 siguen con el «bla bla» de antes.
 
 - `assets/fuentes/voces/lumen.json`: cada frase con el prompt con el que se generó.
 - `py -3 herramientas/voces.py` rehace `js/generado/voces.js` (qué frases tienen voz y cuánto duran) y avisa de las que faltan. GitHub lo hace solo al subir mp3 nuevos.
 - Si se cambia el texto de una frase de Lumen, se queda sin voz hasta que se genere otra vez.
-- De momento hay **83 de 261 frases**: se acabaron los créditos gratuitos del mes de ElevenLabs. Las que faltan (unos 16.000 créditos) se generan con `py -3 herramientas/partir-voces.py lotes <carpeta>` (prepara los prompts) y `… partir <lote> <audio>` (corta el audio de cada lote en frases; ver el propio script).
+- **No se repite:** lo que Lumen explica (el paquete, los puestos, los capitanes, los mapas, cada enemigo, cómo agarrarse al dragón…) lo dice solo la primera vez de todas, no en cada partida. Después, a veces, suelta una frase corta al azar según el momento (al revivir en el campamento, al empezar cada capítulo, con el paquete, los ladrones, los capitanes, los escudos, al salir cada jefe…), sin repetir las últimas. Está en `js/historia/lumen-frases.js`.
+- De momento hay **83 de 348 frases** (las 87 nuevas de los temas aún no tienen voz): se acabaron los créditos gratuitos del mes de ElevenLabs. Las que faltan (unos 16.000 créditos) se generan con `py -3 herramientas/partir-voces.py lotes <carpeta>` (prepara los prompts) y `… partir <lote> <audio>` (corta el audio de cada lote en frases; ver el propio script).
 
 ## Valoración del cliente (premios y castigos)
 
@@ -225,6 +226,10 @@ Entre partida y partida, Tovan está en un campamento en las ruinas (`js/mundo/c
 - **Para jugar**, se cruza el arco del norte.
 - **El decorado crece con lo que desbloqueas**: los sombreros y las caras se ven en un estante con cabezas de maniquí, los efectos y cuerpos son chucherías encima, las armas cuelgan del armero, cada jefe derrotado tiene su busto (los que faltan están tapados con una tela), cada mejora del santuario es un cristal, cada logro una nota en el tablón, cada final un cuadro, cada título un banderín y cada partida una raya de tiza en la pizarra.
 - Hay una hoguera con troncos para sentarse: ahí irán los personajes con los que hablar para avanzar en la historia (lo siguiente).
+
+## Imagen estable
+
+Las texturas ya no se deforman ni tiemblan al mover la cámara (`js/ajustes/imagen-estable.js`). Los dos efectos de la PlayStation 1 que lo hacían, el mapeo afín (en los polígonos grandes, como el suelo de la intro o la esfera de la torre del Guardián, la textura se doblaba) y el temblor de vértices, vienen apagados. Quien quiera el look de antes puede encenderlos en **Opciones → Texturas afines / Temblor de vértices**, y se queda guardado.
 
 ## Sin carteles
 
