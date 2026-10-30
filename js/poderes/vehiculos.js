@@ -226,6 +226,32 @@ function vehMoto(){
   return { g, piv, ruedas, luces };
 }
 
+/* ---------- La moto de luz (Tron: Legacy) ---------- */
+// Carrocería negra brillante de una pieza que tapa la mitad de arriba de las dos ruedas, sillín hundido en medio, morro y cola
+// en punta, una línea de neón por los costados y por encima de los guardabarros, y ruedas sin buje: neumático gordo con dos aros
+// de luz y tres arcos que dejan ver el giro. El neón es un solo material (M.neon): foil-cine-a.js le cambia el color en cada viaje.
+const VEH_TRON = { r: 0.41, y: 0.41, zr: -0.95, zf: 0.95, cola: -1.4 };
+function vehTron(){
+  const T = VEH_TRON, M = { laca: makeMat(0xffffff, { vc: true, emissive: 0.3 }), goma: makeMat(0xffffff, { vc: true, emissive: 0.05 }), neon: makeMat(0x3af0ff, { emissive: 1 }), oscuro: makeMat(0x0a0c12, { emissive: 0.15 }) };
+  const g = new THREE.Group(), src = new THREE.Group(), laca = vehLaca([0.03, 0.035, 0.045], [0.42, 0.5, 0.62], [0.1, 0.12, 0.16]);
+  const C = vehPieza([[-1.42, 0.6, 0.68, 0.05], [-1.22, 0.47, 0.86, 0.15], [-0.95, 0.42, 0.92, 0.2], [-0.62, 0.37, 0.82, 0.19], [-0.3, 0.31, 0.62, 0.16], [0.08, 0.31, 0.6, 0.15],
+    [0.5, 0.37, 0.8, 0.18], [0.95, 0.42, 0.92, 0.2], [1.25, 0.48, 0.82, 0.15], [1.47, 0.57, 0.66, 0.05]], { n: 3.4, pin: 0.25, A: { L: 0.12, modo: 'centro' }, D: { L: 0.14, modo: 'centro' } });
+  mesh(vehSup(C, -1.42, 1.47, -Math.PI / 2, Math.PI * 1.5, 72, 32, { cos: 0.4, pinta: laca }), M.laca, 0, 0, 0, src);
+  for (const [a0, a1] of [[-0.3, -0.17], [Math.PI + 0.17, Math.PI + 0.3]]) mesh(vehSup(C, -1.34, 1.4, a0, a1, 72, 2, { off: () => 0.006 }), M.neon, 0, 0, 0, src);   // la línea de los costados
+  for (const [z0, z1] of [[-1.28, -0.58], [0.52, 1.32]]) mesh(vehSup(C, z0, z1, Math.PI / 2 - 0.06, Math.PI / 2 + 0.06, 24, 1, { off: () => 0.006 }), M.neon, 0, 0, 0, src);   // y la de encima
+  mesh(vehSup(C, 0.3, 0.62, Math.PI / 2 - 0.7, Math.PI / 2 + 0.7, 10, 8, { off: () => 0.004 }), M.oscuro, 0, 0, 0, src);   // el hueco del piloto, delante del sillín
+  const cuerpo = new THREE.Group(); mpFusiona(src, cuerpo); g.add(cuerpo);
+  const goma = new THREE.TorusGeometry(0.31, 0.1, 10, 40); goma.rotateY(Math.PI / 2);
+  const ruedas = [T.zr, T.zf].map(z => { const w = new THREE.Group(), ws = new THREE.Group(); w.position.set(0, T.y, z); g.add(w);
+    vehColorea(mesh(goma, M.goma, 0, 0, 0, ws), vehGoma);
+    for (const s of [-1, 1]){ const a = mesh(new THREE.TorusGeometry(0.255, 0.014, 4, 40), M.neon, 0.085 * s, 0, 0, ws); a.rotation.y = Math.PI / 2;
+      for (let k = 0; k < 3; k++){ const arco = mesh(new THREE.TorusGeometry(0.34, 0.012, 3, 10, 0.9), M.neon, 0.1 * s, 0, 0, ws); arco.rotation.set(k * TAU / 3, Math.PI / 2, 0, 'YXZ'); } }
+    mpFusiona(ws, w); return w; });
+  const cola = new THREE.Object3D(); cola.position.set(0, 0, T.cola); g.add(cola);
+  const luces = [vehLuz(g, 0, 0.64, T.cola - 0.03, 0x3af0ff, 0.55), vehLuz(g, 0, 0.62, 1.5, 0xffffff, 0.6)];
+  return { g, ruedas, M, cola, luces };
+}
+
 /* ---------- Camión-kun ---------- */
 // el camión de cabina japonés: cabina chata blanca con franja azul y cantos redondeados, parabrisas grande con reflejo, rejilla de cromo,
 // faros encendidos, espejos de brazo largo, caja de aluminio ondulado y ruedas con tapacubos. Va todo fundido (las ruedas no giran).

@@ -7,9 +7,13 @@
        sale de ella un DeLorean lanzado que cruza la arena junto a él,
        arrolla lo que pilla y desaparece en un fogonazo dejando dos surcos
        de fuego que siguen quemando.
-     · Moto de luz (Tron) · trn. Al correr, Tovan deja detrás una pared de
-       neón. Si la cierra en un lazo, el suelo de dentro se vuelve una
-       rejilla de luz y lo que haya dentro se desintegra en píxeles.
+     · Moto de luz (Tron) · trn. Si Tovan corre un momento sin parar, la
+       moto de luz se forma a su alrededor (azul o roja, al azar) y deja
+       un muro de neón detrás. Si lo cierra en un lazo, el suelo de dentro
+       se vuelve una rejilla de luz y lo que haya dentro se desintegra en
+       píxeles. Azul: el muro aparta y aturde y el disco vuelve como un
+       bumerán. Roja: el muro quema y el disco rebota de enemigo en
+       enemigo. Rodar = giro seco de 90°.
      · Cazafantasmas · caz. Los golpes cuerpo a cuerpo dejan a los
        enemigos pringados de ectoplasma verde. El remate saca los rayos de
        protones: los atrapa, los arrastra hasta una trampa que se abre con
@@ -95,26 +99,34 @@ foilPoder({ id: 'foilDelorean', ic: '🚗', name: '88 millas por hora', tags: ['
    MOTO DE LUZ (trn)
    ====================================================================== */
 const TRN_N = 200, TRN_VIDA = 4, TRN_ALTO = 0.95;
-const TRN = { pts: [], m: null, geo: null };
+// La moto (vehTron, en js/poderes/vehiculos.js) se forma alrededor de Tovan cuando corre un rato sin parar, como el bastón de las
+// películas, y sale azul o roja al azar: cada color hace cosas distintas (TRN_COL). El muro de luz sale de la cola.
+const TRN_COL = {
+  azul: { c: [0.08, 0.78, 1.0], hex: 0x3af0ff, hex2: 0x1a6aff, css: '#3af0ff' },   // Tron: el muro empuja y aturde; el disco vuelve como un bumerán
+  rojo: { c: [1.0, 0.24, 0.04], hex: 0xff5a1a, hex2: 0xff1a0a, css: '#ff5a1a' }    // Clu: el muro quema; el disco rebota de enemigo en enemigo
+};
+const TRN = { pts: [], m: null, geo: null, F: null, g: null, ruedas: null, M: null, cola: null, luces: null, col: 'azul', muro: 'azul', corre: 0, fin: -99,
+  discoCd: 0, disco: null, discoG: null, giro: null, giroCd: 0, lean: 0, son: null, t0: null };
 const TRN_MURO_VS = 'attribute float aK; attribute float aV; varying float vK; varying float vV; void main(){ vK = aK; vV = aV; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }';
-const TRN_MURO_FS = `uniform float uT; varying float vK; varying float vV;
+const TRN_MURO_FS = `uniform float uT; uniform vec3 uCol; varying float vK; varying float vV;
 void main(){
   float borde = smoothstep(0.86, 1.0, vV) + smoothstep(0.12, 0.0, vV) * 0.6;
   float lineas = 0.55 + 0.45 * step(0.5, fract(vV * 7.0 - uT * 0.6));
   float a = (0.35 * lineas + borde * 1.4) * (1.0 - vK * vK);
-  vec3 c = mix(vec3(0.05, 0.75, 1.0), vec3(0.9, 1.0, 1.0), borde);
+  vec3 c = mix(uCol, vec3(1.0, 1.0, 0.95), borde * 0.85);
   gl_FragColor = vec4(c * a, 1.0);
 }`;
-const TRN_REJILLA_FS = `uniform float uA; varying vec3 vW;
-void main(){ vec2 g = abs(fract(vW.xz * 1.6) - 0.5); float l = smoothstep(0.42, 0.5, max(g.x, g.y)); gl_FragColor = vec4(vec3(0.1, 0.85, 1.0) * (0.15 + l * 1.2) * uA, 1.0); }`;
+const TRN_REJILLA_FS = `uniform float uA; uniform vec3 uCol; varying vec3 vW;
+void main(){ vec2 g = abs(fract(vW.xz * 1.6) - 0.5); float l = smoothstep(0.42, 0.5, max(g.x, g.y)); gl_FragColor = vec4(uCol * (0.15 + l * 1.2) * uA, 1.0); }`;
 const TRN_REJILLA_VS = 'varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }';
+const trnRGB = () => new THREE.Color().fromArray(TRN_COL[TRN.muro].c);
 function trnMalla(){
   if (TRN.m) return TRN.m;
   const g = new THREE.BufferGeometry(), N = TRN_N, idx = [], V = new Float32Array(N * 2);
   g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 6), 3)); g.setAttribute('aK', new THREE.BufferAttribute(new Float32Array(N * 2), 1));
   for (let i = 0; i < N; i++){ V[i * 2] = 0; V[i * 2 + 1] = 1; if (i < N - 1){ const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); } }
   g.setAttribute('aV', new THREE.BufferAttribute(V, 1)); g.setIndex(idx); g.setDrawRange(0, 0);
-  TRN.m = new THREE.Mesh(g, new THREE.ShaderMaterial({ vertexShader: TRN_MURO_VS, fragmentShader: TRN_MURO_FS, uniforms: { uT: shared.uTime }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+  TRN.m = new THREE.Mesh(g, new THREE.ShaderMaterial({ vertexShader: TRN_MURO_VS, fragmentShader: TRN_MURO_FS, uniforms: { uT: shared.uTime, uCol: { value: trnRGB() } }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
   TRN.m.frustumCulled = false; TRN.m.renderOrder = 3; scene.add(TRN.m); TRN.geo = g; return TRN.m;
 }
 function trnPinta(){
@@ -131,46 +143,169 @@ function trnCorta(a, b){
   return null;
 }
 function trnDentro(poly, x, z){ let s = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++){ const a = poly[i], b = poly[j]; if ((a.z > z) !== (b.z > z) && x < (b.x - a.x) * (z - a.z) / (b.z - a.z) + a.x) s = !s; } return s; }
+const trnPixeles = (x, y, z, n) => { const C = TRN_COL[TRN.muro]; burst7(PA7, x, y, z, n, [C.hex, 0xffffff, C.hex2], 5, 0.16, 0.6, -2, 1.4, 0, SH7.sq, 3); };
+// el muro: crece desde la cola mientras se va en moto; si se cierra un lazo, lo de dentro se desintegra
 function trnTick(dt){
-  const H = hero.position, P = TRN.pts;
+  const P = TRN.pts;
   while (P.length && time - P[0].t > TRN_VIDA) P.shift();
-  const ult = P[P.length - 1];
-  if (grounded && H.y < 0.2 && (!ult || Math.hypot(H.x - ult.x, H.z - ult.z) > 0.3)){
-    const nuevo = { x: H.x, z: H.z, t: time }, corte = ult ? trnCorta(ult, nuevo) : null;
-    if (corte){ const poly = [{ x: corte.x, z: corte.z }, ...P.slice(corte.j + 1).map(p => ({ x: p.x, z: p.z }))]; let A = 0;
-      for (let i = 0; i < poly.length; i++){ const a = poly[i], b = poly[(i + 1) % poly.length]; A += a.x * b.z - b.x * a.z; } A = Math.abs(A) / 2;
-      if (A >= 1.6 && poly.length >= 4){ trnDesintegra(poly, A); P.length = 0; } }
-    P.push(nuevo); if (P.length > TRN_N) P.shift();
-    if (dt > 0 && Math.random() < 0.5) pa(H.x, 0.15, H.z, (Math.random() - 0.5), 0.4, (Math.random() - 0.5), 0x5af0ff, 0.12, 0.35, 0, 1, 0, SH7.sq);
-  }
+  if (TRN.F && grounded && hero.position.y < 0.2){ TRN.g.updateMatrixWorld(true); const W = TRN.cola.getWorldPosition(_fW), ult = P[P.length - 1];
+    if (!ult || Math.hypot(W.x - ult.x, W.z - ult.z) > 0.3){
+      const nuevo = { x: W.x, z: W.z, t: time }, corte = ult ? trnCorta(ult, nuevo) : null;
+      if (corte){ const poly = [{ x: corte.x, z: corte.z }, ...P.slice(corte.j + 1).map(p => ({ x: p.x, z: p.z }))]; let A = 0;
+        for (let i = 0; i < poly.length; i++){ const a = poly[i], b = poly[(i + 1) % poly.length]; A += a.x * b.z - b.x * a.z; } A = Math.abs(A) / 2;
+        if (A >= 1.6 && poly.length >= 4){ trnDesintegra(poly, A); P.length = 0; } }
+      P.push(nuevo); if (P.length > TRN_N) P.shift(); } }
   if (P.length > 1 || (TRN.m && TRN.m.visible)) trnPinta();
+  trnMuroToca();
+}
+// lo que toca el muro: el azul lo aparta y lo aturde; el rojo lo quema
+function trnMuroToca(){
+  const P = TRN.pts, n = P.length - 3; if (n < 1) return; const azul = TRN.muro === 'azul';
+  for (const e of enemies){ if (!e.alive || e.spawnT > 0 || e.reach === false || (e.trnT || 0) > time) continue;
+    const x = e.g.position.x, z = e.g.position.z, R = (e.r || 0.5) + 0.15; let best = R, bx = 0, bz = 0;
+    for (let i = 0; i < n; i++){ const a = P[i], b = P[i + 1], vx = b.x - a.x, vz = b.z - a.z, L = vx * vx + vz * vz || 1e-6, k = clamp(((x - a.x) * vx + (z - a.z) * vz) / L, 0, 1), px = a.x + vx * k, pz = a.z + vz * k, d = Math.hypot(x - px, z - pz);
+      if (d < best){ best = d; bx = px; bz = pz; } }
+    if (best >= R) continue; const l = Math.max(0.01, Math.hypot(x - bx, z - bz)), nx = (x - bx) / l, nz = (z - bz) / l;
+    if (azul){ e.trnT = time + 1.3; foilGolpea(e, rdmg(8), nx, nz, 9, 'shock', 1); if (e.alive && !foilJefe(e)) stunE(e, 1.0); }
+    else { e.trnT = time + 0.7; foilGolpea(e, rdmg(24), nx, nz, 3, 'fire', 1); }
+    trnPixeles(x, 0.6, z, 8); play('trnToque'); }
 }
 // el lazo se cierra: el suelo de dentro se vuelve rejilla, las paredes del lazo suben y todo se desintegra
 function trnDesintegra(poly, A){
-  const forma = new THREE.Shape(poly.map(p => new THREE.Vector2(p.x, -p.z))), geo = new THREE.ShapeGeometry(forma); geo.rotateX(-Math.PI / 2); geo.translate(0, 0.05, 0);
-  const suelo = new THREE.Mesh(geo, new THREE.ShaderMaterial({ vertexShader: TRN_REJILLA_VS, fragmentShader: TRN_REJILLA_FS, uniforms: { uA: { value: 0 } }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+  const col = trnRGB(), forma = new THREE.Shape(poly.map(p => new THREE.Vector2(p.x, -p.z))), geo = new THREE.ShapeGeometry(forma); geo.rotateX(-Math.PI / 2); geo.translate(0, 0.05, 0);
+  const suelo = new THREE.Mesh(geo, new THREE.ShaderMaterial({ vertexShader: TRN_REJILLA_VS, fragmentShader: TRN_REJILLA_FS, uniforms: { uA: { value: 0 }, uCol: { value: col } }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
   suelo.renderOrder = 2; scene.add(suelo);
   const pared = new THREE.BufferGeometry(), pos = [], kk = [], vv = [], idx = []; poly.concat([poly[0]]).forEach((p, i) => { pos.push(p.x, 0, p.z, p.x, TRN_ALTO * 1.6, p.z); kk.push(0, 0); vv.push(0, 1); if (i < poly.length){ const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); } });
   pared.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); pared.setAttribute('aK', new THREE.Float32BufferAttribute(kk, 1)); pared.setAttribute('aV', new THREE.Float32BufferAttribute(vv, 1)); pared.setIndex(idx);
-  const muro = new THREE.Mesh(pared, TRN.m.material.clone()); muro.material.uniforms.uT = shared.uTime; muro.renderOrder = 3; muro.frustumCulled = false; scene.add(muro);
+  const muro = new THREE.Mesh(pared, TRN.m.material.clone()); muro.material.uniforms.uT = shared.uTime; muro.material.uniforms.uCol = { value: col }; muro.renderOrder = 3; muro.frustumCulled = false; scene.add(muro);
   let cx = 0, cz = 0; for (const p of poly){ cx += p.x; cz += p.z; } cx /= poly.length; cz /= poly.length; play('trnCierra');
+  const C = TRN_COL[TRN.muro];
   foilFx.push({ t: 0, upd(){ const t = this.t;
       suelo.material.uniforms.uA.value = t < 0.4 ? t / 0.4 : Math.max(0, 1 - (t - 0.4) / 1.2); muro.scale.y = t < 0.4 ? 0.6 + t : Math.max(0.01, 1 - (t - 0.4) * 1.5);
       if (!this.boom && t >= 0.4){ this.boom = true; const dano = rdmg(30 + Math.min(70, A * 4));
         for (const e of enemies){ if (!e.alive || e.spawnT > 0 || e.reach === false || !trnDentro(poly, e.g.position.x, e.g.position.z)) continue; const p = e.g.position, dx = p.x - cx, dz = p.z - cz, l = Math.max(0.01, Math.hypot(dx, dz));
-          foilGolpea(e, dano, dx / l, dz / l, 3, null, 1.5); burst7(PA7, p.x, 1, p.z, 22, [0x5af0ff, 0xffffff, 0x1a8aff], 5, 0.18, 0.7, -2, 1.5, 0, SH7.sq, 3);
-          for (let i = 0; i < 4; i++) streak7(p.x + (Math.random() - 0.5) * 0.8, 0.2, p.z + (Math.random() - 0.5) * 0.8, 0, 1, 0, 2.5, 0x5af0ff, 0.4, 0.05); }
-        flash('#5af0ff', 0.2); shake = Math.max(shake, Math.min(0.7, 0.2 + A * 0.03)); hitStop = Math.max(hitStop, 0.05); ringFx(cx, cz, 0x5af0ff, 0.3, Math.sqrt(A) * 1.2 + 1, 0.45); play('trnDerezz'); }
+          foilGolpea(e, dano, dx / l, dz / l, 3, null, 1.5); burst7(PA7, p.x, 1, p.z, 22, [C.hex, 0xffffff, C.hex2], 5, 0.18, 0.7, -2, 1.5, 0, SH7.sq, 3);
+          for (let i = 0; i < 4; i++) streak7(p.x + (Math.random() - 0.5) * 0.8, 0.2, p.z + (Math.random() - 0.5) * 0.8, 0, 1, 0, 2.5, C.hex, 0.4, 0.05); }
+        flash(C.css, 0.2); shake = Math.max(shake, Math.min(0.7, 0.2 + A * 0.03)); hitStop = Math.max(hitStop, 0.05); ringFx(cx, cz, C.hex, 0.3, Math.sqrt(A) * 1.2 + 1, 0.45); play('trnDerezz'); }
       return t < 1.6; }, fin(){ scene.remove(suelo); scene.remove(muro); geo.dispose(); pared.dispose(); suelo.material.dispose(); muro.material.dispose(); } });
 }
+/* ---------- La montura ---------- */
+function trnConstruye(){ if (TRN.g) return; const v = vehTron(); Object.assign(TRN, { g: v.g, ruedas: v.ruedas, M: v.M, cola: v.cola, luces: v.luces }); v.g.visible = false; scene.add(v.g); }
+function trnInvoca(forzado){   // (forzado: 'azul' | 'rojo', para probarlo desde la consola)
+  if (FOILX.forma || NUCA.m || !grounded || !foilEscenario()) return false;
+  trnConstruye(); const col = forzado || (rnd() < 0.5 ? 'azul' : 'rojo'), C = TRN_COL[col];
+  const F = foilForma({ id: 'trn', nom: col === 'azul' ? 'MOTO DE LUZ' : 'MOTO DE LUZ ROJA', col: C.css, dur: 12, velK: 2.1, alto: 0.03,
+    contacto: { r: 1.25, dmg: () => rdmg(12), cd: 0.6, knock: 7, al: e => trnPixeles(e.g.position.x, 0.8, e.g.position.z, 8) },
+    ataque(){ trnDisco(); }, rodar(){ return trnGiro(); }, tick(dt){ trnMonta(dt); }, pose(){ trnPose(); }, postPose(){ trnPost(); }, fin(m){ trnFin(m); } });
+  if (!F) return false;
+  TRN.F = F; TRN.col = TRN.muro = col; TRN.corre = 0; TRN.pts.length = 0; TRN.giro = null; TRN.giroCd = 0; TRN.discoCd = 0.3; TRN.lean = 0;
+  TRN.M.neon.uniforms.uColor.value.setHex(C.hex); for (const l of TRN.luces.slice(0, 1)) l.material.color.setHex(C.hex); if (TRN.m) TRN.m.material.uniforms.uCol.value = trnRGB();
+  if (state === 'roll'){ state = 'normal'; P.body.rotation.x = 0; P.body.scale.setScalar(1); }
+  TRN.g.visible = true; trnSonido(true); play('trnMonta');
+  const H = hero.position; ringFx(H.x, H.z, C.hex, 0.2, 2.8, 0.45); trnPixeles(H.x, 0.7, H.z, 26); flash(C.css, 0.12);
+  return true;
+}
+// atacar: el disco. Azul: sale recto y vuelve (pega a la ida y a la vuelta). Rojo: va de enemigo en enemigo (hasta 4) y vuelve.
+function trnDiscoMalla(){
+  if (TRN.discoG) return TRN.discoG; const g = new THREE.Group(), M = TRN.M;
+  const aro = mesh(new THREE.TorusGeometry(0.21, 0.035, 4, 24), M.neon, 0, 0, 0, g); aro.rotation.x = Math.PI / 2;
+  mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.03, 20), M.oscuro, 0, 0, 0, g);
+  const nu = mesh(new THREE.TorusGeometry(0.08, 0.018, 3, 14), M.neon, 0, 0.02, 0, g); nu.rotation.x = Math.PI / 2;
+  g.visible = false; scene.add(g); return (TRN.discoG = g);
+}
+function trnDisco(){
+  if (TRN.disco || TRN.discoCd > 0) return; const g = trnDiscoMalla(), H = hero.position, f = hero.rotation.y, azul = TRN.col === 'azul';
+  const fx = { t: 0, pos: new V3(H.x + Math.sin(f) * 0.9, 1.0, H.z + Math.cos(f) * 0.9), dir: new V3(Math.sin(f), 0, Math.cos(f)), vuelta: false, ya: new Set(), golpes: 0, blanco: null,
+    upd(dt){ const p = this.pos; let obj = null, v = azul ? 16 : 20;
+      if (!this.vuelta){
+        if (azul){ if (this.t > 0.45) this.vuelta = true; }
+        else { if (!this.blanco || !this.blanco.alive){ this.blanco = trnSiguiente(p, this.ya, this.golpes ? 8 : 10); if (!this.blanco && (this.golpes || this.t > 0.45)) this.vuelta = true; }
+          if (this.blanco) obj = this.blanco.g.position; } }
+      if (this.vuelta){ obj = hero.position; v = 18; if (this.ya.size && !this.limpio){ this.limpio = true; if (azul) this.ya.clear(); } }
+      if (obj){ this.dir.set(obj.x - p.x, 0, obj.z - p.z); const l = this.dir.length(); if (l > 0.01) this.dir.multiplyScalar(1 / l);
+        if (this.vuelta && l < 0.9) return false; }
+      p.addScaledVector(this.dir, v * dt); p.y = 1.0; g.position.copy(p); g.rotation.y += dt * 22;
+      for (const e of enemies){ if (!e.alive || e.spawnT > 0 || this.ya.has(e)) continue; const dx = e.g.position.x - p.x, dz = e.g.position.z - p.z;
+        if (Math.hypot(dx, dz) < (e.r || 0.5) + 0.45 && foilGolpea(e, rdmg(azul ? 22 : 30), this.dir.x, this.dir.z, 5, null, 1, this.ya)){ trnPixeles(e.g.position.x, 0.9, e.g.position.z, 10); play('trnPing');
+          if (!azul){ this.golpes++; this.blanco = this.golpes < 4 ? trnSiguiente(p, this.ya, 8) : null; if (!this.blanco) this.vuelta = true; } } }
+      if (rnd() < 0.6) pa(p.x, p.y, p.z, 0, 0, 0, TRN_COL[TRN.col].hex, 0.08, 0.25, 0, 1, 0, SH7.sq);
+      return this.t < 3; },
+    fin(){ g.visible = false; if (TRN.disco === fx) TRN.disco = null; } };
+  g.position.copy(fx.pos); g.visible = true; TRN.disco = fx; TRN.discoCd = 0.5; foilFx.push(fx); play('trnDisco');
+}
+function trnSiguiente(p, ya, R){ let best = null, bd = R; for (const e of enemies){ if (!e.alive || e.spawnT > 0 || e.reach === false || ya.has(e)) continue; const d = Math.hypot(e.g.position.x - p.x, e.g.position.z - p.z); if (d < bd){ bd = d; best = e; } } return best; }
+// rodar: el giro seco de 90° de las películas (hacia el lado del joystick): la moto se cruza un instante y el muro hace esquina
+function trnGiro(){
+  if (TRN.giro || TRN.giroCd > 0 || !grounded) return true;
+  const h = hero.rotation.y, da = inputMag > 0.12 ? Math.sin(inputHeading - h) : 0, lado = Math.abs(da) > 0.15 ? Math.sign(da) : (rnd() < 0.5 ? -1 : 1), dir = h + lado * Math.PI / 2;
+  TRN.giro = { t: 0, S: hero.position.clone(), dir, dx: Math.sin(dir), dz: Math.cos(dir), ok: 0 }; TRN.giroCd = 0.45;
+  ringFx(hero.position.x, hero.position.z, TRN_COL[TRN.col].hex, 0.2, 1.6, 0.25); play('trnGiro');
+  return true;
+}
+function trnMonta(dt){
+  const F = TRN.F; if (!F || dt <= 0) return; const H = hero.position;
+  F.alto = 0.03 + 0.2 * (1 - smooth(Math.min(1, F.t / 0.25)));
+  if (TRN.discoCd > 0) TRN.discoCd -= dt; if (TRN.giroCd > 0) TRN.giroCd -= dt;
+  const G = TRN.giro;
+  if (G){ G.t += dt; const T = 0.32, t = Math.min(G.t, T), dd = 4.2 * (t / T - 0.5 * (t / T) ** 2) * 2;
+    if (mpLibre(G.S.x + G.dx * dd, G.S.z + G.dz * dd, 0.4)) G.ok = dd;
+    H.x = G.S.x + G.dx * G.ok; H.z = G.S.z + G.dz * G.ok; heading = hero.rotation.y = G.dir; MOV11.vx = G.dx * 7; MOV11.vz = G.dz * 7;
+    if (G.t >= T) TRN.giro = null; }
+}
+function trnPose(){
+  const F = TRN.F; if (!F) return; const k = Math.min(1, F.t / 0.2);
+  P.hips.position.y = 0.67;
+  for (const [L, s] of [[P.legL, -1], [P.legR, 1]]){ bl(L.hip.rotation, 'x', -1.25, k); bl(L.hip.rotation, 'z', 0.3 * s, k); bl(L.knee.rotation, 'x', 1.5, k); }
+  for (const [A, s] of [[P.armL, -1], [P.armR, 1]]){ bl(A.sh.rotation, 'x', -1.7, k); bl(A.sh.rotation, 'y', 0, k); bl(A.sh.rotation, 'z', 0.15 * s, k); bl(A.el.rotation, 'x', -0.25, k); bl(A.el.rotation, 'z', 0, k); }
+  bl(P.spine.rotation, 'x', 1.0, k); bl(P.spine.rotation, 'y', 0, k); bl(P.neck.rotation, 'x', -0.9, k); bl(P.neck.rotation, 'y', 0, k);   // tumbado, como en la peli
+  P.body.rotation.z = TRN.lean;
+}
+function trnPost(){
+  const F = TRN.F; if (!F) return; const g = TRN.g, H = hero.position, f = hero.rotation.y, sc = hero.scale.x;
+  TRN.lean = lerp(TRN.lean, TRN.giro ? 0 : clamp(MOV11.bank * 2.4, -0.6, 0.6), 0.25);
+  g.position.set(H.x + Math.sin(f) * 0.2 * sc, H.y, H.z + Math.cos(f) * 0.2 * sc); g.rotation.set(0, f, TRN.lean); g.scale.setScalar(sc);
+  const d = TRN.t0 == null ? 0 : clamp(time - TRN.t0, 0, 0.1); TRN.t0 = time; const v = Math.hypot(MOV11.vx, MOV11.vz);
+  for (const w of TRN.ruedas) w.rotation.x += v * d / VEH_TRON.r;
+}
+function trnFin(m){
+  TRN.F = null; TRN.fin = time; TRN.giro = null; trnSonido(false);
+  P.legL.hip.rotation.z = P.legR.hip.rotation.z = 0; P.body.rotation.x = 0; P.body.rotation.z = 0;
+  if (!TRN.g) return; TRN.g.visible = false;
+  if (gameState === 'play'){ const H = hero.position; trnPixeles(H.x, 0.6, H.z, 30); ringFx(H.x, H.z, TRN_COL[TRN.col].hex, 0.4, 2.2, 0.35); play('trnSale'); }
+}
+// el zumbido de la moto: dos osciladores por un paso bajo, más agudo con la velocidad (callado en pausa o sin efectos)
+function trnSonido(on){
+  if (!actx) return;
+  if (on && !TRN.son){ try { const o1 = actx.createOscillator(), o2 = actx.createOscillator(), lp = actx.createBiquadFilter(), g = actx.createGain();
+      o1.type = 'sawtooth'; o2.type = 'triangle'; o1.frequency.value = 140; o2.frequency.value = 210; lp.type = 'lowpass'; lp.frequency.value = 1400; lp.Q.value = 4; g.gain.value = 0;
+      o1.connect(lp); o2.connect(lp); lp.connect(g); g.connect(sfxBus); o1.start(); o2.start(); TRN.son = { o1, o2, lp, g }; } catch (err) {} }
+  else if (!on && TRN.son){ const s = TRN.son; TRN.son = null; try { const t = actx.currentTime; s.g.gain.setTargetAtTime(0, t, 0.08); s.o1.stop(t + 0.5); s.o2.stop(t + 0.5); } catch (err) {} }
+}
+function trnSonidoTick(){
+  const s = TRN.son; if (!s || !actx) return;
+  const t = actx.currentTime, k = clamp(Math.hypot(MOV11.vx, MOV11.vz) / 7, 0, 1.4), on = sfxOn && gameState === 'play', f = 120 + 150 * k + 6 * Math.sin(time * 23);
+  s.o1.frequency.setTargetAtTime(f, t, 0.05); s.o2.frequency.setTargetAtTime(f * 1.5, t, 0.05); s.lp.frequency.setTargetAtTime(900 + 1500 * Math.min(1.4, k), t, 0.08);
+  s.g.gain.setTargetAtTime(on ? 0.02 + 0.018 * Math.min(1, k) : 0, t, 0.06);
+}
+function trnLimpia(){ TRN.pts.length = 0; if (TRN.m) TRN.m.visible = false; trnSonido(false); if (TRN.g && !TRN.F) TRN.g.visible = false; if (TRN.discoG && !TRN.disco) TRN.discoG.visible = false; TRN.corre = 0; }
 Object.assign(SFX, {
   trnCierra: () => { tone({ type: 'sawtooth', f0: 220, f1: 880, dur: 0.38, vol: 0.06, rv: 0.3 }); tone({ type: 'square', f0: 440, f1: 1760, dur: 0.38, vol: 0.03, rv: 0.3 }); },
-  trnDerezz: () => { for (let i = 0; i < 10; i++) tone({ type: 'square', f0: NOTE(96 - i * 3 + (i % 2) * 7), dur: 0.05, vol: 0.04, when: i * 0.03 }); noise({ dur: 0.35, vol: 0.25, f0: 5000, f1: 300, type: 'bandpass', rv: 0.3 }); tone({ type: 'sine', f0: 100, f1: 40, dur: 0.4, vol: 0.35 }); }
+  trnDerezz: () => { for (let i = 0; i < 10; i++) tone({ type: 'square', f0: NOTE(96 - i * 3 + (i % 2) * 7), dur: 0.05, vol: 0.04, when: i * 0.03 }); noise({ dur: 0.35, vol: 0.25, f0: 5000, f1: 300, type: 'bandpass', rv: 0.3 }); tone({ type: 'sine', f0: 100, f1: 40, dur: 0.4, vol: 0.35 }); },
+  trnMonta: () => { for (let i = 0; i < 6; i++) tone({ type: 'square', f0: NOTE(64 + i * 4), dur: 0.06, vol: 0.035, when: i * 0.035 }); tone({ type: 'sawtooth', f0: 90, f1: 300, dur: 0.5, vol: 0.06, rv: 0.3 }); },
+  trnSale: () => { for (let i = 0; i < 6; i++) tone({ type: 'square', f0: NOTE(88 - i * 4), dur: 0.05, vol: 0.03, when: i * 0.03 }); noise({ dur: 0.3, vol: 0.08, f0: 4000, f1: 600, rv: 0.2 }); },
+  trnGiro: () => { tone({ type: 'sawtooth', f0: 520, f1: 260, dur: 0.16, vol: 0.05, rv: 0.2 }); noise({ dur: 0.14, vol: 0.06, f0: 3000, f1: 1200, q: 4 }); },
+  trnDisco: () => { noise({ dur: 0.3, vol: 0.06, f0: 1800, f1: 4200, q: 3, rv: 0.2 }); tone({ type: 'triangle', f0: 880, f1: 1320, dur: 0.2, vol: 0.03 }); },
+  trnPing: () => { tone({ type: 'square', f0: 1760, f1: 2200, dur: 0.06, vol: 0.04, rv: 0.3 }); tone({ type: 'sine', f0: 220, f1: 110, dur: 0.15, vol: 0.12 }); },
+  trnToque: () => { noise({ dur: 0.1, vol: 0.06, f0: 2600, f1: 900, q: 2 }); }
 });
 foilPoder({ id: 'foilTron', ic: '🏍️', name: 'Moto de luz', tags: ['otaku', 'rayo'],
-  desc: 'Al correr dejas detrás una pared de neón. Si la cierras en un lazo alrededor de los enemigos, el suelo de dentro se vuelve una rejilla de luz y lo que haya dentro se desintegra en píxeles: cuanto más grande el lazo, más daño.',
-  tick(dt, jugando){ if (!jugando || !foilEscenario()){ if (!foilEscenario() || !strEnJuego()){ TRN.pts.length = 0; if (TRN.m) TRN.m.visible = false; } return; } if (dt > 0) trnTick(dt); },
-  limpia(){ TRN.pts.length = 0; if (TRN.m) TRN.m.visible = false; } });
+  desc: 'Corre un momento sin parar y la moto de luz se forma a tu alrededor (12 s), azul o roja al azar, dejando un muro de neón detrás. Si cierras un lazo, lo de dentro se desintegra. Azul: el muro aparta y aturde, y el disco (atacar) vuelve como un bumerán. Roja: el muro quema y el disco rebota de enemigo en enemigo. Rodar = giro seco de 90°.',
+  tick(dt, jugando){ if (!jugando || !foilEscenario()){ if (!foilEscenario() || !strEnJuego()){ TRN.pts.length = 0; if (TRN.m) TRN.m.visible = false; } return; }
+    trnSonidoTick(); if (dt <= 0) return;
+    if (!TRN.F){ const corre = grounded && state === 'normal' && inputMag > 0.5 && !FOILX.forma; TRN.corre = corre ? TRN.corre + dt : 0;
+      if (TRN.corre > 1.1 && time - TRN.fin > 7) trnInvoca(); }
+    trnTick(dt); },
+  reset(){ TRN.fin = -99; TRN.corre = 0; }, limpia(){ trnLimpia(); } });
 
 /* ======================================================================
    CAZAFANTASMAS (caz)
