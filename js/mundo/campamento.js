@@ -333,7 +333,7 @@ function hubDesmonta(){
 
 /* ---------- Entrar: revivir (tras caer) o llegar (desde el título) ---------- */
 function hubEntra(modo){
-  toTitle(); titleScr.hidden = true; overScr.hidden = true;
+  initAudio(); toTitle(); titleScr.hidden = true; overScr.hidden = true;   // (desde el título aún no había sonido: lo arrancaba startRun)
   hubMonta(); hubDecora();
   wave = 0; queue.length = 0; clearT = -1; spawnTimer = 999; bossE = null; special = null;
   up = UP0(); taken = {}; tagCnt = {}; setsOn = {}; try { resetOtaku(); } catch (err) {} renderTagChips();
