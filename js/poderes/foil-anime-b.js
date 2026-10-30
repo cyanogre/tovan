@@ -748,26 +748,10 @@ foilPoder({ id: 'foilTaladro', ic: '🌀', name: 'Taladro espiral', tags: ['otak
 const MTO = { ult: -9, fin: -99, F: null, g: null, piv: null, ruedas: null, luces: null, hist: [[], []], cintas: null, carga: null, derrape: null, cd: 0, son: null, yaw: 0, lean: 0, velK: 0 };
 const MTO_LUZ = [0xfff0f0, 0xff1a2a, 0xffffff, 0];
 // la moto (low-poly): carrocería larga y roja, ruedas grandes con llantas que brillan, faro, pilotos y pegatinas; la carrocería, fundida
+// la moto (el modelo está en js/poderes/vehiculos.js): el pivote del caballito va en la rueda de atrás
 function mtoConstruye(){
   if (MTO.g) return;
-  const rojo = makeMat(0xd8141e, { emissive: 0.15 }), negro = makeMat(0x16161c), blanco = makeMat(0xf0f0f4), cromo = makeMat(0x9aa4b4), faro = makeMat(0xfff8e0, { emissive: 1 }),
-    piloto = makeMat(0xff2030, { emissive: 1 }), cristal = makeMat(0x2a3a5a, { emissive: 0.2 }), peg1 = makeMat(0xffd23a, { emissive: 0.3 }), peg2 = makeMat(0x2ad0ff, { emissive: 0.3 }), llanta = makeMat(0xff4a5a, { emissive: 1 });
-  const g = new THREE.Group(), piv = new THREE.Group(), src = new THREE.Group(); g.rotation.order = 'YXZ'; g.add(piv); piv.position.z = -0.78;
-  const p = (geo, mat, x, y, z, rx) => { const m = mesh(geo, mat, x, y, z + 0.78, src); if (rx) m.rotation.x = rx; return m; };   // (coordenadas: +z delante, y = 0 el suelo, desde el centro)
-  p(B(0.42, 0.3, 1.3), rojo, 0, 0.56, -0.05); p(B(0.5, 0.36, 0.62), rojo, 0, 0.7, 0.62, -0.32); p(B(0.4, 0.05, 0.36), cristal, 0, 0.92, 0.72, -0.75);
-  p(B(0.46, 0.3, 0.5), rojo, 0, 0.66, -0.72, 0.28); p(B(0.3, 0.08, 0.62), negro, 0, 0.76, -0.28); p(B(0.44, 0.07, 1.36), blanco, 0, 0.42, -0.02);
-  p(B(0.7, 0.05, 0.05), cromo, 0, 0.92, 0.42); p(B(0.24, 0.12, 0.05), faro, 0, 0.74, 0.95); p(B(0.36, 0.07, 0.05), piloto, 0, 0.74, -0.98);
-  for (const s of [-1, 1]){ p(B(0.012, 0.12, 0.3), peg1, 0.215 * s, 0.6, 0.1); p(B(0.012, 0.08, 0.16), peg2, 0.215 * s, 0.6, -0.25); p(B(0.012, 0.05, 0.22), blanco, 0.256 * s, 0.72, 0.55);
-    p(B(0.05, 0.05, 0.5), cromo, 0.17 * s, 0.32, -0.5); p(B(0.05, 0.5, 0.05), cromo, 0.13 * s, 0.55, 0.78, 0.35); }
-  const cuerpo = new THREE.Group(); mpFusiona(src, cuerpo); piv.add(cuerpo);
-  const tor = new THREE.TorusGeometry(0.25, 0.035, 4, 14);
-  MTO.ruedas = [-0.78, 0.8].map(z => { const w = new THREE.Group(), ws = new THREE.Group(); w.position.set(0, 0.36, z + 0.78); piv.add(w);
-    mesh(C(0.36, 0.36, 0.2, 14), negro, 0, 0, 0, ws).rotation.z = Math.PI / 2;
-    for (const s of [-1, 1]) mesh(tor, llanta, 0.105 * s, 0, 0, ws).rotation.y = Math.PI / 2;
-    for (let i = 0; i < 3; i++) mesh(B(0.2, 0.03, 0.42), cromo, 0, 0, 0, ws).rotation.x = i * Math.PI / 3;
-    mpFusiona(ws, w); return w; });
-  MTO.luces = [-1, 1].map(s => { const o = new THREE.Object3D(); o.position.set(0.14 * s, 0.74, -1.02 + 0.78); piv.add(o); return o; });
-  g.visible = false; scene.add(g); MTO.g = g; MTO.piv = piv;
+  const v = vehMoto(); MTO.g = v.g; MTO.piv = v.piv; MTO.ruedas = v.ruedas; MTO.luces = v.luces; v.g.visible = false; scene.add(v.g);
 }
 // rodar dos veces seguidas (la segunda en menos de 0,5 s) la invoca
 function mtoRodar(){
@@ -780,7 +764,7 @@ function mtoInvoca(){
   if (!grounded || NUCA.m || !foilEscenario()) return false;
   mtoConstruye();
   const F = foilForma({ id: 'mto', nom: 'MOTO ROJA', col: '#ff3a4a', dur: 14, velK: 1.9, alto: 0,
-    contacto: { r: 1.15, dmg: () => rdmg(10 + 16 * Math.min(1, MTO.velK)), cd: 0.55, knock: 7, al: e => sparks(e.g.position.x, 0.8, e.g.position.z, 6, 0xffd060, 4) },
+    contacto: { r: 1.3, dmg: () => rdmg(10 + 16 * Math.min(1, MTO.velK)), cd: 0.55, knock: 7, al: e => sparks(e.g.position.x, 0.8, e.g.position.z, 6, 0xffd060, 4) },
     ataque(){ mtoCaballito(); }, rodar(){ return mtoDerrape(); }, herido(){ if (MTO.derrape) return 'none'; },
     tick(dt){ mtoTick(dt); }, pose(){ mtoPose(); }, postPose(){ mtoPost(); }, fin(m){ MTO.fin = time; mtoFin(m); } });
   if (!F) return false;
@@ -809,7 +793,7 @@ function mtoDerrape(){
 }
 function mtoTick(dt){
   const F = MTO.F; if (!F || dt <= 0) return; const H = hero.position;
-  F.alto = 0.24 * smooth(Math.min(1, F.t / 0.25));   // se sube de un salto
+  F.alto = 0.04 + 0.2 * (1 - smooth(Math.min(1, F.t / 0.25)));   // se sube de un salto y se encaja en el asiento
   MTO.velK = clamp(Math.hypot(MOV11.vx, MOV11.vz) / 6.8, 0, 1.4); if (MTO.cd > 0) MTO.cd -= dt;
   if (F.t < 0.4){ MTO.yaw = 1.3 * (1 - smooth(F.t / 0.4)); mtoChispas(3); if (rnd() < 0.5) puffAt(H.x, H.z, 1, 1.2, 0xc8c0b8); }   // llega derrapando
   const C = MTO.carga;
@@ -829,7 +813,7 @@ function mtoTick(dt){
 }
 // chispas que saltan de la rueda de atrás
 function mtoChispas(n){
-  const f = hero.rotation.y + MTO.yaw, H = hero.position, x = H.x + Math.sin(f) * (0.28 - 0.78), z = H.z + Math.cos(f) * (0.28 - 0.78);
+  const f = hero.rotation.y + MTO.yaw, H = hero.position, x = H.x + Math.sin(f) * (0.28 + VEH_MOTO.zr), z = H.z + Math.cos(f) * (0.28 + VEH_MOTO.zr);
   for (let i = 0; i < n; i++){ const a = f + Math.PI + (rnd() - 0.5) * 1.6, v = 2 + rnd() * 4; spawnFx(x, 0.1, z, Math.sin(a) * v, 1 + rnd() * 2.5, Math.cos(a) * v, rnd() < 0.5 ? 0xffd060 : 0xff8a2a, 0.05, 0.35, 12, 0); }
 }
 function mtoAbanico(D){
@@ -844,9 +828,9 @@ function mtoAbanico(D){
 function mtoPose(){
   const F = MTO.F; if (!F) return; const k = Math.min(1, F.t / 0.2);
   P.hips.position.y = 0.67;
-  for (const [L, s] of [[P.legL, -1], [P.legR, 1]]){ bl(L.hip.rotation, 'x', -1.05, k); bl(L.hip.rotation, 'z', 0.2 * s, k); bl(L.knee.rotation, 'x', 1.55, k); }
-  for (const [A, s] of [[P.armL, -1], [P.armR, 1]]){ bl(A.sh.rotation, 'x', -1.15, k); bl(A.sh.rotation, 'y', 0, k); bl(A.sh.rotation, 'z', 0.12 * s, k); bl(A.el.rotation, 'x', -0.45, k); bl(A.el.rotation, 'z', 0, k); }
-  bl(P.spine.rotation, 'x', 0.55, k); bl(P.spine.rotation, 'y', 0, k); bl(P.neck.rotation, 'x', -0.5, k); bl(P.neck.rotation, 'y', 0, k);
+  for (const [L, s] of [[P.legL, -1], [P.legR, 1]]){ bl(L.hip.rotation, 'x', -1.1, k); bl(L.hip.rotation, 'z', 0.45 * s, k); bl(L.knee.rotation, 'x', 1.3, k); }   // rodillas abiertas contra el carenado
+  for (const [A, s] of [[P.armL, -1], [P.armR, 1]]){ bl(A.sh.rotation, 'x', -1.6, k); bl(A.sh.rotation, 'y', 0, k); bl(A.sh.rotation, 'z', 0.12 * s, k); bl(A.el.rotation, 'x', -0.3, k); bl(A.el.rotation, 'z', 0, k); }
+  bl(P.spine.rotation, 'x', 0.85, k); bl(P.spine.rotation, 'y', 0, k); bl(P.neck.rotation, 'x', -0.75, k); bl(P.neck.rotation, 'y', 0, k);   // tumbado sobre el depósito
   const C = MTO.carga, env = C ? Math.sin(Math.min(1, C.t / 0.45) * Math.PI) : 0;
   P.body.rotation.z = MTO.lean; P.body.rotation.x = -0.4 * env;
 }

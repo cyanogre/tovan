@@ -144,10 +144,7 @@ const RP3 = {
       if (!F.h && F.cam.position.x < e.g.position.x + 1.4){ F.h = true; this.pega(8.5); this.atbE = 0; shake = 0.6; play('slam'); tA.set(e.g.position.x, 4.4, e.g.position.z); spawnNumber(tA, '¡ISEKAI!', 'react', '#ff8ad8'); this.eVuela = 1.2; }
       if (t > 1.6){ scene.remove(F.cam); this.endTurn(); } }
   },
-  camion(){ const g = new THREE.Group(); scene.add(g); const bl = makeMat(0xf2f2f2), rj = makeMat(0xd8322a), ng = makeMat(0x1a1a1e), cr = makeMat(0x1a2440, { emissive: 0.2 });
-    mesh(B(3.2, 2.0, 1.9), bl, 0.6, 1.4, 0, g); mesh(B(3.22, 0.3, 1.92), rj, 0.6, 1.0, 0, g); mesh(B(1.3, 1.5, 1.8), bl, -1.6, 1.15, 0, g); mesh(B(0.1, 0.7, 1.5), cr, -2.26, 1.45, 0, g);
-    for (const x of [-1.6, 0, 1.4]) for (const s of [-1, 1]){ const w = mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.3, 12), ng, x, 0.42, s * 0.95, g); w.rotation.x = Math.PI / 2; }
-    mesh(B(0.12, 0.25, 0.3), makeMat(0xfff4c0, { emissive: 1 }), -2.3, 0.85, 0.6, g); mesh(B(0.12, 0.25, 0.3), makeMat(0xfff4c0, { emissive: 1 }), -2.3, 0.85, -0.6, g); return g; },
+  camion(){ const g = new THREE.Group(), c = truck.clone(); c.visible = true; c.position.set(0, 0, 0); c.scale.setScalar(1); c.rotation.set(0, -Math.PI / 2, 0); g.add(c); scene.add(g); return g; },   // Camión-kun de verdad, de lado hacia -x
   startEnemy(){
     let id; const r = rnd();
     if (this.charge) id = 'ray'; else if (r < 0.38) id = 'selfie'; else if (r < 0.68) id = 'autos'; else if (r < 0.83 && this.buff <= 0) id = 'speech'; else id = 'comb';
