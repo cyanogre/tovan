@@ -147,10 +147,11 @@ function vehMatsMoto(){ if (VEH_MAT) return VEH_MAT;
   const vc = (e, o = {}) => makeMat(0xffffff, Object.assign({ vc: true, emissive: e }, o));
   VEH_MAT = { laca: vc(0.36), cuero: vc(0.18), goma: vc(0.06), cromo: vc(0.5), tapa: vc(0.3), negro: makeMat(0x141418), mate: vc(0.12),
     cristal: new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.42, depthWrite: false, side: THREE.DoubleSide }), canto: makeMat(0xdceaf8, { emissive: 0.7 }), visera: makeMat(0x0c0c10, { emissive: 0.15 }),
-    faro: makeMat(0xfff6dc, { emissive: 1 }), piloto: makeMat(0xff2a34, { emissive: 1 }), oro: vc(0.4),
+    faro: makeMat(0xfff6dc, { emissive: 1 }), neon: makeMat(0x48c8ff, { emissive: 1 }), piloto: makeMat(0xff2a34, { emissive: 1 }), oro: vc(0.4),
     ladoD: vc(0.3, { map: vehPintaLado(true) }), ladoI: vc(0.3, { map: vehPintaLado(false) }), tapaD: vc(0.3, { map: vehPintaTapa(true) }), tapaI: vc(0.3, { map: vehPintaTapa(false) }) };
   return VEH_MAT; }
-const VEH_BRAZO = vehPieza([[-1.02, 0.29, 0.43, 0.03], [-0.86, 0.28, 0.42, 0.033], [-0.64, 0.22, 0.39, 0.036], [-0.5, 0.2, 0.37, 0.034]], { n: 3.2, pin: 0.1, A: { L: 0.07, modo: 'centro' }, D: { L: 0.06, modo: 'centro' } });
+const VEH_BRAZO = vehPieza([[-1.0, 0.25, 0.47, 0.03], [-0.84, 0.24, 0.46, 0.03], [-0.66, 0.2, 0.46, 0.03], [-0.5, 0.17, 0.45, 0.03]], { n: 3.2, pin: 0.1, A: { L: 0.06, modo: 'centro' }, D: { L: 0.06, modo: 'centro' } });
+const VEH_TAPA_T = { r: 0.27, x0: 0.125, x1: 0.215, domo: 0.03 }, VEH_GOMA_T = 1.3;   // la tapa de la rueda de atrás: fija en el brazo, casi tan grande como la rueda (tambor de x0 a x1 y cúpula baja); su neumático es VEH_GOMA_T veces más ancho
 function vehMoto(){
   const M = vehMatsMoto(), laca = vehLaca(VEH_ROJO, VEH_ROJO_BR, VEH_ROJO_CI), cuero = vehLaca([0.42, 0.26, 0.15], [0.78, 0.6, 0.46], [0.5, 0.36, 0.28], 0.6), grisM = vehLaca([0.2, 0.2, 0.23], [0.55, 0.55, 0.6], [0.3, 0.3, 0.34], 0.7);
   const ZR = VEH_MOTO.zr, ZF = VEH_MOTO.zf, RY = VEH_RUEDA.r;
@@ -159,19 +160,19 @@ function vehMoto(){
   // carrocería: carenado delantero en cuña, quilla baja y colín
   const A = vehPieza([[0.02, 0.1, 0.93, 0.25], [0.15, 0.14, 0.935, 0.26], [0.35, 0.3, 0.925, 0.27], [0.55, 0.5, 0.9, 0.27], [0.75, 0.56, 0.87, 0.26], [1.0, 0.56, 0.82, 0.24], [1.24, 0.56, 0.75, 0.21]], { n: 3.6, pin: 0.2, D: { L: 0.26, modo: 'abajo' } });
   const Bq = vehPieza([[-0.62, 0.22, 0.5, 0.18], [-0.48, 0.08, 0.5, 0.2], [-0.2, 0.06, 0.5, 0.2], [0.12, 0.08, 0.52, 0.2]], { n: 3.6, pin: 0.1, A: { L: 0.12, modo: 'centro' } });
-  const Cc = vehPieza([[-1.38, 0.54, 0.7, 0.23], [-1.25, 0.52, 0.78, 0.255], [-1.05, 0.52, 0.85, 0.27], [-0.86, 0.51, 0.9, 0.27], [-0.7, 0.5, 0.92, 0.25], [-0.58, 0.48, 0.88, 0.22]], { n: 4.4, pin: 0.2, A: { L: 0.14, modo: 'centro' }, D: { L: 0.08, modo: 'centro' } });
+  const Cc = vehPieza([[-0.9, 0.8, 0.86, 0.09], [-0.82, 0.75, 0.94, 0.17], [-0.72, 0.7, 1.0, 0.2], [-0.6, 0.66, 1.04, 0.21], [-0.5, 0.5, 1.03, 0.2]], { n: 4.4, pin: 0.2, A: { L: 0.05, modo: 'centro' }, D: { L: 0.05, modo: 'centro' } });   // el colín: alto, detrás del asiento y por delante de la rueda, que va al descubierto por arriba
   p(vehSup(A, 0.02, 1.24, -Math.PI / 2, Math.PI * 1.5, 44, 48, { cos: 0.7, pinta: laca }), M.laca); p(vehTapa(A, 0.02, 48, false, laca), M.laca);
   p(vehSup(Bq, -0.62, 0.12, -Math.PI / 2, Math.PI * 1.5, 24, 40, { cos: 0.5, pinta: laca }), M.laca);
-  p(vehSup(Cc, -1.38, -0.58, -Math.PI / 2, Math.PI * 1.5, 36, 48, { cos: 0.7, pinta: laca }), M.laca);
+  p(vehSup(Cc, -0.9, -0.5, -Math.PI / 2, Math.PI * 1.5, 24, 48, { cos: 0.7, pinta: laca }), M.laca);
+  const hueco = p(new THREE.CylinderGeometry(0.045, 0.045, 0.014, 16), M.negro, 0, 1.035, -0.62); hueco.rotation.x = -0.1;   // el agujero de arriba del colín
+  // los amortiguadores, entre el colín y la quilla
+  for (const s of [-1, 1]){ p(new THREE.CylinderGeometry(0.022, 0.022, 0.3, 8), M.negro, 0.1 * s, 0.56, -0.6);
+    for (let k = 0; k < 4; k++){ const r = p(new THREE.TorusGeometry(0.036, 0.008, 4, 12), M.mate, 0.1 * s, 0.52 + k * 0.04, -0.6); r.rotation.x = Math.PI / 2; vehColorea(r, grisM); } }
   // paneles del colín: una junta oscura y la chapa encima, un poco levantada
   const junta = vehLaca([0.16, 0.01, 0.02], [0.4, 0.2, 0.2], [0.25, 0.08, 0.1], 0.5);
   for (const [a0, a1] of [[-0.42, 0.62], [Math.PI + 0.42, Math.PI - 0.62]]){ const s = Math.sign(a1 - a0), m = 0.05;
-    p(vehSup(Cc, -1.2, -0.66, a0 - s * m, a1 + s * m, 14, 12, { off: () => 0.007, pinta: junta }), M.laca);
-    p(vehSup(Cc, -1.17, -0.69, a0, a1, 14, 12, { off: () => 0.016, pinta: laca }), M.laca); }
-  // guardabarros de atrás: un arco de laca que abraza la rueda por arriba y por detrás, como en la réplica (antes la rueda quedaba suelta bajo el colín)
-  const arco = (f0, f1, Rc, hw, ht, L) => ({ z0: f0, z1: f1, P: (f, a, v) => { const u = Math.max(0, (f0 + L - f) / L, (f - f1 + L) / L), k = Math.pow(Math.max(0, 1 - u * u), 0.4), c = Math.cos(a), sn = Math.sin(a);
-      const x = hw * k * Math.sign(c) * Math.pow(Math.abs(c), 0.5), r = Rc + ht * k * Math.sign(sn) * Math.pow(Math.abs(sn), 0.5); return v.set(x, RY + r * Math.sin(f), ZR + r * Math.cos(f)); } });
-  p(vehSup(arco(0.45, 3.6, 0.425, 0.21, 0.038, 0.22), 0.45, 3.6, -Math.PI / 2, Math.PI * 1.5, 44, 32, { cos: 0.3, pinta: laca }), M.laca);
+    p(vehSup(Cc, -0.76, -0.54, a0 - s * m, a1 + s * m, 10, 12, { off: () => 0.007, pinta: junta }), M.laca);
+    p(vehSup(Cc, -0.74, -0.56, a0, a1, 10, 12, { off: () => 0.016, pinta: laca }), M.laca); }
   // cajas bajas a los lados de la quilla (los reposapiés), de una pieza que la abraza
   const Cj = vehPieza([[-0.64, 0.07, 0.34, 0.27], [-0.4, 0.06, 0.36, 0.29], [-0.08, 0.08, 0.3, 0.26]], { n: 4, pin: 0.15, A: { L: 0.1, modo: 'centro' }, D: { L: 0.12, modo: 'centro' } });
   p(vehSup(Cj, -0.64, -0.08, -Math.PI / 2, Math.PI * 1.5, 14, 36, { cos: 0.6, pinta: laca }), M.laca);
@@ -188,7 +189,7 @@ function vehMoto(){
   p(vehSup(A, 1.07, 1.215, 0.25, Math.PI - 0.25, 8, 20, { off: () => 0.004, pinta: grisM }), M.visera);
   p(vehSup(A, 1.11, 1.19, Math.PI / 2 - 0.75, Math.PI / 2 + 0.75, 4, 12, { off: () => 0.008 }), M.faro);
   // la tira de pilotos, alrededor de la cola
-  for (const [a0, a1] of [[-0.22, 0.22], [Math.PI - 0.22, Math.PI + 0.22]]) p(vehSup(Cc, -1.375, -1.2, a0, a1, 8, 4, { off: () => 0.005 }), M.piloto);
+  for (const [a0, a1] of [[-0.22, 0.22], [Math.PI - 0.22, Math.PI + 0.22]]) p(vehSup(Cc, -0.89, -0.84, a0, a1, 4, 4, { off: () => 0.005 }), M.piloto);
   // asiento marrón con respaldo
   p(vehSup(vehPieza([[-0.46, 0.49, 0.58, 0.15], [-0.25, 0.49, 0.575, 0.155], [-0.02, 0.49, 0.6, 0.15]], { n: 3, pin: 0.15, A: { L: 0.05, modo: 'centro' }, D: { L: 0.06, modo: 'centro' } }), -0.46, -0.02, -Math.PI / 2, Math.PI * 1.5, 12, 24, { pinta: cuero }), M.cuero);
   const resp = p(roundedBoxGeo(0.3, 0.46, 0.1, 0.4), M.cuero, 0, 0.76, -0.5); resp.rotation.x = -0.32; vehColorea(resp, cuero);
@@ -200,28 +201,33 @@ function vehMoto(){
     const pt = p(new THREE.TorusGeometry(0.05, 0.009, 5, 16), M.negro, 0.205 * s, 0.43, -0.12); pt.rotation.y = Math.PI / 2; p(B(0.004, 0.012, 0.09), M.negro, 0.205 * s, 0.43, -0.12);
     // manillar: tetones negros bajo la cúpula
     vehColorea(p(roundedBoxGeo(0.08, 0.05, 0.13, 0.4), M.mate, 0.15 * s, 0.97, 0.07), grisM);
-    // brazo de la rueda de atrás: de la caja del reposapiés al eje, con un tapón rojo y otro cromado encima del buje
-    const brazo = vehSup(VEH_BRAZO, -1.02, -0.5, -Math.PI / 2, Math.PI * 1.5, 16, 20, { pinta: laca }); brazo.translate(0.232 * s, 0, 0); p(brazo, M.laca);
-    vehColorea(p(tapon(s).scale(1.35, 1.35, 1.35), M.laca, 0.262 * s, RY, ZR), vehCupula(VEH_ROJO, VEH_ROJO_BR));
-    vehColorea(p(tapon(s).scale(0.55, 0.55, 0.55), M.cromo, 0.29 * s, RY, ZR), vehCupula([0.62, 0.64, 0.7], [1.25, 1.25, 1.3])); }
+    // brazo de la rueda de atrás: una tabla ancha de la caja del reposapiés a la tapa de la rueda
+    const brazo = vehSup(VEH_BRAZO, -1.0, -0.5, -Math.PI / 2, Math.PI * 1.5, 16, 20, { pinta: laca }); brazo.translate(VEH_TAPA_T.x1 * s, 0, 0); p(brazo, M.laca);
+    p(B(0.004, 0.2, 0.008), M.negro, (VEH_TAPA_T.x1 + 0.031) * s, 0.33, -0.7);
+    // la tapa de atrás no gira: tambor, cúpula baja con el aro de neón y los dos botones
+    const T = VEH_TAPA_T, rs = (T.r * T.r + T.domo * T.domo) / (2 * T.domo), tb = new THREE.CylinderGeometry(T.r, T.r, T.x1 - T.x0, 36, 1, true); tb.rotateZ(Math.PI / 2);
+    vehColorea(p(tb, M.tapa, (T.x0 + T.x1) / 2 * s, RY, ZR), laca);
+    const dm = new THREE.SphereGeometry(rs, 36, 7, 0, TAU, 0, Math.asin(T.r / rs)); dm.rotateZ(-s * Math.PI / 2); dm.translate(s * (T.x1 + T.domo - rs), 0, 0); vehColorea(p(dm, M.tapa, 0, RY, ZR), vehCupula(VEH_ROJO, VEH_ROJO_BR));
+    const ne = p(new THREE.TorusGeometry(T.r + 0.002, 0.011, 5, 40), M.neon, (T.x1 + 0.002) * s, RY, ZR); ne.rotation.y = Math.PI / 2;
+    vehColorea(p(tapon(s).scale(1.15, 1.15, 1.15), M.laca, (T.x1 + T.domo - 0.003) * s, RY + 0.05, ZR + 0.03), vehCupula(VEH_ROJO, VEH_ROJO_BR));
+    vehColorea(p(tapon(s).scale(0.4, 0.4, 0.4), M.laca, (T.x1 + T.domo - 0.008) * s, RY - 0.15, ZR + 0.1), vehCupula(VEH_ROJO, VEH_ROJO_BR)); }
   vehColorea(p(roundedBoxGeo(0.2, 0.025, 0.025, 0.4), M.oro, 0, 0.99, 0.13), vehLaca([0.8, 0.6, 0.2], [1.2, 1.1, 0.7], [1, 0.85, 0.5]));
   const cuerpo = new THREE.Group(); mpFusiona(src, cuerpo); piv.add(cuerpo); piv.add(cris);
-  // ruedas: neumático gordo y tapacubos rojos abombados (el de delante con pegatinas; el de atrás con botones)
+  // ruedas: neumático gordo; la de delante con tapacubos rojos abombados con pegatinas y aro de neón (la tapa de atrás va en el brazo)
   const R = VEH_RUEDA, perfil = [[0.215, -0.125], [0.27, -0.142], [0.318, -0.138], [0.345, -0.118], [0.358, -0.075], [0.362, 0], [0.358, 0.075], [0.345, 0.118], [0.318, 0.138], [0.27, 0.142], [0.215, 0.125]].map(([r, y]) => new THREE.Vector2(r, y * R.ancho / 0.29));
   const goma = new THREE.LatheGeometry(perfil, 36); goma.rotateZ(Math.PI / 2);
   const rs = (R.disco * R.disco + R.domo * R.domo) / (2 * R.domo), th = Math.asin(R.disco / rs), xBase = R.ancho / 2 - 0.035;
   const cupula = (s, extra = 0) => { const q = new THREE.SphereGeometry(rs + extra, 32, 7, 0, TAU, 0, th); q.rotateZ(-s * Math.PI / 2); q.translate(s * (xBase + R.domo - rs), 0, 0); return q; };
   const ruedas = [ZR, ZF].map((z, i) => { const w = new THREE.Group(), ws = new THREE.Group(); w.position.set(0, RY, z - ZR); piv.add(w);
-    vehColorea(mesh(goma, M.goma, 0, 0, 0, ws), vehGoma);
-    for (const s of [-1, 1]){ vehColorea(mesh(cupula(s), M.tapa, 0, 0, 0, ws), vehCupula(VEH_ROJO, VEH_ROJO_BR));
-      const ar = mesh(new THREE.TorusGeometry(R.disco + 0.004, 0.012, 5, 32), M.negro, s * xBase, 0, 0, ws); ar.rotation.y = Math.PI / 2;
-      if (i === 1){ const d = cupula(s, 0.004), pa = d.attributes.position, uv = d.attributes.uv; for (let k = 0; k < pa.count; k++) uv.setXY(k, 0.5 + s * pa.getZ(k) / (2 * R.disco) * -1, 0.5 + pa.getY(k) / (2 * R.disco));
-        vehColorea(mesh(d, s > 0 ? M.tapaD : M.tapaI, 0, 0, 0, ws), vehCupula([1, 1, 1], [1.4, 1.4, 1.4])); }
-      else for (let k = 0; k < 4; k++){ const a = k / 4 * TAU + 0.4, b = mesh(new THREE.SphereGeometry(0.03, 10, 5, 0, TAU, 0, 1.2), M.tapa, s * (xBase + R.domo - 0.012), Math.sin(a) * 0.14, Math.cos(a) * 0.14, ws); b.rotation.z = -s * Math.PI / 2; vehColorea(b, vehCupula(VEH_ROJO, VEH_ROJO_BR)); } }
+    vehColorea(mesh(i ? goma : goma.clone().scale(VEH_GOMA_T, 1, 1), M.goma, 0, 0, 0, ws), vehGoma);
+    if (i === 1) for (const s of [-1, 1]){ vehColorea(mesh(cupula(s), M.tapa, 0, 0, 0, ws), vehCupula(VEH_ROJO, VEH_ROJO_BR));
+      const ar = mesh(new THREE.TorusGeometry(0.214, 0.01, 5, 32), M.neon, s * 0.128, 0, 0, ws); ar.rotation.y = Math.PI / 2;
+      const d = cupula(s, 0.004), pa = d.attributes.position, uv = d.attributes.uv; for (let k = 0; k < pa.count; k++) uv.setXY(k, 0.5 + s * pa.getZ(k) / (2 * R.disco) * -1, 0.5 + pa.getY(k) / (2 * R.disco));
+      vehColorea(mesh(d, s > 0 ? M.tapaD : M.tapaI, 0, 0, 0, ws), vehCupula([1, 1, 1], [1.4, 1.4, 1.4])); }
     mpFusiona(ws, w); return w; });
   vehLuz(piv, 0, 0.66, 1.25 - ZR, 0xfff2c8, 0.9);
-  for (const s of [-1, 1]) vehLuz(piv, 0.15 * s, 0.63, -1.37 - ZR, 0xff3040, 0.35);
-  const luces = [-1, 1].map(s => { const o = new THREE.Object3D(); o.position.set(0.15 * s, 0.63, -1.37 - ZR); piv.add(o); return o; });
+  for (const s of [-1, 1]) vehLuz(piv, 0.11 * s, 0.84, -0.88 - ZR, 0xff3040, 0.35);
+  const luces = [-1, 1].map(s => { const o = new THREE.Object3D(); o.position.set(0.11 * s, 0.84, -0.88 - ZR); piv.add(o); return o; });
   return { g, piv, ruedas, luces };
 }
 
