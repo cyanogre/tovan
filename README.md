@@ -194,7 +194,7 @@ Los riffs son unas pocas notas transcritas de memoria (las webs de tablaturas es
 
 ## La voz de Lumen
 
-Lumen habla de verdad: diálogos, avisos y chascarrillos están doblados con la voz de Sara Martín (ElevenLabs, modelo `eleven_v4`, que entiende etiquetas de emoción como `[sarcastic]`, `[laughs]`, `[whispers]` o `[shouting]`). Cada frase es un mp3 en `assets/audio/lumen/` cuyo nombre sale del texto que se ve en pantalla (`js/audio/voz-lumen.js`). Suena si los efectos están activados; la música baja un poco mientras habla, se para en pausa y se corta al pasar de línea. Las frases sin mp3 siguen con el «bla bla» de antes.
+Lumen habla de verdad: diálogos, avisos y chascarrillos están doblados con la voz de Sara Martín (ElevenLabs, modelo `eleven_v4`, que entiende etiquetas de emoción como `[sarcastic]`, `[laughs]`, `[whispers]` o `[shouting]`). Cada frase es un mp3 en `assets/audio/lumen/` cuyo nombre sale del texto que se ve en pantalla (`js/audio/voz-lumen.js`). Suena si los efectos están activados, con un volumen medido para que quede un poco por encima de la música y los golpes (antes iba a tope y lo tapaba todo); la música baja un poco mientras habla y la voz se para en pausa y sigue al volver. En los diálogos, el texto se escribe al ritmo de la voz, para no cortarla al tocar para seguir. En la web suena por el mismo mezclador que la música (en el móvil ya no depende del permiso de cada audio); abriendo el `index.html` con doble clic, con un audio normal. Las frases sin mp3 siguen con el «bla bla» de antes.
 
 - `assets/fuentes/voces/lumen.json`: cada frase con el prompt con el que se generó.
 - `py -3 herramientas/voces.py` rehace `js/generado/voces.js` (qué frases tienen voz y cuánto duran) y avisa de las que faltan. GitHub lo hace solo al subir mp3 nuevos.
@@ -214,6 +214,17 @@ Cada oleada se puntúa de 1 a 5 estrellas al cerrarse (`js/partida/valoracion.js
 | ★ | Reclamación: una carta menos, −5 ✦ y la oleada siguiente viene con ganas (+20 % de daño y +15 % de vida) |
 
 No puntúan el tutorial, el Castillo Infinito ni la pelea final. La valoración sale en un sello al cerrar la oleada y encima de las cartas.
+
+## El campamento (la zona de inicio)
+
+Entre partida y partida, Tovan está en un campamento en las ruinas (`js/mundo/campamento.js`, `css/campamento.css`), como en los roguelikes de ahora:
+
+- **Al caer**, en la pantalla de fin de partida el botón es **«Revivir»**: Lumen recompone a Tovan con fragmentos de monstruo sobre el altar del centro (los fragmentos vuelan en espiral, destello, Tovan aparece tumbado, brillando, y se levanta de un brinco). Se salta con J, Espacio o tocando la pantalla.
+- **Desde el título**, «Empezar» lleva al campamento. La primera partida de todas (con la introducción) sigue empezando directamente.
+- **Se anda por él** como en la partida. Al acercarse a un sitio sale un aviso pequeño y se usa atacando (J, o el botón de atacar, que en el móvil cambia de nombre): el **armario es el vestidor** (ya no está en los menús; mientras eliges, la cámara enseña a Tovan al lado del panel), el altar del cristal es el **santuario**, el tablón son los **logros** y el caballete los **finales**.
+- **Para jugar**, se cruza el arco del norte.
+- **El decorado crece con lo que desbloqueas**: los sombreros y las caras se ven en un estante con cabezas de maniquí, los efectos y cuerpos son chucherías encima, las armas cuelgan del armero, cada jefe derrotado tiene su busto (los que faltan están tapados con una tela), cada mejora del santuario es un cristal, cada logro una nota en el tablón, cada final un cuadro, cada título un banderín y cada partida una raya de tiza en la pizarra.
+- Hay una hoguera con troncos para sentarse: ahí irán los personajes con los que hablar para avanzar en la historia (lo siguiente).
 
 ## Sin carteles
 
