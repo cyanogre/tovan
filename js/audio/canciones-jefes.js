@@ -1,5 +1,5 @@
 'use strict';
-/* ---------- Canciones de jefes (mp3 en assets/audio/, o cargados desde Opciones) ---------- */
+/* ---------- Canciones de jefes (mp3 en assets/audio/; si falta uno, suena la sintetizada) ---------- */
 const AUDIO_DIR = 'assets/audio/';
 const BOSS_FILES = { boss: 'guardian', dragon: 'ryujin', skeleton: 'gashadokuro', star: 'mister-confianza', teapot: 'tetera', error: 'error404', sixeyes: 'seis-ojos', finalcat: 'epic' };
 const tracks = {};
@@ -31,15 +31,6 @@ function updateTracks(dt){
   if (curTrack) curTrack.a.volume = musOn ? (gameState === 'paused' ? 0.25 : 0.85) : 0;
   if (fadeTrack){ fadeT -= dt; fadeTrack.a.volume = Math.max(0, fadeT / 1.5) * (musOn ? 0.85 : 0); if (fadeT <= 0){ try { fadeTrack.a.pause(); } catch (err) {} fadeTrack = null; } }
 }
-const tracksOk = () => Object.values(BOSS_FILES).filter(n => tracks[n] && tracks[n].ok).length;
-const trackInput = document.createElement('input'); trackInput.type = 'file'; trackInput.accept = 'audio/*'; trackInput.multiple = true; trackInput.style.display = 'none'; document.body.appendChild(trackInput);
-trackInput.addEventListener('change', () => {
-  const names = Object.values(BOSS_FILES), used = [];
-  for (const f of trackInput.files || []){ const base = f.name.toLowerCase().replace(/\.[a-z0-9]+$/, '');
-    if (!names.includes(base)) continue; const t = track(base); t.a.src = URL.createObjectURL(f); t.ok = true; t.label = f.name; used.push(f.name); }
-  banner(used.length ? `Canciones cargadas: ${used.length}<small>${used.join(', ')}</small>` : 'Ningún archivo coincide<small>Revisa los nombres en Opciones</small>', 1.8);
-  trackInput.value = ''; refreshMenu();
-});
 // compatibilidad con el código del jefe final
 const startEpic = () => playBossTrack('finalcat', 'finalboss');
 const stopEpic = () => stopBossTrack(false);

@@ -11,7 +11,6 @@ const options = [
   { label: 'Líneas CRT',          get: () => yn(scanOn),               act: () => { scanOn = !scanOn; scanEl.style.display = scanOn ? '' : 'none'; } },
   { label: 'Música',              get: () => yn(musOn),                act: () => { musOn = !musOn; saveAudio(); initAudio(); applyMusVol(); } },
   { label: 'Efectos de sonido',   get: () => yn(sfxOn),                act: () => { sfxOn = !sfxOn; saveAudio(); initAudio(); applyMusVol(); } },
-  { label: 'Canciones de jefes',  get: () => { const n = tracksOk(); return n >= 8 ? '8/8 mp3' : n ? `${n} mp3 + propias` : 'Propias'; },  act: () => trackInput.click() },
   { label: 'Borrar datos',        get: () => '⚠',                      act: () => askWipe() }
 ];
 const list = document.getElementById('menuList');
